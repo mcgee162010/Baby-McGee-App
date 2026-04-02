@@ -1,86 +1,430 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baby McGee App</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon-192.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Baby McGee">
-    <meta name="theme-color" content="#667eea">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Baby McGee">
+<title>Baby McGee Journal</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.svg">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🍼 Baby McGee App</h1>
-            <p>Private data logging for Baby McGee</p>
-        </header>
 
-        <main>
-            <div class="auth-section" id="authSection">
-                <h2>Access Required</h2>
-                <p>Please enter the access code to continue:</p>
-                <input type="password" id="accessCode" placeholder="Enter access code">
-                <button onclick="authenticate()">Access App</button>
-                <div id="authError" class="error-message"></div>
-            </div>
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loading-overlay">
+  <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+    <ellipse cx="30" cy="42" rx="18" ry="12" fill="#d4c4a8" opacity="0.4"/>
+    <ellipse cx="30" cy="28" rx="12" ry="14" fill="#c8b090"/>
+    <circle cx="30" cy="18" r="9" fill="#c8b090"/>
+    <ellipse cx="24" cy="11" rx="3" ry="5" fill="#c8b090" transform="rotate(-15 24 11)"/>
+    <ellipse cx="36" cy="11" rx="3" ry="5" fill="#c8b090" transform="rotate(15 36 11)"/>
+    <circle cx="27" cy="18" r="1.5" fill="#5c3a1e"/>
+    <circle cx="33" cy="18" r="1.5" fill="#5c3a1e"/>
+    <ellipse cx="22" cy="37" rx="5" ry="10" fill="#c8b090" transform="rotate(-10 22 37)"/>
+    <ellipse cx="38" cy="37" rx="5" ry="10" fill="#c8b090" transform="rotate(10 38 37)"/>
+    <circle cx="28" cy="30" r="2" fill="#e8d4b8" opacity="0.7"/>
+    <circle cx="33" cy="33" r="1.5" fill="#e8d4b8" opacity="0.7"/>
+    <circle cx="27" cy="36" r="1.5" fill="#e8d4b8" opacity="0.7"/>
+  </svg>
+  <div class="loading-spinner"></div>
+  <div class="loading-text" id="loading-text">Loading Baby McGee Journal...</div>
+  <button class="loading-tap-btn" id="loading-tap-btn" style="display:none" onclick="forceLoad()">Tap to Load</button>
+</div>
 
-            <div class="app-content" id="appContent" style="display: none;">
-                <div class="data-entry">
-                    <h2>Log New Entry</h2>
-                    <form id="dataForm">
-                        <div class="form-group">
-                            <label for="timestamp">Date & Time:</label>
-                            <input type="datetime-local" id="timestamp" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="category">Category:</label>
-                            <select id="category" required>
-                                <option value="">Select category...</option>
-                                <option value="feeding">🍼 Feeding</option>
-                                <option value="diaper">👶 Diaper Change</option>
-                                <option value="sleep">😴 Sleep</option>
-                                <option value="milestone">🎉 Milestone</option>
-                                <option value="health">🏥 Health</option>
-                                <option value="other">📝 Other</option>
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="notes">Notes:</label>
-                            <textarea id="notes" rows="3" placeholder="Add any additional notes..."></textarea>
-                        </div>
-                        
-                        <button type="submit">Log Entry</button>
-                    </form>
-                </div>
+<!-- Nature background -->
+<div class="bg-canvas">
+  <div class="bg-base"></div>
+  <svg style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0.12" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <!-- Fawn 1 top right -->
+    <g transform="translate(300,80) scale(0.7)">
+      <ellipse cx="20" cy="35" rx="14" ry="18" fill="#8b6040"/>
+      <circle cx="20" cy="14" r="10" fill="#8b6040"/>
+      <ellipse cx="14" cy="7" rx="3" ry="6" fill="#8b6040" transform="rotate(-15 14 7)"/>
+      <ellipse cx="26" cy="7" rx="3" ry="6" fill="#8b6040" transform="rotate(15 26 7)"/>
+      <ellipse cx="12" cy="48" rx="4" ry="9" fill="#8b6040" transform="rotate(-8 12 48)"/>
+      <ellipse cx="28" cy="48" rx="4" ry="9" fill="#8b6040" transform="rotate(8 28 48)"/>
+      <circle cx="17" cy="14" r="1.5" fill="#3a200a"/>
+      <circle cx="23" cy="14" r="1.5" fill="#3a200a"/>
+      <circle cx="18" cy="28" r="2.5" fill="#d4b88a" opacity="0.6"/>
+      <circle cx="24" cy="32" r="2" fill="#d4b88a" opacity="0.6"/>
+    </g>
+    <!-- Bunny left middle -->
+    <g transform="translate(20,200) scale(0.6)">
+      <ellipse cx="18" cy="32" rx="13" ry="16" fill="#a89070"/>
+      <circle cx="18" cy="14" r="9" fill="#a89070"/>
+      <ellipse cx="13" cy="4" rx="2.5" ry="8" fill="#a89070" transform="rotate(-8 13 4)"/>
+      <ellipse cx="23" cy="4" rx="2.5" ry="8" fill="#a89070" transform="rotate(8 23 4)"/>
+      <ellipse cx="10" cy="42" rx="4" ry="8" fill="#a89070" transform="rotate(-5 10 42)"/>
+      <ellipse cx="26" cy="42" rx="4" ry="8" fill="#a89070" transform="rotate(5 26 42)"/>
+      <circle cx="22" cy="44" r="6" fill="#c4a888" opacity="0.5"/>
+      <circle cx="15" cy="14" r="1.5" fill="#3a200a"/>
+      <circle cx="21" cy="14" r="1.5" fill="#3a200a"/>
+    </g>
+    <!-- Mushrooms bottom left -->
+    <g transform="translate(15,680) scale(0.8)">
+      <ellipse cx="18" cy="22" rx="18" ry="10" fill="#c46070" opacity="0.8"/>
+      <rect x="14" y="22" width="8" height="16" rx="3" fill="#e8d4b8" opacity="0.8"/>
+      <circle cx="12" cy="16" r="2" fill="#fff" opacity="0.6"/>
+      <circle cx="20" cy="13" r="2.5" fill="#fff" opacity="0.6"/>
+      <circle cx="26" cy="18" r="2" fill="#fff" opacity="0.6"/>
+    </g>
+    <!-- Butterfly top left -->
+    <g transform="translate(30,100) scale(0.9)">
+      <ellipse cx="8" cy="10" rx="8" ry="12" fill="#6aab62" opacity="0.7" transform="rotate(-20 8 10)"/>
+      <ellipse cx="22" cy="10" rx="8" ry="12" fill="#6aab62" opacity="0.7" transform="rotate(20 22 10)"/>
+      <ellipse cx="10" cy="18" rx="5" ry="7" fill="#4a8c42" opacity="0.5" transform="rotate(-20 10 18)"/>
+      <ellipse cx="20" cy="18" rx="5" ry="7" fill="#4a8c42" opacity="0.5" transform="rotate(20 20 18)"/>
+      <rect x="14" y="6" width="2" height="20" rx="1" fill="#3a200a" opacity="0.6"/>
+    </g>
+    <!-- Leaves scattered -->
+    <ellipse cx="80" cy="350" rx="12" ry="6" fill="#6aab62" opacity="0.3" transform="rotate(30 80 350)"/>
+    <ellipse cx="360" cy="400" rx="10" ry="5" fill="#6aab62" opacity="0.25" transform="rotate(-20 360 400)"/>
+    <ellipse cx="50" cy="550" rx="9" ry="4" fill="#8b6040" opacity="0.2" transform="rotate(45 50 550)"/>
+    <ellipse cx="340" cy="280" rx="11" ry="5" fill="#6aab62" opacity="0.2" transform="rotate(-35 340 280)"/>
+  </svg>
+</div>
 
-                <div class="data-display">
-                    <h2>Recent Entries</h2>
-                    <div class="filter-controls">
-                        <select id="filterCategory">
-                            <option value="">All categories</option>
-                            <option value="feeding">🍼 Feeding</option>
-                            <option value="diaper">👶 Diaper Change</option>
-                            <option value="sleep">😴 Sleep</option>
-                            <option value="milestone">🎉 Milestone</option>
-                            <option value="health">🏥 Health</option>
-                            <option value="other">📝 Other</option>
-                        </select>
-                        <button onclick="exportData()">Export Data</button>
-                    </div>
-                    <div id="entriesList" class="entries-list">
-                        <!-- Entries will be populated here -->
-                    </div>
-                </div>
-            </div>
-        </main>
+<div class="content-wrap">
+
+<div class="header">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start">
+    <div>
+      <div class="app-name">🌿 Baby McGee Journal</div>
+      <div class="due-tag">Due September 4, 2026 · Brittney McGee</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+      <button class="header-sync-btn" id="header-sync-btn" onclick="manualSync()">
+        <span class="sync-icon" id="sync-icon">↻</span> Sync
+      </button>
+      <div class="save-badge" id="save-badge">✓ Saved</div>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat"><span class="stat-num" id="stat-weeks">--</span><span class="stat-sub">pregnant</span></div>
+    <div class="stat"><span class="stat-num" id="stat-days">--</span><span class="stat-sub">days left</span></div>
+    <div class="stat"><span class="stat-num" id="stat-tri">--</span><span class="stat-sub">trimester</span></div>
+  </div>
+</div>
+
+<div class="nav-wrap">
+  <button class="nav-btn active" onclick="switchTab('today',this)">Daily Log</button>
+  <button class="nav-btn" onclick="switchTab('bp',this)">Blood Pressure</button>
+  <button class="nav-btn" onclick="switchTab('monthly',this)">Monthly</button>
+  <button class="nav-btn" onclick="switchTab('payment',this)">Payments</button>
+  <button class="nav-btn" onclick="switchTab('calendar',this)">Calendar</button>
+  <button class="nav-btn" onclick="switchTab('questions',this)">Midwife Q</button>
+  <button class="nav-btn" onclick="switchTab('stats',this)">Statistics</button>
+  <button class="nav-btn" onclick="switchTab('settings',this)">⚙ Setup</button>
+</div>
+
+<div class="body">
+
+<!-- ═══ DAILY LOG ═══ -->
+<div id="tab-today">
+  <div class="date-bar">
+    <div class="date-label-wrap">
+      <span class="date-text" id="date-label-today">Today</span>
+      <span style="font-size:11px;color:#8b7b72;font-family:sans-serif">▼</span>
+      <input type="date" class="date-picker-hidden" id="date-picker-today" oninput="jumpToDate(this.value)">
+    </div>
+    <div class="date-nav">
+      <button class="arrow-btn" onclick="changeDay(-1)">←</button>
+      <button class="arrow-btn" id="btn-today" onclick="changeDay(0)" style="display:none">Today</button>
+      <button class="arrow-btn" onclick="changeDay(1)">→</button>
+    </div>
+  </div>
+
+  <!-- Week progress summary -->
+  <div class="week-card" id="week-summary-card">
+    <div class="week-card-title">This week's progress <span style="font-weight:400;font-size:10px;color:#9b8880;text-transform:none;letter-spacing:0">(Mon → today)</span></div>
+
+    <!-- Per-medication rows -->
+    <div style="font-size:10px;font-family:sans-serif;color:#8b7b72;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Medications taken this week</div>
+    <div class="week-row">
+      <div class="week-row-label"><span>Baby Aspirin</span><span class="week-row-pct" id="wk-med-aspirin-pct">--</span></div>
+      <div class="prog-wrap" style="height:5px;margin-bottom:4px"><div class="prog-fill green" id="wk-med-aspirin-bar" style="width:0%"></div></div>
+    </div>
+    <div class="week-row">
+      <div class="week-row-label"><span>Thorne Prenatal</span><span class="week-row-pct" id="wk-med-prenatal-pct">--</span></div>
+      <div class="prog-wrap" style="height:5px;margin-bottom:4px"><div class="prog-fill green" id="wk-med-prenatal-bar" style="width:0%"></div></div>
+    </div>
+    <div class="week-row">
+      <div class="week-row-label"><span>Vitamin D3</span><span class="week-row-pct" id="wk-med-vitd-pct">--</span></div>
+      <div class="prog-wrap" style="height:5px;margin-bottom:4px"><div class="prog-fill green" id="wk-med-vitd-bar" style="width:0%"></div></div>
+    </div>
+    <div class="week-row">
+      <div class="week-row-label"><span>Fish Oil</span><span class="week-row-pct" id="wk-med-fishoil-pct">--</span></div>
+      <div class="prog-wrap" style="height:5px;margin-bottom:4px"><div class="prog-fill green" id="wk-med-fishoil-bar" style="width:0%"></div></div>
+    </div>
+    <div class="week-row">
+      <div class="week-row-label"><span>Lemon Balm</span><span class="week-row-pct" id="wk-med-lemonbalm-pct">--</span></div>
+      <div class="prog-wrap" style="height:5px;margin-bottom:4px"><div class="prog-fill green" id="wk-med-lemonbalm-bar" style="width:0%"></div></div>
+    </div>
+    <div class="week-row">
+      <div class="week-row-label"><span>Magnesium</span><span class="week-row-pct" id="wk-med-magnesium-pct">--</span></div>
+      <div class="prog-wrap" style="height:5px;margin-bottom:10px"><div class="prog-fill green" id="wk-med-magnesium-bar" style="width:0%"></div></div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Other weekly metrics -->
+    <div style="font-size:10px;font-family:sans-serif;color:#8b7b72;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Other goals</div>
+    <div class="week-row">
+      <div class="week-row-label"><span>Exercise sessions</span><span class="week-row-pct" id="wk-ex-pct">--</span></div>
+      <div class="prog-wrap" style="height:5px;margin-bottom:4px"><div class="prog-fill teal" id="wk-ex-bar" style="width:0%"></div></div>
+    </div>
+    <div class="week-row">
+      <div class="week-row-label"><span>Protein goal (60g+)</span><span class="week-row-pct" id="wk-prot-pct">--</span></div>
+      <div class="prog-wrap" style="height:5px;margin-bottom:4px"><div class="prog-fill amber" id="wk-prot-bar" style="width:0%"></div></div>
+    </div>
+    <div class="week-row">
+      <div class="week-row-label"><span>Hydration (Buoy taken)</span><span class="week-row-pct" id="wk-buoy-pct">--</span></div>
+      <div class="prog-wrap" style="height:5px;margin-bottom:0"><div class="prog-fill blue" id="wk-buoy-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- Daily medication progress -->
+  <div class="prog-label" id="prog-label">0 of 6 medications taken</div>
+  <div class="prog-wrap"><div class="prog-fill green" id="prog-fill" style="width:0%"></div></div>
+  <div style="display:flex;gap:12px;font-size:10px;font-family:sans-serif;color:#9b8880;margin-bottom:0.75rem;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:50%;background:#6aab62"></div>Taken</div>
+    <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:50%;background:#c46070"></div>Did not take — tap ✕</div>
+    <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(180,160,140,0.5)"></div>Not logged</div>
+  </div>
+
+  <!-- Star rating -->
+  <div class="section-title">How is Brittney feeling today?</div>
+  <div class="card">
+    <div class="star-row" id="star-row">
+      <button class="star" onclick="setRating(1)" id="star-1">★</button>
+      <button class="star" onclick="setRating(2)" id="star-2">★</button>
+      <button class="star" onclick="setRating(3)" id="star-3">★</button>
+      <button class="star" onclick="setRating(4)" id="star-4">★</button>
+      <button class="star" onclick="setRating(5)" id="star-5">★</button>
+    </div>
+    <div class="star-label" id="star-label">Tap to rate your day</div>
+  </div>
+
+  <!-- Medications -->
+  <div class="section-title">Morning — with food</div>
+  <div class="med-row" id="row-aspirin" onclick="toggleMed('aspirin')">
+    <div class="circle">
+      <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </div>
+    <div style="flex:1"><div class="med-name">Baby Aspirin <span class="tag t-green">Preeclampsia</span></div><div class="med-dose">81mg enteric-coated</div><div class="med-note">Take with food. Started week 13. Do not crush.</div></div>
+    <button class="med-skip-btn" onclick="skipMed(event,'aspirin')" title="Mark as not taken">✕</button>
+  </div>
+  <div class="med-row" id="row-prenatal" onclick="toggleMed('prenatal')">
+    <div class="circle">
+      <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </div>
+    <div style="flex:1"><div class="med-name">Thorne Basic Prenatal <span class="tag t-blue">Prenatal</span></div><div class="med-dose">3 capsules — full serving</div><div class="med-note">Methylfolate, choline, iron, Vitamin D, B vitamins.</div></div>
+    <button class="med-skip-btn" onclick="skipMed(event,'prenatal')" title="Mark as not taken">✕</button>
+  </div>
+
+  <!-- Hypnobabies -->
+  <div class="section-title">Hypnobabies Coursework</div>
+  <div class="card">
+    <div class="card-title">Completed Hypnobabies today?</div>
+    <div class="hyp-row">
+      <button class="hyp-btn" id="hyp-yes" onclick="setHypno('yes')">✓ Yes</button>
+      <button class="hyp-btn" id="hyp-no" onclick="setHypno('no')">✕ Not today</button>
+      <button class="hyp-btn" id="hyp-ns" onclick="setHypno('notstarted')">● Not started</button>
+    </div>
+  </div>
+
+  <!-- Steps -->
+  <div class="section-title">Movement — Daily Steps</div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+      <div style="font-size:22px;color:#2a8a70;font-family:'Georgia',serif" id="steps-display">0</div>
+      <input class="field-input" type="number" id="steps-input" placeholder="Enter steps" style="width:120px;font-size:15px;text-align:right" oninput="debouncedSave('steps')">
+    </div>
+    <div class="steps-bar-wrap"><div class="steps-bar-fill" id="steps-bar" style="width:0%"></div></div>
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:#9b8880;font-family:sans-serif">
+      <span id="steps-pct-label">0% of 10,000 goal</span>
+      <span>Check iPhone Health app</span>
+    </div>
+  </div>
+
+  <!-- Symptoms -->
+  <div class="section-title">Symptoms & Notes</div>
+  <div class="card">
+    <textarea class="textarea" id="notes-input" rows="4" placeholder="Headaches · Swelling · Dizziness · Energy · Fetal movement · POTS symptoms · Mood · Anything notable..." oninput="debouncedSave('notes')"></textarea>
+  </div>
+</div>
+
+<!-- ═══ BLOOD PRESSURE ═══ -->
+<div id="tab-bp" class="hidden">
+  <div class="date-bar">
+    <div class="date-label-wrap">
+      <span class="date-text" id="date-label-bp">Today</span>
+      <span style="font-size:11px;color:#8b7b72;font-family:sans-serif">▼</span>
+      <input type="date" class="date-picker-hidden" oninput="jumpToDate(this.value)">
+    </div>
+    <div class="date-nav">
+      <button class="arrow-btn" onclick="changeDay(-1)">←</button>
+      <button class="arrow-btn" id="btn-today-bp" onclick="changeDay(0)" style="display:none">Today</button>
+      <button class="arrow-btn" onclick="changeDay(1)">→</button>
+    </div>
+  </div>
+  <div class="card alert-card">
+    <div style="font-size:11px;font-family:sans-serif;color:#8b5a42;line-height:1.6">Sit quietly 5 min · Feet flat · Arm at heart level<br><strong>Alert: ≥140 systolic OR ≥90 diastolic → Contact midwife immediately</strong></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Log a reading</div>
+    <div class="row3">
+      <div><label class="field-label">Systolic</label><input class="field-input" type="number" id="bp-sys" placeholder="118"></div>
+      <div><label class="field-label">Diastolic</label><input class="field-input" type="number" id="bp-dia" placeholder="76"></div>
+      <div><label class="field-label">Pulse</label><input class="field-input" type="number" id="bp-pul" placeholder="80"></div>
+    </div>
+    <button class="log-btn" onclick="logBP()">Add Reading</button>
+  </div>
+  <div class="card" id="bp-history-card" style="display:none">
+    <div class="card-title">Readings this day — <span style="font-weight:400;color:#9b8880">tap × to delete</span></div>
+    <div id="bp-history"></div>
+  </div>
+  <div class="section-title">POTS Reminders</div>
+  <div class="card pots-card">
+    Rise slowly from sitting or lying down<br>
+    Wear compression stockings (confirm with midwife)<br>
+    Stay well hydrated — Buoy electrolytes daily<br>
+    Avoid prolonged standing · Lie on left side when resting<br>
+    Alert midwife of any fainting or syncopal episodes<br>
+    <strong style="color:#3d2060">⚠ Inform anesthesia team of cardiac history before delivery</strong>
+  </div>
+</div>
+
+<!-- ═══ MONTHLY ═══ -->
+<div id="tab-monthly" class="hidden">
+  <div class="card alert-card">
+    <div style="font-size:12px;font-family:sans-serif;color:#6b3a28;line-height:1.6">Monthly tasks for <strong id="month-label"></strong>. Tap to mark complete.</div>
+  </div>
+  <div class="section-title">VBAC Prep</div>
+  <div class="month-row" id="row-castoroil" onclick="toggleMonthTask('castoroil')">
+    <div class="circle"><svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div><div class="med-name">Castor Oil — C-Section Scar Massage <span class="tag t-rose">VBAC Prep</span></div><div class="med-dose">Once per month</div><div class="med-note">Circular motions on scar 5–10 min. Helps flexibility for VBAC.</div></div>
+  </div>
+  <div class="section-title">Preeclampsia Prevention</div>
+  <div class="month-row" id="row-calcium" onclick="toggleMonthTask('calcium')">
+    <div class="circle"><svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <div><div class="med-name">Confirm Calcium Supplement <span class="tag t-amber">With Midwife</span></div><div class="med-dose">1,000–1,500mg / day target</div><div class="med-note">Confirm dose with midwife for preeclampsia prevention.</div></div>
+  </div>
+  <div class="section-title">Appointments this month</div>
+  <div class="card"><textarea class="textarea" id="appt-notes" rows="3" placeholder="Dates · Providers · What was discussed..." oninput="debouncedMonthSave()"></textarea></div>
+  <div class="section-title">Notes & questions</div>
+  <div class="card"><textarea class="textarea" id="month-notes" rows="3" placeholder="Questions for midwife · Symptom changes · Follow ups..." oninput="debouncedMonthSave()"></textarea></div>
+</div>
+
+<!-- ═══ PAYMENTS ═══ -->
+<div id="tab-payment" class="hidden">
+  <div class="card">
+    <div class="card-title">Payment Summary</div>
+    <div style="display:flex;justify-content:space-between;font-family:sans-serif;font-size:13px;margin-bottom:8px">
+      <div><div style="font-size:10px;color:#8b7b72;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px">Total Paid</div><div style="font-size:22px;color:#4a7c43" id="pay-total-display">$0</div></div>
+      <div style="text-align:right"><div style="font-size:10px;color:#8b7b72;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px">Remaining</div><div style="font-size:22px;color:#7a5c48" id="remaining">$6,700</div></div>
+    </div>
+    <div style="font-size:10px;color:#8b7b72;font-family:sans-serif;margin-bottom:4px" id="pay-pct-label">0% paid of $6,700</div>
+    <div class="prog-wrap" style="height:6px"><div class="prog-fill green" id="pay-prog" style="width:0%"></div></div>
+  </div>
+  <div class="section-title">Log a Transaction</div>
+  <div class="card">
+    <div class="row3">
+      <div><label class="field-label">Date</label><input class="field-input" type="date" id="tx-date" style="font-size:12px"></div>
+      <div><label class="field-label">Amount ($)</label><input class="field-input" type="number" id="tx-amount" placeholder="0.00" step="0.01"></div>
+      <div><label class="field-label">Type</label>
+        <select class="field-input" id="tx-type" style="font-size:12px">
+          <option value="payment">Payment</option>
+          <option value="insurance">Insurance</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-bottom:7px"><label class="field-label">Note</label><input class="field-input" type="text" id="tx-note" placeholder="e.g. Birth center payment..." style="font-size:13px"></div>
+    <button class="log-btn" onclick="addTransaction()">Add Transaction</button>
+  </div>
+  <div class="section-title">Transaction History</div>
+  <div class="card"><div id="tx-list"><div style="font-size:12px;color:#9b8880;font-family:sans-serif;text-align:center;padding:8px">No transactions logged yet.</div></div></div>
+</div>
+
+<!-- ═══ CALENDAR ═══ -->
+<div id="tab-calendar" class="hidden">
+  <div class="card" style="background:rgba(240,234,250,0.88);border-color:rgba(212,192,232,0.4);margin-bottom:12px">
+    <div style="font-size:11px;font-family:sans-serif;color:#5c3d7a;line-height:1.6;margin-bottom:8px">Important pregnancy milestones and appointments.</div>
+  </div>
+  <div id="milestones-list">
+    <div class="cal-event">
+      <div class="cal-stripe s-teal"></div>
+      <div class="cal-body">
+        <div class="cal-date-lbl">September 4, 2026</div>
+        <div class="cal-title">Due Date — Baby McGee! 🌿</div>
+        <div class="cal-desc">Estimated due date for Baby McGee.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MIDWIFE QUESTIONS ═══ -->
+<div id="tab-questions" class="hidden">
+  <div class="card" style="background:rgba(240,234,250,0.88);border-color:rgba(212,192,232,0.4);margin-bottom:10px">
+    <div style="font-size:11px;font-family:sans-serif;color:#5c3d7a;line-height:1.5">Add questions as they come to mind. Log midwife feedback and attach appointment photos.</div>
+  </div>
+  <div class="add-q-row">
+    <input class="add-q-input" id="new-q-input" placeholder="Type a question for your midwife..." onkeydown="if(event.key==='Enter')addQuestion()">
+    <button class="add-q-btn" onclick="addQuestion()">+ Add</button>
+  </div>
+  <div id="q-list">
+    <div style="text-align:center;padding:1.5rem;color:#9b8880;font-family:sans-serif;font-style:italic">No questions yet.</div>
+  </div>
+</div>
+
+<!-- ═══ STATISTICS ═══ -->
+<div id="tab-stats" class="hidden">
+  <button class="sync-btn" onclick="loadStats()">↻ Refresh Statistics</button>
+  <div id="stats-loading" style="text-align:center;padding:2rem;color:#8b7b72;font-style:italic;font-family:sans-serif">Tap Refresh to load</div>
+  <div id="stats-content" class="hidden">
+    <div class="stat-section-hdr">At a Glance</div>
+    <div class="kpi-summary-grid">
+      <div class="kpi-tile" id="st-streak-card">
+        <span class="kpi-tile-num" id="st-streak">--</span>
+        <span class="kpi-tile-label">Day Streak</span>
+        <span class="kpi-tile-sub">days logged in a row</span>
+      </div>
+      <div class="kpi-tile" id="st-adh-card">
+        <span class="kpi-tile-num" id="st-adh">--%</span>
+        <span class="kpi-tile-label">Med Adherence</span>
+        <span class="kpi-tile-sub">all 6 meds, last 30 days</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SETTINGS ═══ -->
+<div id="tab-settings" class="hidden">
+  <div class="section-title">App Settings</div>
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+      <div class="conn-dot" id="conn-dot" style="background:rgba(200,185,165,0.5)"></div>
+      <div>
+        <div style="font-size:14px;color:#2c2420" id="conn-text">Local Storage Only</div>
+        <div style="font-size:11px;color:#9b8880;font-family:sans-serif;margin-top:2px" id="conn-sub">Data saved locally on this device.</div>
+      </div>
+    </div>
+  </div>
+  <div class="section-title">Data Management</div>
+  <div class="card">
+    <div style="font-size:12px;font-family:sans-serif;color:#5c4a42;margin-bottom:8px">Export your data or clear all stored information.</div>
+    <button class="log-btn" onclick="exportAllData()" style="margin-bottom:6px">📥 Export All Data</button>
+    <button class="log-btn" onclick="clearAllData()" style="background:#c46070;border-color:#c46070">🗑 Clear All Data</button>
+  </div>
+</div>
+
+</div><!-- end body -->
+</div><!-- end content-wrap -->
+
+<script src="script.js"></script>
 </body>
 </html>

@@ -1,389 +1,472 @@
-// Baby McGee App - JavaScript functionality
-class BabyMcGeeApp {
-    constructor() {
-        this.accessCode = 'babymcgee2024'; // Change this to your desired access code
-        this.storageKey = 'babyMcGeeData';
-        this.isAuthenticated = false;
-        this.entries = [];
-        
-        // Google Apps Script integration (optional)
-        this.googleScriptUrl = ''; // Set this to your deployed Google Apps Script URL for cloud sync
-        this.syncEnabled = false;
-        
-        this.init();
-    }
+// ═══════════════════════════════════════════════════════════
+// Baby McGee Journal - Local Version
+// Based on Google Script version but using localStorage
+// ═══════════════════════════════════════════════════════════
 
-    init() {
-        // Check if already authenticated
-        this.checkAuthentication();
-        
-        // Load existing data
-        this.loadData();
-        
-        // Set up event listeners
-        this.setupEventListeners();
-        
-        // Set current timestamp as default
-        this.setCurrentTimestamp();
-        
-        // Display entries
-        this.displayEntries();
-    }
+// ═══════════════════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════════════════
+var DUE = new Date('2026-09-04');
+var MEDS = ['aspirin','prenatal','vitd','fishoil','lemonbalm','magnesium'];
+var MED_NAMES = {aspirin:'Baby Aspirin',prenatal:'Thorne Prenatal',vitd:'Vitamin D3',fishoil:'Fish Oil',lemonbalm:'Lemon Balm',magnesium:'Magnesium'};
+var STAR_LABELS = ['','Rough day','Okay','Feeling alright','Good day','Feeling great!'];
 
-    checkAuthentication() {
-        const authStatus = sessionStorage.getItem('babyMcGeeAuth');
-        if (authStatus === 'authenticated') {
-            this.isAuthenticated = true;
-            this.showAppContent();
-        }
-    }
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+var offset = 0;
+var dayData = null;
+var monthData = {};
+var transactions = [];
+var questions = [];
+var activeTab = 'today';
+var saveTimer = null;
 
-    setupEventListeners() {
-        // Authentication
-        const accessCodeInput = document.getElementById('accessCode');
-        if (accessCodeInput) {
-            accessCodeInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    this.authenticate();
-                }
-            });
-        }
+// ═══════════════════════════════════════════════════════════
+// LOCAL STORAGE FUNCTIONS
+// ═══════════════════════════════════════════════════════════
+var LS_PREFIX = 'bmj_day_';
 
-        // Form submission
-        const dataForm = document.getElementById('dataForm');
-        if (dataForm) {
-            dataForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                this.addEntry();
-            });
-        }
+function lsKey(dateKey) { return LS_PREFIX + dateKey; }
 
-        // Filter functionality
-        const filterCategory = document.getElementById('filterCategory');
-        if (filterCategory) {
-            filterCategory.addEventListener('change', () => {
-                this.displayEntries();
-            });
-        }
-
-        // Auto-save on form changes
-        const formInputs = document.querySelectorAll('#dataForm input, #dataForm select, #dataForm textarea');
-        formInputs.forEach(input => {
-            input.addEventListener('change', () => {
-                this.saveDraftData();
-            });
-        });
-
-        // Load draft data on page load
-        this.loadDraftData();
-    }
-
-    authenticate() {
-        const inputCode = document.getElementById('accessCode').value;
-        const errorDiv = document.getElementById('authError');
-        
-        if (inputCode === this.accessCode) {
-            this.isAuthenticated = true;
-            sessionStorage.setItem('babyMcGeeAuth', 'authenticated');
-            this.showAppContent();
-            errorDiv.textContent = '';
-        } else {
-            errorDiv.textContent = 'Invalid access code. Please try again.';
-            document.getElementById('accessCode').value = '';
-        }
-    }
-
-    showAppContent() {
-        document.getElementById('authSection').style.display = 'none';
-        document.getElementById('appContent').style.display = 'block';
-        this.setCurrentTimestamp();
-    }
-
-    setCurrentTimestamp() {
-        const now = new Date();
-        const timestamp = new Date(now.getTime() - (now.getTimezoneOffset() * 60000))
-            .toISOString()
-            .slice(0, 16);
-        
-        const timestampInput = document.getElementById('timestamp');
-        if (timestampInput && !timestampInput.value) {
-            timestampInput.value = timestamp;
-        }
-    }
-
-    addEntry() {
-        const timestamp = document.getElementById('timestamp').value;
-        const category = document.getElementById('category').value;
-        const notes = document.getElementById('notes').value;
-
-        if (!timestamp || !category) {
-            alert('Please fill in all required fields.');
-            return;
-        }
-
-        const entry = {
-            id: Date.now(),
-            timestamp: timestamp,
-            category: category,
-            notes: notes,
-            created: new Date().toISOString()
-        };
-
-        this.entries.unshift(entry); // Add to beginning of array
-        this.saveData();
-        this.displayEntries();
-        this.clearForm();
-        this.clearDraftData();
-        
-        // Show success message
-        this.showNotification('Entry logged successfully!', 'success');
-    }
-
-    clearForm() {
-        document.getElementById('dataForm').reset();
-        this.setCurrentTimestamp();
-    }
-
-    loadData() {
-        const savedData = localStorage.getItem(this.storageKey);
-        if (savedData) {
-            try {
-                this.entries = JSON.parse(savedData);
-            } catch (error) {
-                console.error('Error loading data:', error);
-                this.entries = [];
-            }
-        }
-    }
-
-    saveData() {
-        try {
-            localStorage.setItem(this.storageKey, JSON.stringify(this.entries));
-        } catch (error) {
-            console.error('Error saving data:', error);
-            this.showNotification('Error saving data. Storage may be full.', 'error');
-        }
-    }
-
-    saveDraftData() {
-        const draftData = {
-            timestamp: document.getElementById('timestamp').value,
-            category: document.getElementById('category').value,
-            notes: document.getElementById('notes').value
-        };
-        localStorage.setItem('babyMcGeeDraft', JSON.stringify(draftData));
-    }
-
-    loadDraftData() {
-        const draftData = localStorage.getItem('babyMcGeeDraft');
-        if (draftData) {
-            try {
-                const draft = JSON.parse(draftData);
-                if (draft.timestamp) document.getElementById('timestamp').value = draft.timestamp;
-                if (draft.category) document.getElementById('category').value = draft.category;
-                if (draft.notes) document.getElementById('notes').value = draft.notes;
-            } catch (error) {
-                console.error('Error loading draft data:', error);
-            }
-        }
-    }
-
-    clearDraftData() {
-        localStorage.removeItem('babyMcGeeDraft');
-    }
-
-    displayEntries() {
-        const entriesList = document.getElementById('entriesList');
-        const filterCategory = document.getElementById('filterCategory').value;
-        
-        let filteredEntries = this.entries;
-        if (filterCategory) {
-            filteredEntries = this.entries.filter(entry => entry.category === filterCategory);
-        }
-
-        if (filteredEntries.length === 0) {
-            entriesList.innerHTML = '<div class="no-entries">No entries found.</div>';
-            return;
-        }
-
-        const entriesHTML = filteredEntries.map(entry => {
-            const date = new Date(entry.timestamp);
-            const formattedDate = date.toLocaleDateString();
-            const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
-            return `
-                <div class="entry-item" data-id="${entry.id}">
-                    <div class="entry-header">
-                        <span class="entry-category">${this.getCategoryIcon(entry.category)} ${this.getCategoryName(entry.category)}</span>
-                        <span class="entry-timestamp">${formattedDate} ${formattedTime}</span>
-                    </div>
-                    ${entry.notes ? `<div class="entry-notes">${this.escapeHtml(entry.notes)}</div>` : ''}
-                    <div class="entry-actions">
-                        <button onclick="app.deleteEntry(${entry.id})" class="delete-btn">Delete</button>
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        entriesList.innerHTML = entriesHTML;
-    }
-
-    getCategoryIcon(category) {
-        const icons = {
-            feeding: '🍼',
-            diaper: '👶',
-            sleep: '😴',
-            milestone: '🎉',
-            health: '🏥',
-            other: '📝'
-        };
-        return icons[category] || '📝';
-    }
-
-    getCategoryName(category) {
-        const names = {
-            feeding: 'Feeding',
-            diaper: 'Diaper Change',
-            sleep: 'Sleep',
-            milestone: 'Milestone',
-            health: 'Health',
-            other: 'Other'
-        };
-        return names[category] || 'Other';
-    }
-
-    deleteEntry(id) {
-        if (confirm('Are you sure you want to delete this entry?')) {
-            this.entries = this.entries.filter(entry => entry.id !== id);
-            this.saveData();
-            this.displayEntries();
-            this.showNotification('Entry deleted successfully!', 'success');
-        }
-    }
-
-    exportData() {
-        if (this.entries.length === 0) {
-            alert('No data to export.');
-            return;
-        }
-
-        const csvContent = this.generateCSV();
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        
-        if (link.download !== undefined) {
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', `baby-mcgee-data-${new Date().toISOString().split('T')[0]}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    }
-
-    generateCSV() {
-        const headers = ['Date', 'Time', 'Category', 'Notes'];
-        const csvRows = [headers.join(',')];
-
-        this.entries.forEach(entry => {
-            const date = new Date(entry.timestamp);
-            const formattedDate = date.toLocaleDateString();
-            const formattedTime = date.toLocaleTimeString();
-            const category = this.getCategoryName(entry.category);
-            const notes = entry.notes ? `"${entry.notes.replace(/"/g, '""')}"` : '';
-            
-            csvRows.push([formattedDate, formattedTime, category, notes].join(','));
-        });
-
-        return csvRows.join('\n');
-    }
-
-    showNotification(message, type = 'info') {
-        // Create notification element
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
-        notification.textContent = message;
-        
-        // Style the notification
-        Object.assign(notification.style, {
-            position: 'fixed',
-            top: '20px',
-            right: '20px',
-            padding: '15px 20px',
-            borderRadius: '8px',
-            color: 'white',
-            fontWeight: '600',
-            zIndex: '1000',
-            transform: 'translateX(100%)',
-            transition: 'transform 0.3s ease'
-        });
-
-        if (type === 'success') {
-            notification.style.background = 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)';
-        } else if (type === 'error') {
-            notification.style.background = 'linear-gradient(135deg, #e53e3e 0%, #c53030 100%)';
-        }
-
-        document.body.appendChild(notification);
-
-        // Animate in
-        setTimeout(() => {
-            notification.style.transform = 'translateX(0)';
-        }, 100);
-
-        // Remove after 3 seconds
-        setTimeout(() => {
-            notification.style.transform = 'translateX(100%)';
-            setTimeout(() => {
-                document.body.removeChild(notification);
-            }, 300);
-        }, 3000);
-    }
-
-    escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    // Backup and sync functionality (for future GitHub integration)
-    async syncToGitHub() {
-        // This will be implemented when we set up GitHub integration
-        console.log('GitHub sync functionality will be added later');
-    }
-
-    // PWA functionality
-    installPWA() {
-        // This will be enhanced with service worker
-        console.log('PWA installation will be added later');
-    }
+function lsGet(dateKey) {
+  try {
+    var raw = localStorage.getItem(lsKey(dateKey));
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch(e) { return null; }
 }
 
-// Global functions for HTML onclick events
-function authenticate() {
-    app.authenticate();
+function lsPut(dateKey, data) {
+  try {
+    localStorage.setItem(lsKey(dateKey), JSON.stringify(data));
+  } catch(e) {
+    console.error('localStorage full:', e);
+  }
 }
 
-function exportData() {
-    app.exportData();
+// ═══════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════
+function renderStats() {
+  var c = new Date(DUE); c.setDate(c.getDate()-280);
+  var t = new Date(), diff = t - c;
+  var w = Math.floor(diff/(7*24*3600*1000));
+  var d = Math.floor((diff%(7*24*3600*1000))/(24*3600*1000));
+  document.getElementById('stat-weeks').textContent = w+'w '+d+'d';
+  document.getElementById('stat-days').textContent = Math.ceil((DUE-t)/(24*3600*1000));
+  document.getElementById('stat-tri').textContent = w<13?'1st':w<27?'2nd':'3rd';
 }
 
-// Initialize the app when DOM is loaded
-let app;
-document.addEventListener('DOMContentLoaded', () => {
-    app = new BabyMcGeeApp();
+function toKey(o) { var d=new Date(); d.setDate(d.getDate()+o); return d.toISOString().slice(0,10); }
+function toMonthKey(o) { var d=new Date(); d.setDate(d.getDate()+o); return d.toISOString().slice(0,7); }
+
+function getDateLabel(o) {
+  var d=new Date(); d.setDate(d.getDate()+o);
+  if(o===0)return'Today · '+d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  if(o===-1)return'Yesterday · '+d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+}
+
+function flashSave() {
+  var b=document.getElementById('save-badge'); 
+  if(b) {
+    b.classList.add('show');
+    setTimeout(function(){b.classList.remove('show');},1800);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════
+function changeDay(dir) {
+  if (dayData) {
+    clearTimeout(saveTimer);
+    collectDayData();
+    commitSave();
+  }
+
+  if (dir === 0) offset = 0;
+  else offset += dir;
+
+  var dk = toKey(offset);
+  dayData = lsGet(dk) || {};
+  renderAll();
+}
+
+function jumpToDate(s) {
+  if (!s) return;
+  var t = new Date(); t.setHours(0,0,0,0);
+  var newOffset = Math.round((new Date(s + 'T12:00:00') - t) / (24*3600*1000));
+  var diff = newOffset - offset;
+  changeDay(diff === 0 ? 0 : diff);
+}
+
+// ═══════════════════════════════════════════════════════════
+// RENDER ALL
+// ═══════════════════════════════════════════════════════════
+function renderAll() {
+  if (!dayData) return;
+  renderStats();
+
+  // Date labels
+  var dl = getDateLabel(offset);
+  document.getElementById('date-label-today').textContent = dl;
+  var bpLabel = document.getElementById('date-label-bp');
+  if(bpLabel) bpLabel.textContent = dl;
+  
+  var dp = document.getElementById('date-picker-today'); 
+  if(dp) dp.value = toKey(offset);
+  
+  var show = offset !== 0;
+  var btnToday = document.getElementById('btn-today');
+  if(btnToday) btnToday.style.display = show?'inline-block':'none';
+  var btnTodayBp = document.getElementById('btn-today-bp');
+  if(btnTodayBp) btnTodayBp.style.display = show?'inline-block':'none';
+
+  // Medications
+  MEDS.forEach(function(id) {
+    applyMedState(id, dayData.meds ? dayData.meds[id] : undefined);
+  });
+  updateMedProgress();
+
+  // Stars, Hypno
+  updateStarUI(dayData.rating||0);
+  updateHypnoUI(dayData.hypno||'');
+
+  // Steps
+  var stEl=document.getElementById('steps-input'); 
+  if(stEl) stEl.value=dayData.steps||'';
+  updateStepsUI(dayData.steps||'');
+
+  // Notes
+  var nEl=document.getElementById('notes-input'); 
+  if(nEl) nEl.value=dayData.notes||'';
+
+  // Week progress bars
+  loadWeekProgress();
+}
+
+// ═══════════════════════════════════════════════════════════
+// MEDICATION FUNCTIONS
+// ═══════════════════════════════════════════════════════════
+function applyMedState(id, state) {
+  var row = document.getElementById('row-' + id);
+  if (!row) return;
+  row.classList.remove('checked', 'skipped');
+  if (state === true) row.classList.add('checked');
+  else if (state === 'skip') row.classList.add('skipped');
+}
+
+function updateMedProgress() {
+  if (!dayData) return;
+  var meds = dayData.meds || {};
+  var taken   = MEDS.filter(function(id){ return meds[id] === true; }).length;
+  var skipped = MEDS.filter(function(id){ return meds[id] === 'skip'; }).length;
+  var logged  = taken + skipped;
+  var pct = Math.round((taken / MEDS.length) * 100);
+  var pl = document.getElementById('prog-label');
+  var pf = document.getElementById('prog-fill');
+  if (pl) {
+    var parts = [];
+    if (taken > 0)   parts.push(taken + ' taken');
+    if (skipped > 0) parts.push(skipped + ' skipped');
+    if (logged < MEDS.length) parts.push((MEDS.length - logged) + ' not logged');
+    pl.textContent = parts.join(' · ') + ' (of ' + MEDS.length + ')';
+  }
+  if (pf) pf.style.width = pct + '%';
+}
+
+function toggleMed(id) {
+  if (!dayData) return;
+  if (!dayData.meds) dayData.meds = {};
+  var cur = dayData.meds[id];
+  if (cur === 'skip') {
+    dayData.meds[id] = false;
+  } else {
+    dayData.meds[id] = !cur;
+  }
+  applyMedState(id, dayData.meds[id]);
+  updateMedProgress();
+  commitSave();
+}
+
+function skipMed(evt, id) {
+  evt.stopPropagation();
+  if (!dayData) return;
+  if (!dayData.meds) dayData.meds = {};
+  var cur = dayData.meds[id];
+  if (cur === 'skip') {
+    dayData.meds[id] = false;
+  } else {
+    dayData.meds[id] = 'skip';
+  }
+  applyMedState(id, dayData.meds[id]);
+  updateMedProgress();
+  commitSave();
+}
+
+// ═══════════════════════════════════════════════════════════
+// UI UPDATE FUNCTIONS
+// ═══════════════════════════════════════════════════════════
+function updateStarUI(r) {
+  for(var i=1;i<=5;i++){
+    var s=document.getElementById('star-'+i);
+    if(s) s.className='star'+(i<=r?' on':'');
+  }
+  var l=document.getElementById('star-label');
+  if(l) l.textContent=r?STAR_LABELS[r]:'Tap to rate your day';
+}
+
+function updateHypnoUI(val) {
+  var m={yes:'hyp-yes',no:'hyp-no',notstarted:'hyp-ns'};
+  Object.keys(m).forEach(function(k){
+    var e=document.getElementById(m[k]);
+    if(!e)return;
+    e.className='hyp-btn'+(k===val?' active-'+(k==='notstarted'?'ns':k):'');
+  });
+}
+
+function updateStepsUI(val) {
+  var s=parseInt(val)||0, pct=Math.min(100,Math.round((s/10000)*100));
+  var d=document.getElementById('steps-display'); 
+  if(d) d.textContent=s.toLocaleString();
+  var b=document.getElementById('steps-bar'); 
+  if(b) b.style.width=pct+'%';
+  var l=document.getElementById('steps-pct-label'); 
+  if(l) l.textContent=pct+'% of 10,000 goal';
+}
+
+// ═══════════════════════════════════════════════════════════
+// USER ACTIONS
+// ═══════════════════════════════════════════════════════════
+function collectDayData() {
+  if(!dayData) return;
+  var st=document.getElementById('steps-input'); 
+  if(st) dayData.steps=st.value;
+  var n=document.getElementById('notes-input'); 
+  if(n) dayData.notes=n.value;
+}
+
+function setRating(s) {
+  if(!dayData) return;
+  dayData.rating=(dayData.rating===s)?0:s;
+  updateStarUI(dayData.rating);
+  commitSave();
+}
+
+function setHypno(val) {
+  if(!dayData) return;
+  dayData.hypno=(dayData.hypno===val)?'':val;
+  updateHypnoUI(dayData.hypno);
+  commitSave();
+}
+
+function logBP() {
+  if(!dayData) return;
+  var sys=parseInt(document.getElementById('bp-sys').value);
+  var dia=parseInt(document.getElementById('bp-dia').value);
+  var pul=parseInt(document.getElementById('bp-pul').value)||null;
+  if(!sys||!dia) return;
+  var now=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  if(!dayData.bp) dayData.bp=[];
+  dayData.bp.push({sys:sys,dia:dia,pul:pul,time:now});
+  renderBP();
+  document.getElementById('bp-sys').value=''; 
+  document.getElementById('bp-dia').value=''; 
+  document.getElementById('bp-pul').value='';
+  commitSave();
+}
+
+function renderBP() {
+  var bps=dayData&&dayData.bp||[];
+  var card=document.getElementById('bp-history-card');
+  var hist=document.getElementById('bp-history');
+  if(!card||!hist) return;
+  if(bps.length===0){
+    card.style.display='none';
+    return;
+  }
+  card.style.display='block';
+  hist.innerHTML=bps.map(function(r,i){
+    var warn=r.sys>=140||r.dia>=90;
+    return'<div class="bp-entry'+(warn?' warn':'')+'"><span>'+r.time+'</span>'+
+      '<span style="display:flex;align-items:center;gap:6px">'+r.sys+'/'+r.dia+(r.pul?' · '+r.pul+' bpm':'')+
+      (warn?'<span class="warn-badge">High</span>':'')+
+      '<button class="bp-del-btn" onclick="deleteBPReading('+i+')">&times;</button></span></div>';
+  }).join('');
+}
+
+function deleteBPReading(idx) {
+  if(!dayData||!dayData.bp) return;
+  dayData.bp.splice(idx,1);
+  renderBP();
+  commitSave();
+}
+
+// ═══════════════════════════════════════════════════════════
+// WEEK PROGRESS
+// ═══════════════════════════════════════════════════════════
+function loadWeekProgress() {
+  var medCounts = {};
+  MEDS.forEach(function(id) { medCounts[id] = 0; });
+  var exDays=0, protDays=0, buoyDays=0;
+
+  for (var i=0; i<7; i++) {
+    var d = new Date(); d.setDate(d.getDate() - i);
+    var dk = d.toISOString().slice(0,10);
+    var dayD = lsGet(dk) || {};
+    MEDS.forEach(function(id) {
+      if (dayD.meds && dayD.meds[id] === true) medCounts[id]++;
+    });
+  }
+
+  MEDS.forEach(function(id) {
+    var count = medCounts[id];
+    var pct = Math.round((count/7)*100);
+    var bar = document.getElementById('wk-med-'+id+'-bar');
+    var lbl = document.getElementById('wk-med-'+id+'-pct');
+    if (bar) bar.style.width = pct + '%';
+    if (lbl) lbl.textContent = count+'/7 days ('+pct+'%)';
+  });
+  
+  setWeekBar('wk-ex', exDays, 7, 'days');
+  setWeekBar('wk-prot', protDays, 7, 'days');
+  setWeekBar('wk-buoy', buoyDays, 7, 'days');
+}
+
+function setWeekBar(pfx,val,total,unit){
+  var pct=Math.round((val/total)*100);
+  var b=document.getElementById(pfx+'-bar'); 
+  if(b) b.style.width=pct+'%';
+  var p=document.getElementById(pfx+'-pct'); 
+  if(p) p.textContent=val+'/'+total+' '+unit+' ('+pct+'%)';
+}
+
+// ═══════════════════════════════════════════════════════════
+// SAVE FUNCTIONS
+// ═══════════════════════════════════════════════════════════
+function commitSave() {
+  if (!dayData) return;
+  var dk = toKey(offset);
+  lsPut(dk, dayData);
+  flashSave();
+}
+
+function debouncedSave(field) {
+  if(field==='steps'){
+    var sv=document.getElementById('steps-input');
+    if(sv) updateStepsUI(sv.value);
+  }
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(function(){
+    if(!dayData) return;
+    collectDayData();
+    commitSave();
+  },1200);
+}
+
+// ═══════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ═══════════════════════════════════════════════════════════
+function switchTab(tab,btn){
+  if(activeTab==='today'&&dayData){
+    clearTimeout(saveTimer);
+    collectDayData();
+    commitSave();
+  }
+  activeTab=tab;
+  document.querySelectorAll('.nav-btn').forEach(function(b){
+    b.classList.remove('active');
+  });
+  btn.classList.add('active');
+  
+  ['today','bp','monthly','payment','calendar','questions','stats','settings'].forEach(function(t){
+    var el=document.getElementById('tab-'+t);
+    if(el) el.className=t===tab?'':'hidden';
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// PLACEHOLDER FUNCTIONS (for future implementation)
+// ═══════════════════════════════════════════════════════════
+function manualSync() {
+  console.log('Sync functionality - placeholder');
+  flashSave();
+}
+
+function toggleMonthTask(id) {
+  console.log('Month task toggle:', id);
+}
+
+function addTransaction() {
+  console.log('Add transaction - placeholder');
+}
+
+function addQuestion() {
+  console.log('Add question - placeholder');
+}
+
+function loadStats() {
+  console.log('Load stats - placeholder');
+}
+
+function exportAllData() {
+  console.log('Export data - placeholder');
+}
+
+function clearAllData() {
+  if(confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+    localStorage.clear();
+    location.reload();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// INITIALIZATION
+// ═══════════════════════════════════════════════════════════
+function loadAll() {
+  var dk = toKey(offset);
+  dayData = lsGet(dk) || {};
+  renderAll();
+  hideLoading();
+}
+
+function hideLoading() {
+  var el = document.getElementById('loading-overlay');
+  if (el) el.style.display = 'none';
+}
+
+function forceLoad() {
+  loadAll();
+}
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  try { 
+    renderStats(); 
+    loadAll();
+  } catch(e) { 
+    console.error('Init error:', e);
+    hideLoading(); 
+  }
 });
 
-// Service Worker registration (for PWA functionality)
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-            .then((registration) => {
-                console.log('SW registered: ', registration);
-            })
-            .catch((registrationError) => {
-                console.log('SW registration failed: ', registrationError);
-            });
-    });
-}
+// Show "Tap to Load" button after 3s if overlay is still showing
+setTimeout(function() {
+  var overlay = document.getElementById('loading-overlay');
+  if (overlay && overlay.style.display !== 'none') {
+    var txt = document.getElementById('loading-text');
+    var btn = document.getElementById('loading-tap-btn');
+    if (txt) txt.textContent = 'Taking longer than usual...';
+    if (btn) btn.style.display = 'block';
+  }
+}, 3000);
+
+// Hard fallback at 8s
+setTimeout(function() {
+  var overlay = document.getElementById('loading-overlay');
+  if (overlay && overlay.style.display !== 'none') {
+    hideLoading();
+  }
+}, 8000);
