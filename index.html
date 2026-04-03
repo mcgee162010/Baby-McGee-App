@@ -224,6 +224,40 @@
     <div style="flex:1"><div class="med-name">Thorne Basic Prenatal <span class="tag t-blue">Prenatal</span></div><div class="med-dose">3 capsules — full serving</div><div class="med-note">Methylfolate, choline, iron, Vitamin D, B vitamins.</div></div>
     <button class="med-skip-btn" onclick="skipMed(event,'prenatal')" title="Mark as not taken">✕</button>
   </div>
+  <div class="med-row" id="row-vitd" onclick="toggleMed('vitd')">
+    <div class="circle">
+      <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </div>
+    <div style="flex:1"><div class="med-name">Vitamin D3 <span class="tag t-amber">Immune Support</span></div><div class="med-dose">1000-2000 IU daily</div><div class="med-note">Essential for calcium absorption and immune function during pregnancy.</div></div>
+    <button class="med-skip-btn" onclick="skipMed(event,'vitd')" title="Mark as not taken">✕</button>
+  </div>
+  <div class="med-row" id="row-fishoil" onclick="toggleMed('fishoil')">
+    <div class="circle">
+      <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </div>
+    <div style="flex:1"><div class="med-name">Fish Oil <span class="tag t-blue">Brain Development</span></div><div class="med-dose">1000mg EPA/DHA daily</div><div class="med-note">Omega-3 fatty acids for baby's brain and eye development.</div></div>
+    <button class="med-skip-btn" onclick="skipMed(event,'fishoil')" title="Mark as not taken">✕</button>
+  </div>
+
+  <div class="section-title">Evening — before bed</div>
+  <div class="med-row" id="row-lemonbalm" onclick="toggleMed('lemonbalm')">
+    <div class="circle">
+      <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </div>
+    <div style="flex:1"><div class="med-name">Lemon Balm <span class="tag t-rose">Relaxation</span></div><div class="med-dose">300-500mg as needed</div><div class="med-note">Natural herb for relaxation and sleep support. Safe during pregnancy.</div></div>
+    <button class="med-skip-btn" onclick="skipMed(event,'lemonbalm')" title="Mark as not taken">✕</button>
+  </div>
+  <div class="med-row" id="row-magnesium" onclick="toggleMed('magnesium')">
+    <div class="circle">
+      <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </div>
+    <div style="flex:1"><div class="med-name">Magnesium <span class="tag t-green">Muscle Support</span></div><div class="med-dose">200-400mg daily</div><div class="med-note">Helps with muscle cramps, sleep, and supports healthy blood pressure.</div></div>
+    <button class="med-skip-btn" onclick="skipMed(event,'magnesium')" title="Mark as not taken">✕</button>
+  </div>
 
   <!-- Hypnobabies -->
   <div class="section-title">Hypnobabies Coursework</div>
@@ -416,7 +450,8 @@
   </div>
   <div class="section-title">Data Management</div>
   <div class="card">
-    <div style="font-size:12px;font-family:sans-serif;color:#5c4a42;margin-bottom:8px">Export your data or clear all stored information.</div>
+    <div style="font-size:12px;font-family:sans-serif;color:#5c4a42;margin-bottom:8px">Import historical data, export your data, or clear all stored information.</div>
+    <button class="log-btn" onclick="importHistoricalData()" style="margin-bottom:6px">📤 Import Historical Data</button>
     <button class="log-btn" onclick="exportAllData()" style="margin-bottom:6px">📥 Export All Data</button>
     <button class="log-btn" onclick="clearAllData()" style="background:#c46070;border-color:#c46070">🗑 Clear All Data</button>
   </div>

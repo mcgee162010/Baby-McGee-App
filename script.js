@@ -412,7 +412,149 @@ function loadStats() {
 }
 
 function exportAllData() {
-  console.log('Export data - placeholder');
+  try {
+    var allData = {
+      dailyData: {},
+      transactions: JSON.parse(localStorage.getItem('bmj_transactions') || '[]'),
+      questions: JSON.parse(localStorage.getItem('bmj_questions') || '[]'),
+      monthlyData: JSON.parse(localStorage.getItem('bmj_monthly') || '{}')
+    };
+    
+    // Collect all daily data
+    for (var i = 0; i < localStorage.length; i++) {
+      var key = localStorage.key(i);
+      if (key && key.startsWith(LS_PREFIX)) {
+        var dateKey = key.replace(LS_PREFIX, '');
+        allData.dailyData[dateKey] = JSON.parse(localStorage.getItem(key));
+      }
+    }
+    
+    var dataStr = JSON.stringify(allData, null, 2);
+    var dataBlob = new Blob([dataStr], {type: 'application/json'});
+    var url = URL.createObjectURL(dataBlob);
+    var link = document.createElement('a');
+    link.href = url;
+    link.download = 'baby-mcgee-data-' + new Date().toISOString().slice(0,10) + '.json';
+    link.click();
+    URL.revokeObjectURL(url);
+  } catch(e) {
+    alert('Error exporting data: ' + e.message);
+  }
+}
+
+function importHistoricalData() {
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,.xlsx,.csv';
+  input.onchange = function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    
+    if (file.name.endsWith('.json')) {
+      importJSONData(file);
+    } else {
+      alert('Please select a JSON file. Excel import coming soon.');
+    }
+  };
+  input.click();
+}
+
+function importJSONData(file) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var data = JSON.parse(e.target.result);
+      var imported = 0;
+      
+      // Import daily data
+      if (data.dailyData) {
+        Object.keys(data.dailyData).forEach(function(dateKey) {
+          lsPut(dateKey, data.dailyData[dateKey]);
+          imported++;
+        });
+      }
+      
+      // Import transactions
+      if (data.transactions) {
+        localStorage.setItem('bmj_transactions', JSON.stringify(data.transactions));
+      }
+      
+      // Import questions
+      if (data.questions) {
+        localStorage.setItem('bmj_questions', JSON.stringify(data.questions));
+      }
+      
+      // Import monthly data
+      if (data.monthlyData) {
+        localStorage.setItem('bmj_monthly', JSON.stringify(data.monthlyData));
+      }
+      
+      alert('Successfully imported ' + imported + ' days of data!');
+      location.reload();
+    } catch(err) {
+      alert('Error importing data: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function importFromExcelFormat(historicalData) {
+  // Function to import data from the Excel format found in Downloads
+  var imported = 0;
+  
+  if (historicalData.DailyLog) {
+    historicalData.DailyLog.forEach(function(entry) {
+      if (entry.Date && entry.Data) {
+        try {
+          var dateKey = entry.Date;
+          var dayData = typeof entry.Data === 'string' ? JSON.parse(entry.Data) : entry.Data;
+          
+          // Clean up the data format to match current app structure
+          var cleanData = {
+            meds: dayData.meds || {},
+            rating: dayData.rating || 0,
+            hypno: dayData.hypno || '',
+            steps: dayData.steps || '',
+            notes: dayData.notes || '',
+            protein: dayData.protein || '0',
+            water: dayData.water || '',
+            buoy: dayData.buoy || '',
+            meals: dayData.meals || {
+              breakfast: {foods: '', protein: ''},
+              lunch: {foods: '', protein: ''},
+              dinner: {foods: '', protein: ''},
+              snacks: {foods: '', protein: ''}
+            },
+            exerciseSessions: dayData.exerciseSessions || [],
+            bp: dayData.bp || []
+          };
+          
+          lsPut(dateKey, cleanData);
+          imported++;
+        } catch(e) {
+          console.warn('Error importing entry for ' + entry.Date + ':', e);
+        }
+      }
+    });
+  }
+  
+  // Import payment data
+  if (historicalData.PaymentLog && historicalData.PaymentLog.length > 0) {
+    var paymentEntry = historicalData.PaymentLog.find(function(entry) {
+      return entry.Key === 'transactions';
+    });
+    if (paymentEntry && paymentEntry.Value) {
+      try {
+        var transactions = typeof paymentEntry.Value === 'string' ?
+          JSON.parse(paymentEntry.Value) : paymentEntry.Value;
+        localStorage.setItem('bmj_transactions', JSON.stringify(transactions));
+      } catch(e) {
+        console.warn('Error importing transactions:', e);
+      }
+    }
+  }
+  
+  return imported;
 }
 
 function clearAllData() {
@@ -420,6 +562,41 @@ function clearAllData() {
     localStorage.clear();
     location.reload();
   }
+}
+
+// Function to load historical data from the Excel file
+function loadHistoricalDataFromExcel() {
+  // Historical data extracted from Baby McGee Tracker.xlsx
+  var historicalData = {
+    "2026-03-29": {"water":"91","buoy":"","notes":"","steps":"","meals":{"breakfast":{"foods":""},"lunch":{"foods":""},"dinner":{"foods":""},"snacks":{"foods":""}},"protein":"0"},
+    "2026-03-30": {"meds":{"aspirin":true,"prenatal":true,"lemonbalm":true,"magnesium":true,"vitd":"skip"},"hypno":"notstarted","protein":"0","meals":{"breakfast":{"foods":""},"lunch":{"foods":""},"dinner":{"foods":""},"snacks":{"foods":""}},"water":"91","buoy":"","notes":"","steps":""},
+    "2026-03-31": {"meds":{"aspirin":true,"prenatal":true,"lemonbalm":true,"magnesium":true},"hypno":"notstarted","protein":"0","meals":{"breakfast":{"foods":""},"lunch":{"foods":""},"dinner":{"foods":""},"snacks":{"foods":""}},"water":"","buoy":"","notes":"","steps":""},
+    "2026-04-01": {"meds":{"aspirin":true,"prenatal":true,"vitd":"skip","fishoil":"skip","lemonbalm":true,"magnesium":true},"hypno":"notstarted","steps":"6703","water":"90","protein":"73","meals":{"breakfast":{"foods":"","protein":"9"},"lunch":{"foods":"","protein":"9"},"dinner":{"foods":"","protein":"55"},"snacks":{"foods":""}},"buoy":"","notes":"","rating":3}
+  };
+  
+  var transactions = [
+    {"amount":300,"date":"2026-03-25","note":"03/25/2026 Zelle payment to Melissa Peteris JPM99caieipn","type":"payment","id":"tx_1775079528323"},
+    {"date":"2026-03-02","amount":300,"note":"Zelle payment to Melissa Peteris JPM99c7odln4","id":"tx_1775079568197","type":"payment"}
+  ];
+  
+  var imported = 0;
+  
+  // Import daily data only if it doesn't already exist
+  Object.keys(historicalData).forEach(function(dateKey) {
+    var existingData = lsGet(dateKey);
+    if (!existingData || Object.keys(existingData).length === 0) {
+      lsPut(dateKey, historicalData[dateKey]);
+      imported++;
+    }
+  });
+  
+  // Import transactions if not already present
+  var existingTransactions = localStorage.getItem('bmj_transactions');
+  if (!existingTransactions) {
+    localStorage.setItem('bmj_transactions', JSON.stringify(transactions));
+  }
+  
+  return imported;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -443,12 +620,23 @@ function forceLoad() {
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-  try { 
-    renderStats(); 
+  try {
+    renderStats();
+    
+    // Load historical data on first run
+    var hasHistoricalData = localStorage.getItem('bmj_historical_loaded');
+    if (!hasHistoricalData) {
+      var imported = loadHistoricalDataFromExcel();
+      if (imported > 0) {
+        localStorage.setItem('bmj_historical_loaded', 'true');
+        console.log('Loaded ' + imported + ' days of historical data');
+      }
+    }
+    
     loadAll();
-  } catch(e) { 
+  } catch(e) {
     console.error('Init error:', e);
-    hideLoading(); 
+    hideLoading();
   }
 });
 
