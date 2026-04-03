@@ -361,9 +361,12 @@
       <label class="field-label">Foods</label>
       <input class="field-input" type="text" id="breakfast-foods" placeholder="What did you eat for breakfast?" oninput="debouncedSave('meals')">
     </div>
-    <div>
-      <label class="field-label">Protein (grams)</label>
-      <input class="field-input" type="number" id="breakfast-protein" placeholder="0" style="width:80px" oninput="updateProteinFromInput(); debouncedSave('meals')">
+    <div style="display:flex;align-items:end;gap:8px">
+      <div>
+        <label class="field-label">Protein (grams)</label>
+        <input class="field-input" type="number" id="breakfast-protein" placeholder="0" style="width:80px" oninput="updateProteinFromInput(); debouncedSave('meals')">
+      </div>
+      <button class="calc-btn" onclick="openProteinCalculator('breakfast')" title="Use protein calculator">🧮</button>
     </div>
   </div>
 
@@ -374,9 +377,12 @@
       <label class="field-label">Foods</label>
       <input class="field-input" type="text" id="lunch-foods" placeholder="What did you eat for lunch?" oninput="debouncedSave('meals')">
     </div>
-    <div>
-      <label class="field-label">Protein (grams)</label>
-      <input class="field-input" type="number" id="lunch-protein" placeholder="0" style="width:80px" oninput="updateProteinFromInput(); debouncedSave('meals')">
+    <div style="display:flex;align-items:end;gap:8px">
+      <div>
+        <label class="field-label">Protein (grams)</label>
+        <input class="field-input" type="number" id="lunch-protein" placeholder="0" style="width:80px" oninput="updateProteinFromInput(); debouncedSave('meals')">
+      </div>
+      <button class="calc-btn" onclick="openProteinCalculator('lunch')" title="Use protein calculator">🧮</button>
     </div>
   </div>
 
@@ -387,9 +393,12 @@
       <label class="field-label">Foods</label>
       <input class="field-input" type="text" id="dinner-foods" placeholder="What did you eat for dinner?" oninput="debouncedSave('meals')">
     </div>
-    <div>
-      <label class="field-label">Protein (grams)</label>
-      <input class="field-input" type="number" id="dinner-protein" placeholder="0" style="width:80px" oninput="updateProteinFromInput(); debouncedSave('meals')">
+    <div style="display:flex;align-items:end;gap:8px">
+      <div>
+        <label class="field-label">Protein (grams)</label>
+        <input class="field-input" type="number" id="dinner-protein" placeholder="0" style="width:80px" oninput="updateProteinFromInput(); debouncedSave('meals')">
+      </div>
+      <button class="calc-btn" onclick="openProteinCalculator('dinner')" title="Use protein calculator">🧮</button>
     </div>
   </div>
 
@@ -400,9 +409,12 @@
       <label class="field-label">Foods</label>
       <input class="field-input" type="text" id="snacks-foods" placeholder="Any snacks throughout the day?" oninput="debouncedSave('meals')">
     </div>
-    <div>
-      <label class="field-label">Protein (grams)</label>
-      <input class="field-input" type="number" id="snacks-protein" placeholder="0" style="width:80px" oninput="updateProteinFromInput(); debouncedSave('meals')">
+    <div style="display:flex;align-items:end;gap:8px">
+      <div>
+        <label class="field-label">Protein (grams)</label>
+        <input class="field-input" type="number" id="snacks-protein" placeholder="0" style="width:80px" oninput="updateProteinFromInput(); debouncedSave('meals')">
+      </div>
+      <button class="calc-btn" onclick="openProteinCalculator('snacks')" title="Use protein calculator">🧮</button>
     </div>
   </div>
 
@@ -599,6 +611,88 @@
 
 </div><!-- end body -->
 </div><!-- end content-wrap -->
+
+<!-- Protein Calculator Modal -->
+<div id="protein-calculator-modal" class="modal" style="display:none">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>🧮 Protein Calculator - <span id="calc-meal-type">Meal</span></h3>
+      <button class="modal-close" onclick="closeProteinCalculator()">&times;</button>
+    </div>
+    
+    <div class="modal-body">
+      <div style="margin-bottom:16px">
+        <label class="field-label">Select Food</label>
+        <select class="field-input" id="calc-food-select" style="width:100%;margin-bottom:8px">
+          <option value="">Choose a food...</option>
+          <optgroup label="Meat & Poultry">
+            <option value="chicken-breast">Chicken Breast (cooked) - 31g per 100g</option>
+            <option value="chicken-thigh">Chicken Thigh (cooked) - 26g per 100g</option>
+            <option value="ground-turkey">Ground Turkey (cooked) - 27g per 100g</option>
+            <option value="lean-beef">Lean Beef (cooked) - 26g per 100g</option>
+            <option value="pork-tenderloin">Pork Tenderloin (cooked) - 26g per 100g</option>
+          </optgroup>
+          <optgroup label="Fish & Seafood">
+            <option value="salmon">Salmon (cooked) - 25g per 100g</option>
+            <option value="tuna">Tuna (cooked) - 30g per 100g</option>
+            <option value="cod">Cod (cooked) - 23g per 100g</option>
+            <option value="shrimp">Shrimp (cooked) - 24g per 100g</option>
+            <option value="canned-tuna">Canned Tuna in Water - 25g per 100g</option>
+          </optgroup>
+          <optgroup label="Dairy & Eggs">
+            <option value="greek-yogurt">Greek Yogurt (plain) - 10g per 100g</option>
+            <option value="cottage-cheese">Cottage Cheese - 11g per 100g</option>
+            <option value="milk">Milk (whole) - 3.4g per 100ml</option>
+            <option value="cheddar-cheese">Cheddar Cheese - 25g per 100g</option>
+            <option value="eggs">Eggs (large) - 6g per egg</option>
+          </optgroup>
+          <optgroup label="Legumes & Beans">
+            <option value="black-beans">Black Beans (cooked) - 9g per 100g</option>
+            <option value="chickpeas">Chickpeas (cooked) - 8g per 100g</option>
+            <option value="lentils">Lentils (cooked) - 9g per 100g</option>
+            <option value="kidney-beans">Kidney Beans (cooked) - 9g per 100g</option>
+            <option value="tofu">Tofu (firm) - 15g per 100g</option>
+          </optgroup>
+          <optgroup label="Nuts & Seeds">
+            <option value="almonds">Almonds - 21g per 100g</option>
+            <option value="peanut-butter">Peanut Butter - 25g per 100g</option>
+            <option value="chia-seeds">Chia Seeds - 17g per 100g</option>
+            <option value="hemp-seeds">Hemp Seeds - 31g per 100g</option>
+            <option value="walnuts">Walnuts - 15g per 100g</option>
+          </optgroup>
+          <optgroup label="Grains & Others">
+            <option value="quinoa">Quinoa (cooked) - 4.4g per 100g</option>
+            <option value="oats">Oats (dry) - 17g per 100g</option>
+            <option value="protein-powder">Protein Powder (whey) - 80g per 100g</option>
+            <option value="peanuts">Peanuts - 26g per 100g</option>
+          </optgroup>
+        </select>
+        
+        <div style="display:flex;gap:8px;align-items:end">
+          <div style="flex:1">
+            <label class="field-label">Serving Size</label>
+            <input class="field-input" type="number" id="calc-serving-size" placeholder="100" step="0.1">
+          </div>
+          <button class="log-btn" onclick="addFoodToCalculator()" style="margin:0">+ Add</button>
+        </div>
+      </div>
+      
+      <div id="calc-food-list" style="margin-bottom:16px;min-height:60px;border:1px solid rgba(200,185,165,0.3);border-radius:8px;padding:8px">
+        <!-- Food items will be added here -->
+      </div>
+      
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding:12px;background:rgba(232,245,228,0.9);border-radius:8px;border:1px solid #b8d8b0">
+        <div style="font-size:14px;color:#4a7c43;font-weight:600">Total Protein:</div>
+        <div style="font-size:18px;color:#4a7c43;font-weight:600" id="calc-total-protein">0g</div>
+      </div>
+    </div>
+    
+    <div class="modal-footer">
+      <button class="log-btn" onclick="applyCalculatorResult()" style="background:#4a7c43;border-color:#4a7c43">Add to Meal</button>
+      <button class="log-btn" onclick="closeProteinCalculator()" style="background:#9b8880;border-color:#9b8880">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <script src="script.js"></script>
 </body>

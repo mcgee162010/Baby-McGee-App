@@ -11,6 +11,50 @@ var MEDS = ['aspirin','prenatal','vitd','fishoil','lemonbalm','magnesium'];
 var MED_NAMES = {aspirin:'Baby Aspirin',prenatal:'Thorne Prenatal',vitd:'Vitamin D3',fishoil:'Fish Oil',lemonbalm:'Lemon Balm',magnesium:'Magnesium'};
 var STAR_LABELS = ['','Rough day','Okay','Feeling alright','Good day','Feeling great!'];
 
+// Protein food database (protein per 100g serving)
+var PROTEIN_FOODS = {
+  // Meat & Poultry
+  'chicken-breast': {name: 'Chicken Breast (cooked)', protein: 31, unit: '100g'},
+  'chicken-thigh': {name: 'Chicken Thigh (cooked)', protein: 26, unit: '100g'},
+  'ground-turkey': {name: 'Ground Turkey (cooked)', protein: 27, unit: '100g'},
+  'lean-beef': {name: 'Lean Beef (cooked)', protein: 26, unit: '100g'},
+  'pork-tenderloin': {name: 'Pork Tenderloin (cooked)', protein: 26, unit: '100g'},
+  
+  // Fish & Seafood
+  'salmon': {name: 'Salmon (cooked)', protein: 25, unit: '100g'},
+  'tuna': {name: 'Tuna (cooked)', protein: 30, unit: '100g'},
+  'cod': {name: 'Cod (cooked)', protein: 23, unit: '100g'},
+  'shrimp': {name: 'Shrimp (cooked)', protein: 24, unit: '100g'},
+  'canned-tuna': {name: 'Canned Tuna in Water', protein: 25, unit: '100g'},
+  
+  // Dairy & Eggs
+  'greek-yogurt': {name: 'Greek Yogurt (plain)', protein: 10, unit: '100g'},
+  'cottage-cheese': {name: 'Cottage Cheese', protein: 11, unit: '100g'},
+  'milk': {name: 'Milk (whole)', protein: 3.4, unit: '100ml'},
+  'cheddar-cheese': {name: 'Cheddar Cheese', protein: 25, unit: '100g'},
+  'eggs': {name: 'Eggs (large)', protein: 6, unit: '1 egg (50g)'},
+  
+  // Legumes & Beans
+  'black-beans': {name: 'Black Beans (cooked)', protein: 9, unit: '100g'},
+  'chickpeas': {name: 'Chickpeas (cooked)', protein: 8, unit: '100g'},
+  'lentils': {name: 'Lentils (cooked)', protein: 9, unit: '100g'},
+  'kidney-beans': {name: 'Kidney Beans (cooked)', protein: 9, unit: '100g'},
+  'tofu': {name: 'Tofu (firm)', protein: 15, unit: '100g'},
+  
+  // Nuts & Seeds
+  'almonds': {name: 'Almonds', protein: 21, unit: '100g'},
+  'peanut-butter': {name: 'Peanut Butter', protein: 25, unit: '100g'},
+  'chia-seeds': {name: 'Chia Seeds', protein: 17, unit: '100g'},
+  'hemp-seeds': {name: 'Hemp Seeds', protein: 31, unit: '100g'},
+  'walnuts': {name: 'Walnuts', protein: 15, unit: '100g'},
+  
+  // Grains & Others
+  'quinoa': {name: 'Quinoa (cooked)', protein: 4.4, unit: '100g'},
+  'oats': {name: 'Oats (dry)', protein: 17, unit: '100g'},
+  'protein-powder': {name: 'Protein Powder (whey)', protein: 80, unit: '100g'},
+  'peanuts': {name: 'Peanuts', protein: 26, unit: '100g'}
+};
+
 // ═══════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════
@@ -21,6 +65,7 @@ var transactions = [];
 var questions = [];
 var activeTab = 'today';
 var saveTimer = null;
+var activityLog = [];
 
 // ═══════════════════════════════════════════════════════════
 // LOCAL STORAGE FUNCTIONS
@@ -73,6 +118,68 @@ function flashSave() {
   if(b) {
     b.classList.add('show');
     setTimeout(function(){b.classList.remove('show');},1800);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// ACTIVITY LOG FUNCTIONS
+// ═══════════════════════════════════════════════════════════
+function logActivity(action, details) {
+  if (!dayData) return;
+  
+  var timestamp = new Date().toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+  
+  var activity = {
+    time: timestamp,
+    action: action,
+    details: details,
+    id: 'act_' + Date.now()
+  };
+  
+  if (!dayData.activityLog) dayData.activityLog = [];
+  dayData.activityLog.push(activity);
+  
+  // Keep only last 50 activities to prevent storage bloat
+  if (dayData.activityLog.length > 50) {
+    dayData.activityLog = dayData.activityLog.slice(-50);
+  }
+  
+  renderActivityLog();
+}
+
+function renderActivityLog() {
+  var activities = dayData && dayData.activityLog || [];
+  var content = document.getElementById('activity-log-content');
+  var dateLabel = document.getElementById('activity-log-date');
+  
+  if (!content) return;
+  
+  // Update date label
+  if (dateLabel) {
+    dateLabel.textContent = getDateLabel(offset).split(' · ')[0];
+  }
+  
+  if (activities.length === 0) {
+    content.innerHTML = '<div style="font-size:11px;color:#8b7b72;font-family:sans-serif;font-style:italic;text-align:center;padding:12px">No activity logged yet for this date.</div>';
+    return;
+  }
+  
+  // Show most recent activities first
+  var recentActivities = activities.slice(-10).reverse();
+  
+  content.innerHTML = recentActivities.map(function(activity) {
+    return '<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:4px 0;border-bottom:1px solid rgba(200,185,165,0.15);font-size:11px;font-family:sans-serif">' +
+      '<div style="color:#5c4a42;flex:1">' + activity.details + '</div>' +
+      '<div style="color:#9b8880;font-size:10px;margin-left:8px;white-space:nowrap">' + activity.time + '</div>' +
+      '</div>';
+  }).join('');
+  
+  if (activities.length > 10) {
+    content.innerHTML += '<div style="text-align:center;padding:8px 0;font-size:10px;color:#9b8880;font-family:sans-serif;font-style:italic">Showing 10 most recent activities (' + activities.length + ' total today)</div>';
   }
 }
 
@@ -162,6 +269,9 @@ function renderAll() {
 
   // Week progress bars
   loadWeekProgress();
+  
+  // Activity log
+  renderActivityLog();
 }
 
 function renderMeals() {
@@ -245,11 +355,24 @@ function toggleMed(id) {
   if (!dayData) return;
   if (!dayData.meds) dayData.meds = {};
   var cur = dayData.meds[id];
+  var newState;
   if (cur === 'skip') {
-    dayData.meds[id] = false;
+    newState = false;
   } else {
-    dayData.meds[id] = !cur;
+    newState = !cur;
   }
+  dayData.meds[id] = newState;
+  
+  // Log activity
+  var medName = MED_NAMES[id] || id;
+  if (newState === true) {
+    logActivity('medication', 'Marked ' + medName + ' as taken');
+  } else if (newState === false && cur === 'skip') {
+    logActivity('medication', 'Unmarked ' + medName + ' (was skipped)');
+  } else {
+    logActivity('medication', 'Unmarked ' + medName);
+  }
+  
   applyMedState(id, dayData.meds[id]);
   updateMedProgress();
   commitSave();
@@ -260,11 +383,22 @@ function skipMed(evt, id) {
   if (!dayData) return;
   if (!dayData.meds) dayData.meds = {};
   var cur = dayData.meds[id];
+  var newState;
   if (cur === 'skip') {
-    dayData.meds[id] = false;
+    newState = false;
   } else {
-    dayData.meds[id] = 'skip';
+    newState = 'skip';
   }
+  dayData.meds[id] = newState;
+  
+  // Log activity
+  var medName = MED_NAMES[id] || id;
+  if (newState === 'skip') {
+    logActivity('medication', 'Skipped ' + medName + ' (marked as not taken)');
+  } else {
+    logActivity('medication', 'Unmarked ' + medName + ' (was skipped)');
+  }
+  
   applyMedState(id, dayData.meds[id]);
   updateMedProgress();
   commitSave();
@@ -381,6 +515,9 @@ function addExerciseSession() {
   
   dayData.exerciseSessions.push(session);
   
+  // Log activity
+  logActivity('exercise', 'Added exercise: ' + minutes.value + ' min ' + type.value);
+  
   // Clear inputs
   minutes.value = '';
   type.value = '';
@@ -412,6 +549,10 @@ function renderExerciseSessions() {
 
 function removeExerciseSession(index) {
   if(!dayData || !dayData.exerciseSessions) return;
+  var session = dayData.exerciseSessions[index];
+  if (session) {
+    logActivity('exercise', 'Removed exercise: ' + session.minutes + ' min ' + session.type);
+  }
   dayData.exerciseSessions.splice(index, 1);
   renderExerciseSessions();
   commitSave();
@@ -419,7 +560,18 @@ function removeExerciseSession(index) {
 
 function setBuoy(value) {
   if(!dayData) return;
+  var oldBuoy = dayData.buoy;
   dayData.buoy = (dayData.buoy === value) ? '' : value;
+  
+  // Log activity
+  if (dayData.buoy === '' && oldBuoy) {
+    logActivity('hydration', 'Removed Buoy electrolytes status (was ' + (oldBuoy === 'yes' ? 'Yes' : 'Not yet') + ')');
+  } else if (dayData.buoy === 'yes') {
+    logActivity('hydration', 'Marked Buoy electrolytes as taken');
+  } else if (dayData.buoy === 'no') {
+    logActivity('hydration', 'Marked Buoy electrolytes as not yet taken');
+  }
+  
   updateBuoyUI();
   updateHydrationDisplay();
   commitSave();
@@ -442,6 +594,136 @@ function updateHydrationDisplay() {
   
   if(summary) summary.textContent = water + ' oz of 90 oz goal (' + pct + '%)';
   if(bar) bar.style.width = pct + '%';
+}
+
+// ═══════════════════════════════════════════════════════════
+// PROTEIN CALCULATOR FUNCTIONS
+// ═══════════════════════════════════════════════════════════
+function openProteinCalculator(mealType) {
+  var modal = document.getElementById('protein-calculator-modal');
+  var mealLabel = document.getElementById('calc-meal-type');
+  
+  if (modal && mealLabel) {
+    modal.dataset.mealType = mealType;
+    mealLabel.textContent = mealType.charAt(0).toUpperCase() + mealType.slice(1);
+    modal.style.display = 'block';
+    
+    // Reset calculator
+    resetProteinCalculator();
+  }
+}
+
+function closeProteinCalculator() {
+  var modal = document.getElementById('protein-calculator-modal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+}
+
+function resetProteinCalculator() {
+  document.getElementById('calc-food-select').value = '';
+  document.getElementById('calc-serving-size').value = '';
+  
+  var calcList = document.getElementById('calc-food-list');
+  if (calcList) calcList.innerHTML = '';
+  
+  updateCalculatorTotal();
+}
+
+function addFoodToCalculator() {
+  var foodSelect = document.getElementById('calc-food-select');
+  var servingInput = document.getElementById('calc-serving-size');
+  
+  if (!foodSelect.value || !servingInput.value) {
+    alert('Please select a food and enter serving size');
+    return;
+  }
+  
+  var foodKey = foodSelect.value;
+  var servingSize = parseFloat(servingInput.value);
+  var food = PROTEIN_FOODS[foodKey];
+  
+  if (!food) return;
+  
+  // Calculate protein based on serving size
+  var proteinAmount;
+  if (food.unit === '1 egg (50g)') {
+    proteinAmount = food.protein * servingSize; // servingSize = number of eggs
+  } else if (food.unit === '100ml') {
+    proteinAmount = (food.protein * servingSize) / 100; // servingSize in ml
+  } else {
+    proteinAmount = (food.protein * servingSize) / 100; // servingSize in grams
+  }
+  
+  // Add to calculator list
+  var calcList = document.getElementById('calc-food-list');
+  var foodItem = document.createElement('div');
+  foodItem.className = 'calc-food-item';
+  foodItem.innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(200,185,165,0.2)">' +
+      '<div style="flex:1">' +
+        '<div style="font-size:12px;color:#5c4a42;font-weight:500">' + food.name + '</div>' +
+        '<div style="font-size:10px;color:#9b8880">' + servingSize + (food.unit === '1 egg (50g)' ? ' eggs' : food.unit === '100ml' ? 'ml' : 'g') + '</div>' +
+      '</div>' +
+      '<div style="display:flex;align-items:center;gap:8px">' +
+        '<span style="font-size:12px;color:#4a7c43;font-weight:600">' + proteinAmount.toFixed(1) + 'g</span>' +
+        '<button onclick="removeFoodFromCalculator(this)" style="background:none;border:none;color:#c46070;cursor:pointer;font-size:14px">&times;</button>' +
+      '</div>' +
+    '</div>';
+  
+  foodItem.dataset.protein = proteinAmount.toFixed(1);
+  calcList.appendChild(foodItem);
+  
+  // Reset inputs
+  foodSelect.value = '';
+  servingInput.value = '';
+  
+  updateCalculatorTotal();
+}
+
+function removeFoodFromCalculator(button) {
+  button.closest('.calc-food-item').remove();
+  updateCalculatorTotal();
+}
+
+function updateCalculatorTotal() {
+  var items = document.querySelectorAll('.calc-food-item');
+  var total = 0;
+  
+  items.forEach(function(item) {
+    total += parseFloat(item.dataset.protein) || 0;
+  });
+  
+  var totalDisplay = document.getElementById('calc-total-protein');
+  if (totalDisplay) {
+    totalDisplay.textContent = total.toFixed(1) + 'g';
+  }
+}
+
+function applyCalculatorResult() {
+  var modal = document.getElementById('protein-calculator-modal');
+  var mealType = modal.dataset.mealType;
+  var totalDisplay = document.getElementById('calc-total-protein');
+  
+  if (!mealType || !totalDisplay) return;
+  
+  var totalProtein = parseFloat(totalDisplay.textContent) || 0;
+  var proteinInput = document.getElementById(mealType + '-protein');
+  
+  if (proteinInput) {
+    var currentValue = parseFloat(proteinInput.value) || 0;
+    var newValue = currentValue + totalProtein;
+    proteinInput.value = newValue.toFixed(1);
+    
+    // Update protein calculations
+    updateProteinFromInput();
+    debouncedSave('meals');
+    
+    // Log activity
+    logActivity('nutrition', 'Added ' + totalProtein.toFixed(1) + 'g protein to ' + mealType + ' using calculator');
+  }
+  
+  closeProteinCalculator();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -503,14 +785,33 @@ function collectDayData() {
 
 function setRating(s) {
   if(!dayData) return;
+  var oldRating = dayData.rating || 0;
   dayData.rating=(dayData.rating===s)?0:s;
+  
+  // Log activity
+  if (dayData.rating === 0 && oldRating > 0) {
+    logActivity('rating', 'Removed day rating (was ' + STAR_LABELS[oldRating] + ')');
+  } else if (dayData.rating > 0) {
+    logActivity('rating', 'Rated day: ' + STAR_LABELS[dayData.rating]);
+  }
+  
   updateStarUI(dayData.rating);
   commitSave();
 }
 
 function setHypno(val) {
   if(!dayData) return;
+  var oldHypno = dayData.hypno;
   dayData.hypno=(dayData.hypno===val)?'':val;
+  
+  // Log activity
+  var hypnoLabels = {yes: 'Yes', no: 'Not today', notstarted: 'Not started'};
+  if (dayData.hypno === '' && oldHypno) {
+    logActivity('hypnobabies', 'Removed Hypnobabies status (was ' + hypnoLabels[oldHypno] + ')');
+  } else if (dayData.hypno) {
+    logActivity('hypnobabies', 'Set Hypnobabies: ' + hypnoLabels[dayData.hypno]);
+  }
+  
   updateHypnoUI(dayData.hypno);
   commitSave();
 }
@@ -524,9 +825,17 @@ function logBP() {
   var now=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
   if(!dayData.bp) dayData.bp=[];
   dayData.bp.push({sys:sys,dia:dia,pul:pul,time:now});
+  
+  // Log activity
+  var bpText = sys + '/' + dia;
+  if (pul) bpText += ' (pulse: ' + pul + ')';
+  var warn = sys >= 140 || dia >= 90;
+  if (warn) bpText += ' ⚠ HIGH';
+  logActivity('blood-pressure', 'Added BP reading: ' + bpText);
+  
   renderBP();
-  document.getElementById('bp-sys').value=''; 
-  document.getElementById('bp-dia').value=''; 
+  document.getElementById('bp-sys').value='';
+  document.getElementById('bp-dia').value='';
   document.getElementById('bp-pul').value='';
   commitSave();
 }
@@ -552,6 +861,12 @@ function renderBP() {
 
 function deleteBPReading(idx) {
   if(!dayData||!dayData.bp) return;
+  var reading = dayData.bp[idx];
+  if (reading) {
+    var bpText = reading.sys + '/' + reading.dia;
+    if (reading.pul) bpText += ' (pulse: ' + reading.pul + ')';
+    logActivity('blood-pressure', 'Deleted BP reading: ' + bpText + ' at ' + reading.time);
+  }
   dayData.bp.splice(idx,1);
   renderBP();
   commitSave();
@@ -638,7 +953,28 @@ function debouncedSave(field) {
   clearTimeout(saveTimer);
   saveTimer=setTimeout(function(){
     if(!dayData) return;
+    
+    // Store old values for comparison
+    var oldSteps = dayData.steps;
+    var oldWater = dayData.water;
+    var oldNotes = dayData.notes;
+    
     collectDayData();
+    
+    // Log changes
+    if (field === 'steps' && dayData.steps !== oldSteps && dayData.steps) {
+      logActivity('movement', 'Updated steps: ' + parseInt(dayData.steps).toLocaleString());
+    }
+    if (field === 'hydration' && dayData.water !== oldWater && dayData.water) {
+      logActivity('hydration', 'Updated water intake: ' + dayData.water + ' oz');
+    }
+    if (field === 'notes' && dayData.notes !== oldNotes && dayData.notes) {
+      logActivity('notes', 'Updated symptoms & notes');
+    }
+    if (field === 'meals') {
+      logActivity('nutrition', 'Updated meal information');
+    }
+    
     commitSave();
   },1200);
 }
