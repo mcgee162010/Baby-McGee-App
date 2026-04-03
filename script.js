@@ -7,8 +7,8 @@
 // CONSTANTS
 // ═══════════════════════════════════════════════════════════
 var DUE = new Date('2026-09-04');
-var MEDS = ['aspirin','prenatal','vitd','fishoil','lemonbalm','magnesium'];
-var MED_NAMES = {aspirin:'Baby Aspirin',prenatal:'Thorne Prenatal',vitd:'Vitamin D3',fishoil:'Fish Oil',lemonbalm:'Lemon Balm',magnesium:'Magnesium'};
+var MEDS = ['aspirin','prenatal','vitd','fishoil','lemonbalm','magnesium','calm'];
+var MED_NAMES = {aspirin:'Baby Aspirin',prenatal:'Thorne Prenatal',vitd:'Vitamin D3',fishoil:'Fish Oil',lemonbalm:'Lemon Balm',magnesium:'Calm Powder',calm:'Calm (Magnesium)'};
 var STAR_LABELS = ['','Rough day','Okay','Feeling alright','Good day','Feeling great!'];
 
 // Protein food database (protein per 100g serving)
@@ -402,6 +402,29 @@ function skipMed(evt, id) {
   applyMedState(id, dayData.meds[id]);
   updateMedProgress();
   commitSave();
+}
+
+function clearAllMedications() {
+  if (!dayData) return;
+  
+  if (confirm('Are you sure you want to clear all medication statuses for today?')) {
+    // Clear all medication states
+    if (dayData.meds) {
+      MEDS.forEach(function(id) {
+        dayData.meds[id] = false;
+      });
+    }
+    
+    // Log activity
+    logActivity('medication', 'Cleared all medication statuses');
+    
+    // Update UI
+    MEDS.forEach(function(id) {
+      applyMedState(id, false);
+    });
+    updateMedProgress();
+    commitSave();
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
