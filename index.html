@@ -125,10 +125,9 @@
 <!-- ═══ DAILY LOG ═══ -->
 <div id="tab-today">
   <div class="date-bar">
-    <div class="date-label-wrap">
+    <div class="date-label-wrap" onclick="showDatePicker()">
       <span class="date-text" id="date-label-today">Today</span>
       <span style="font-size:11px;color:#8b7b72;font-family:sans-serif">▼</span>
-      <input type="date" class="date-picker-hidden" id="date-picker-today" oninput="jumpToDate(this.value)">
     </div>
     <div class="date-nav">
       <button class="arrow-btn" onclick="changeDay(-1)">←</button>
@@ -136,6 +135,7 @@
       <button class="arrow-btn" onclick="changeDay(1)">→</button>
     </div>
   </div>
+  <input type="date" class="date-picker-hidden" id="date-picker-today" oninput="jumpToDate(this.value)" style="position:absolute;left:-9999px;opacity:0;">
 
   <!-- Week progress summary -->
   <div class="week-card" id="week-summary-card">
@@ -284,6 +284,70 @@
     </div>
   </div>
 
+  <!-- Meals & Protein Tracking -->
+  <div class="section-title">Meals & Protein Tracking</div>
+  
+  <!-- Breakfast -->
+  <div class="card">
+    <div class="card-title">🌅 Breakfast</div>
+    <div style="margin-bottom:8px">
+      <label class="field-label">Foods</label>
+      <input class="field-input" type="text" id="breakfast-foods" placeholder="What did you eat for breakfast?" oninput="debouncedSave('meals')">
+    </div>
+    <div>
+      <label class="field-label">Protein (grams)</label>
+      <input class="field-input" type="number" id="breakfast-protein" placeholder="0" style="width:80px" oninput="debouncedSave('meals')">
+    </div>
+  </div>
+
+  <!-- Lunch -->
+  <div class="card">
+    <div class="card-title">🌞 Lunch</div>
+    <div style="margin-bottom:8px">
+      <label class="field-label">Foods</label>
+      <input class="field-input" type="text" id="lunch-foods" placeholder="What did you eat for lunch?" oninput="debouncedSave('meals')">
+    </div>
+    <div>
+      <label class="field-label">Protein (grams)</label>
+      <input class="field-input" type="number" id="lunch-protein" placeholder="0" style="width:80px" oninput="debouncedSave('meals')">
+    </div>
+  </div>
+
+  <!-- Dinner -->
+  <div class="card">
+    <div class="card-title">🌙 Dinner</div>
+    <div style="margin-bottom:8px">
+      <label class="field-label">Foods</label>
+      <input class="field-input" type="text" id="dinner-foods" placeholder="What did you eat for dinner?" oninput="debouncedSave('meals')">
+    </div>
+    <div>
+      <label class="field-label">Protein (grams)</label>
+      <input class="field-input" type="number" id="dinner-protein" placeholder="0" style="width:80px" oninput="debouncedSave('meals')">
+    </div>
+  </div>
+
+  <!-- Snacks -->
+  <div class="card">
+    <div class="card-title">🍎 Snacks</div>
+    <div style="margin-bottom:8px">
+      <label class="field-label">Foods</label>
+      <input class="field-input" type="text" id="snacks-foods" placeholder="Any snacks throughout the day?" oninput="debouncedSave('meals')">
+    </div>
+    <div>
+      <label class="field-label">Protein (grams)</label>
+      <input class="field-input" type="number" id="snacks-protein" placeholder="0" style="width:80px" oninput="debouncedSave('meals')">
+    </div>
+  </div>
+
+  <!-- Total Protein Summary -->
+  <div class="card" style="background:rgba(232,245,228,0.9);border-color:#b8d8b0">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:12px;color:#4a7c43;font-weight:600">Total Protein Today</div>
+      <div style="font-size:20px;color:#4a7c43;font-weight:600" id="total-protein-display">0g</div>
+    </div>
+    <div style="font-size:10px;color:#6b5a52;margin-top:2px">Goal: 60g+ daily for healthy pregnancy</div>
+  </div>
+
   <!-- Symptoms -->
   <div class="section-title">Symptoms & Notes</div>
   <div class="card">
@@ -294,10 +358,9 @@
 <!-- ═══ BLOOD PRESSURE ═══ -->
 <div id="tab-bp" class="hidden">
   <div class="date-bar">
-    <div class="date-label-wrap">
+    <div class="date-label-wrap" onclick="showDatePickerBP()">
       <span class="date-text" id="date-label-bp">Today</span>
       <span style="font-size:11px;color:#8b7b72;font-family:sans-serif">▼</span>
-      <input type="date" class="date-picker-hidden" oninput="jumpToDate(this.value)">
     </div>
     <div class="date-nav">
       <button class="arrow-btn" onclick="changeDay(-1)">←</button>
@@ -305,6 +368,7 @@
       <button class="arrow-btn" onclick="changeDay(1)">→</button>
     </div>
   </div>
+  <input type="date" class="date-picker-hidden" id="date-picker-bp" oninput="jumpToDate(this.value)" style="position:absolute;left:-9999px;opacity:0;">
   <div class="card alert-card">
     <div style="font-size:11px;font-family:sans-serif;color:#8b5a42;line-height:1.6">Sit quietly 5 min · Feet flat · Arm at heart level<br><strong>Alert: ≥140 systolic OR ≥90 diastolic → Contact midwife immediately</strong></div>
   </div>

@@ -102,6 +102,20 @@ function jumpToDate(s) {
   changeDay(diff === 0 ? 0 : diff);
 }
 
+function showDatePicker() {
+  var datePicker = document.getElementById('date-picker-today');
+  if (datePicker) {
+    datePicker.click();
+  }
+}
+
+function showDatePickerBP() {
+  var datePicker = document.getElementById('date-picker-bp');
+  if (datePicker) {
+    datePicker.click();
+  }
+}
+
 // ═══════════════════════════════════════════════════════════
 // RENDER ALL
 // ═══════════════════════════════════════════════════════════
@@ -140,11 +154,52 @@ function renderAll() {
   updateStepsUI(dayData.steps||'');
 
   // Notes
-  var nEl=document.getElementById('notes-input'); 
+  var nEl=document.getElementById('notes-input');
   if(nEl) nEl.value=dayData.notes||'';
+
+  // Meals
+  renderMeals();
 
   // Week progress bars
   loadWeekProgress();
+}
+
+function renderMeals() {
+  if(!dayData) return;
+  
+  var meals = dayData.meals || {
+    breakfast: {foods: '', protein: '0'},
+    lunch: {foods: '', protein: '0'},
+    dinner: {foods: '', protein: '0'},
+    snacks: {foods: '', protein: '0'}
+  };
+  
+  // Breakfast
+  var breakfastFoods = document.getElementById('breakfast-foods');
+  var breakfastProtein = document.getElementById('breakfast-protein');
+  if(breakfastFoods) breakfastFoods.value = meals.breakfast.foods || '';
+  if(breakfastProtein) breakfastProtein.value = meals.breakfast.protein || '0';
+  
+  // Lunch
+  var lunchFoods = document.getElementById('lunch-foods');
+  var lunchProtein = document.getElementById('lunch-protein');
+  if(lunchFoods) lunchFoods.value = meals.lunch.foods || '';
+  if(lunchProtein) lunchProtein.value = meals.lunch.protein || '0';
+  
+  // Dinner
+  var dinnerFoods = document.getElementById('dinner-foods');
+  var dinnerProtein = document.getElementById('dinner-protein');
+  if(dinnerFoods) dinnerFoods.value = meals.dinner.foods || '';
+  if(dinnerProtein) dinnerProtein.value = meals.dinner.protein || '0';
+  
+  // Snacks
+  var snacksFoods = document.getElementById('snacks-foods');
+  var snacksProtein = document.getElementById('snacks-protein');
+  if(snacksFoods) snacksFoods.value = meals.snacks.foods || '';
+  if(snacksProtein) snacksProtein.value = meals.snacks.protein || '0';
+  
+  // Update total protein
+  updateTotalProtein();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -237,15 +292,75 @@ function updateStepsUI(val) {
   if(l) l.textContent=pct+'% of 10,000 goal';
 }
 
+function updateTotalProtein() {
+  if(!dayData || !dayData.meals) return;
+  
+  var total = 0;
+  var meals = dayData.meals;
+  
+  if(meals.breakfast && meals.breakfast.protein) total += parseInt(meals.breakfast.protein) || 0;
+  if(meals.lunch && meals.lunch.protein) total += parseInt(meals.lunch.protein) || 0;
+  if(meals.dinner && meals.dinner.protein) total += parseInt(meals.dinner.protein) || 0;
+  if(meals.snacks && meals.snacks.protein) total += parseInt(meals.snacks.protein) || 0;
+  
+  var display = document.getElementById('total-protein-display');
+  if(display) display.textContent = total + 'g';
+  
+  // Update the legacy protein field for compatibility
+  dayData.protein = total.toString();
+}
+
 // ═══════════════════════════════════════════════════════════
 // USER ACTIONS
 // ═══════════════════════════════════════════════════════════
 function collectDayData() {
   if(!dayData) return;
-  var st=document.getElementById('steps-input'); 
+  var st=document.getElementById('steps-input');
   if(st) dayData.steps=st.value;
-  var n=document.getElementById('notes-input'); 
+  var n=document.getElementById('notes-input');
   if(n) dayData.notes=n.value;
+  
+  // Collect meal data
+  if(!dayData.meals) dayData.meals = {};
+  
+  var breakfastFoods = document.getElementById('breakfast-foods');
+  var breakfastProtein = document.getElementById('breakfast-protein');
+  if(breakfastFoods && breakfastProtein) {
+    dayData.meals.breakfast = {
+      foods: breakfastFoods.value || '',
+      protein: breakfastProtein.value || '0'
+    };
+  }
+  
+  var lunchFoods = document.getElementById('lunch-foods');
+  var lunchProtein = document.getElementById('lunch-protein');
+  if(lunchFoods && lunchProtein) {
+    dayData.meals.lunch = {
+      foods: lunchFoods.value || '',
+      protein: lunchProtein.value || '0'
+    };
+  }
+  
+  var dinnerFoods = document.getElementById('dinner-foods');
+  var dinnerProtein = document.getElementById('dinner-protein');
+  if(dinnerFoods && dinnerProtein) {
+    dayData.meals.dinner = {
+      foods: dinnerFoods.value || '',
+      protein: dinnerProtein.value || '0'
+    };
+  }
+  
+  var snacksFoods = document.getElementById('snacks-foods');
+  var snacksProtein = document.getElementById('snacks-protein');
+  if(snacksFoods && snacksProtein) {
+    dayData.meals.snacks = {
+      foods: snacksFoods.value || '',
+      protein: snacksProtein.value || '0'
+    };
+  }
+  
+  // Calculate total protein
+  updateTotalProtein();
 }
 
 function setRating(s) {
