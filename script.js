@@ -200,6 +200,15 @@ function renderMeals() {
   
   // Update total protein
   updateTotalProtein();
+  
+  // Update hydration
+  var waterInput = document.getElementById('water-input');
+  if(waterInput) waterInput.value = dayData.water || '';
+  updateBuoyUI();
+  updateHydrationDisplay();
+  
+  // Update exercise sessions
+  renderExerciseSessions();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -308,6 +317,105 @@ function updateTotalProtein() {
   
   // Update the legacy protein field for compatibility
   dayData.protein = total.toString();
+  
+  // Update protein goal display
+  updateProteinGoal(total);
+}
+
+function updateProteinGoal(total) {
+  var goalDisplay = document.getElementById('protein-goal-display');
+  var goalBar = document.getElementById('protein-goal-bar');
+  var goalPct = document.getElementById('protein-goal-pct');
+  
+  if(goalDisplay) goalDisplay.textContent = total + 'g / 60g';
+  
+  var pct = Math.min(100, Math.round((total / 60) * 100));
+  if(goalBar) goalBar.style.width = pct + '%';
+  if(goalPct) goalPct.textContent = pct + '% of goal';
+}
+
+function addExerciseSession() {
+  if(!dayData) return;
+  
+  var minutes = document.getElementById('exercise-minutes');
+  var type = document.getElementById('exercise-type');
+  
+  if(!minutes.value || !type.value) {
+    alert('Please enter both minutes and exercise type');
+    return;
+  }
+  
+  if(!dayData.exerciseSessions) dayData.exerciseSessions = [];
+  
+  var session = {
+    id: 'ex_' + Date.now(),
+    minutes: parseInt(minutes.value),
+    type: type.value
+  };
+  
+  dayData.exerciseSessions.push(session);
+  
+  // Clear inputs
+  minutes.value = '';
+  type.value = '';
+  
+  renderExerciseSessions();
+  commitSave();
+}
+
+function renderExerciseSessions() {
+  var sessions = dayData && dayData.exerciseSessions || [];
+  var card = document.getElementById('exercise-sessions-card');
+  var list = document.getElementById('exercise-sessions-list');
+  
+  if(!card || !list) return;
+  
+  if(sessions.length === 0) {
+    card.style.display = 'none';
+    return;
+  }
+  
+  card.style.display = 'block';
+  list.innerHTML = sessions.map(function(session, i) {
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(200,185,165,0.2)">' +
+      '<span style="font-size:12px;color:#5c4a42">' + session.minutes + ' min ' + session.type + '</span>' +
+      '<button onclick="removeExerciseSession(' + i + ')" style="background:none;border:none;color:#c46070;cursor:pointer;font-size:14px">&times;</button>' +
+      '</div>';
+  }).join('');
+}
+
+function removeExerciseSession(index) {
+  if(!dayData || !dayData.exerciseSessions) return;
+  dayData.exerciseSessions.splice(index, 1);
+  renderExerciseSessions();
+  commitSave();
+}
+
+function setBuoy(value) {
+  if(!dayData) return;
+  dayData.buoy = (dayData.buoy === value) ? '' : value;
+  updateBuoyUI();
+  updateHydrationDisplay();
+  commitSave();
+}
+
+function updateBuoyUI() {
+  var yesBtn = document.getElementById('buoy-yes');
+  var noBtn = document.getElementById('buoy-no');
+  
+  if(yesBtn) yesBtn.className = 'hyp-btn' + (dayData.buoy === 'yes' ? ' active-yes' : '');
+  if(noBtn) noBtn.className = 'hyp-btn' + (dayData.buoy === 'no' ? ' active-no' : '');
+}
+
+function updateHydrationDisplay() {
+  var water = parseInt(dayData.water) || 0;
+  var pct = Math.min(100, Math.round((water / 90) * 100));
+  
+  var summary = document.getElementById('hydration-summary');
+  var bar = document.getElementById('hydration-bar');
+  
+  if(summary) summary.textContent = water + ' oz of 90 oz goal (' + pct + '%)';
+  if(bar) bar.style.width = pct + '%';
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -358,6 +466,10 @@ function collectDayData() {
       protein: snacksProtein.value || '0'
     };
   }
+  
+  // Collect hydration data
+  var waterInput = document.getElementById('water-input');
+  if(waterInput) dayData.water = waterInput.value || '';
   
   // Calculate total protein
   updateTotalProtein();
@@ -431,9 +543,33 @@ function loadWeekProgress() {
     var d = new Date(); d.setDate(d.getDate() - i);
     var dk = d.toISOString().slice(0,10);
     var dayD = lsGet(dk) || {};
+    
+    // Count medications
     MEDS.forEach(function(id) {
       if (dayD.meds && dayD.meds[id] === true) medCounts[id]++;
     });
+    
+    // Count exercise sessions
+    if (dayD.exerciseSessions && dayD.exerciseSessions.length > 0) {
+      exDays++;
+    }
+    
+    // Count protein goals (60g+)
+    var totalProtein = 0;
+    if (dayD.meals) {
+      if (dayD.meals.breakfast && dayD.meals.breakfast.protein) totalProtein += parseInt(dayD.meals.breakfast.protein) || 0;
+      if (dayD.meals.lunch && dayD.meals.lunch.protein) totalProtein += parseInt(dayD.meals.lunch.protein) || 0;
+      if (dayD.meals.dinner && dayD.meals.dinner.protein) totalProtein += parseInt(dayD.meals.dinner.protein) || 0;
+      if (dayD.meals.snacks && dayD.meals.snacks.protein) totalProtein += parseInt(dayD.meals.snacks.protein) || 0;
+    }
+    if (totalProtein >= 60) {
+      protDays++;
+    }
+    
+    // Count Buoy electrolytes
+    if (dayD.buoy === 'yes') {
+      buoyDays++;
+    }
   }
 
   MEDS.forEach(function(id) {
