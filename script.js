@@ -334,6 +334,32 @@ function updateProteinGoal(total) {
   if(goalPct) goalPct.textContent = pct + '% of goal';
 }
 
+function updateProteinFromInput() {
+  if(!dayData) return;
+  
+  // Calculate total protein from all meal inputs
+  var total = 0;
+  
+  var breakfastProtein = document.getElementById('breakfast-protein');
+  var lunchProtein = document.getElementById('lunch-protein');
+  var dinnerProtein = document.getElementById('dinner-protein');
+  var snacksProtein = document.getElementById('snacks-protein');
+  
+  if(breakfastProtein) total += parseInt(breakfastProtein.value) || 0;
+  if(lunchProtein) total += parseInt(lunchProtein.value) || 0;
+  if(dinnerProtein) total += parseInt(dinnerProtein.value) || 0;
+  if(snacksProtein) total += parseInt(snacksProtein.value) || 0;
+  
+  // Update both displays
+  var totalDisplay = document.getElementById('total-protein-display');
+  if(totalDisplay) totalDisplay.textContent = total + 'g';
+  
+  updateProteinGoal(total);
+  
+  // Update legacy protein field for compatibility
+  if(dayData) dayData.protein = total.toString();
+}
+
 function addExerciseSession() {
   if(!dayData) return;
   

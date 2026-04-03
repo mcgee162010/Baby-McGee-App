@@ -363,7 +363,7 @@
     </div>
     <div>
       <label class="field-label">Protein (grams)</label>
-      <input class="field-input" type="number" id="breakfast-protein" placeholder="0" style="width:80px" oninput="debouncedSave('meals')">
+      <input class="field-input" type="number" id="breakfast-protein" placeholder="0" style="width:80px" oninput="updateProteinFromInput(); debouncedSave('meals')">
     </div>
   </div>
 
@@ -376,7 +376,7 @@
     </div>
     <div>
       <label class="field-label">Protein (grams)</label>
-      <input class="field-input" type="number" id="lunch-protein" placeholder="0" style="width:80px" oninput="debouncedSave('meals')">
+      <input class="field-input" type="number" id="lunch-protein" placeholder="0" style="width:80px" oninput="updateProteinFromInput(); debouncedSave('meals')">
     </div>
   </div>
 
@@ -389,7 +389,7 @@
     </div>
     <div>
       <label class="field-label">Protein (grams)</label>
-      <input class="field-input" type="number" id="dinner-protein" placeholder="0" style="width:80px" oninput="debouncedSave('meals')">
+      <input class="field-input" type="number" id="dinner-protein" placeholder="0" style="width:80px" oninput="updateProteinFromInput(); debouncedSave('meals')">
     </div>
   </div>
 
@@ -402,7 +402,7 @@
     </div>
     <div>
       <label class="field-label">Protein (grams)</label>
-      <input class="field-input" type="number" id="snacks-protein" placeholder="0" style="width:80px" oninput="debouncedSave('meals')">
+      <input class="field-input" type="number" id="snacks-protein" placeholder="0" style="width:80px" oninput="updateProteinFromInput(); debouncedSave('meals')">
     </div>
   </div>
 
