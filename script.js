@@ -7,8 +7,8 @@
 // CONSTANTS
 // ═══════════════════════════════════════════════════════════
 var DUE = new Date('2026-09-04');
-var MEDS = ['aspirin','prenatal','vitd','fishoil','lemonbalm','magnesium','calm'];
-var MED_NAMES = {aspirin:'Baby Aspirin',prenatal:'Thorne Prenatal',vitd:'Vitamin D3',fishoil:'Fish Oil',lemonbalm:'Lemon Balm',magnesium:'Calm Powder',calm:'Calm (Magnesium)'};
+var MEDS = ['aspirin','prenatal','vitd','fishoil','lemonbalm','magnesium'];
+var MED_NAMES = {aspirin:'Baby Aspirin',prenatal:'Thorne Prenatal',vitd:'Vitamin D3',fishoil:'Fish Oil',lemonbalm:'Lemon Balm',magnesium:'Calm Powder'};
 var STAR_LABELS = ['','Rough day','Okay','Feeling alright','Good day','Feeling great!'];
 
 // Protein food database (protein per 100g serving)
@@ -87,7 +87,10 @@ function lsPut(dateKey, data) {
     localStorage.setItem(lsKey(dateKey), JSON.stringify(data));
   } catch(e) {
     console.error('localStorage full:', e);
+    alert('Storage is full. Please export your data and clear old entries.');
+    return false;
   }
+  return true;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -98,9 +101,14 @@ function renderStats() {
   var t = new Date(), diff = t - c;
   var w = Math.floor(diff/(7*24*3600*1000));
   var d = Math.floor((diff%(7*24*3600*1000))/(24*3600*1000));
-  document.getElementById('stat-weeks').textContent = w+'w '+d+'d';
-  document.getElementById('stat-days').textContent = Math.ceil((DUE-t)/(24*3600*1000));
-  document.getElementById('stat-tri').textContent = w<13?'1st':w<27?'2nd':'3rd';
+  
+  var weeksEl = document.getElementById('stat-weeks');
+  var daysEl = document.getElementById('stat-days');
+  var triEl = document.getElementById('stat-tri');
+  
+  if (weeksEl) weeksEl.textContent = w+'w '+d+'d';
+  if (daysEl) daysEl.textContent = Math.ceil((DUE-t)/(24*3600*1000));
+  if (triEl) triEl.textContent = w<13?'1st':w<27?'2nd':'3rd';
 }
 
 function toKey(o) { var d=new Date(); d.setDate(d.getDate()+o); return d.toISOString().slice(0,10); }
@@ -232,12 +240,17 @@ function renderAll() {
 
   // Date labels
   var dl = getDateLabel(offset);
-  document.getElementById('date-label-today').textContent = dl;
+  var todayLabel = document.getElementById('date-label-today');
+  if (todayLabel) todayLabel.textContent = dl;
+  
   var bpLabel = document.getElementById('date-label-bp');
   if(bpLabel) bpLabel.textContent = dl;
   
-  var dp = document.getElementById('date-picker-today'); 
+  var dp = document.getElementById('date-picker-today');
   if(dp) dp.value = toKey(offset);
+  
+  var bpPicker = document.getElementById('date-picker-bp');
+  if(bpPicker) bpPicker.value = toKey(offset);
   
   var show = offset !== 0;
   var btnToday = document.getElementById('btn-today');
@@ -523,8 +536,20 @@ function addExerciseSession() {
   var minutes = document.getElementById('exercise-minutes');
   var type = document.getElementById('exercise-type');
   
+  if (!minutes || !type) {
+    alert('Exercise input fields not found');
+    return;
+  }
+  
+  var minutesValue = parseInt(minutes.value);
+  
   if(!minutes.value || !type.value) {
     alert('Please enter both minutes and exercise type');
+    return;
+  }
+  
+  if (isNaN(minutesValue) || minutesValue <= 0 || minutesValue > 480) {
+    alert('Please enter valid exercise minutes (1-480)');
     return;
   }
   
@@ -532,14 +557,14 @@ function addExerciseSession() {
   
   var session = {
     id: 'ex_' + Date.now(),
-    minutes: parseInt(minutes.value),
+    minutes: minutesValue,
     type: type.value
   };
   
   dayData.exerciseSessions.push(session);
   
   // Log activity
-  logActivity('exercise', 'Added exercise: ' + minutes.value + ' min ' + type.value);
+  logActivity('exercise', 'Added exercise: ' + minutesValue + ' min ' + type.value);
   
   // Clear inputs
   minutes.value = '';
@@ -657,6 +682,11 @@ function addFoodToCalculator() {
   var foodSelect = document.getElementById('calc-food-select');
   var servingInput = document.getElementById('calc-serving-size');
   
+  if (!foodSelect || !servingInput) {
+    alert('Calculator input fields not found');
+    return;
+  }
+  
   if (!foodSelect.value || !servingInput.value) {
     alert('Please select a food and enter serving size');
     return;
@@ -666,7 +696,15 @@ function addFoodToCalculator() {
   var servingSize = parseFloat(servingInput.value);
   var food = PROTEIN_FOODS[foodKey];
   
-  if (!food) return;
+  if (!food) {
+    alert('Selected food not found in database');
+    return;
+  }
+  
+  if (isNaN(servingSize) || servingSize <= 0 || servingSize > 1000) {
+    alert('Please enter a valid serving size (0.1-1000)');
+    return;
+  }
   
   // Calculate protein based on serving size
   var proteinAmount;
@@ -680,6 +718,11 @@ function addFoodToCalculator() {
   
   // Add to calculator list
   var calcList = document.getElementById('calc-food-list');
+  if (!calcList) {
+    alert('Calculator list not found');
+    return;
+  }
+  
   var foodItem = document.createElement('div');
   foodItem.className = 'calc-food-item';
   foodItem.innerHTML =
@@ -841,12 +884,27 @@ function setHypno(val) {
 
 function logBP() {
   if(!dayData) return;
-  var sys=parseInt(document.getElementById('bp-sys').value);
-  var dia=parseInt(document.getElementById('bp-dia').value);
-  var pul=parseInt(document.getElementById('bp-pul').value)||null;
-  if(!sys||!dia) return;
-  var now=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
-  if(!dayData.bp) dayData.bp=[];
+  
+  var sysInput = document.getElementById('bp-sys');
+  var diaInput = document.getElementById('bp-dia');
+  var pulInput = document.getElementById('bp-pul');
+  
+  if (!sysInput || !diaInput) {
+    alert('Blood pressure input fields not found');
+    return;
+  }
+  
+  var sys = parseInt(sysInput.value);
+  var dia = parseInt(diaInput.value);
+  var pul = pulInput ? parseInt(pulInput.value) || null : null;
+  
+  if(!sys || !dia || sys < 50 || sys > 250 || dia < 30 || dia > 150) {
+    alert('Please enter valid blood pressure values (systolic: 50-250, diastolic: 30-150)');
+    return;
+  }
+  
+  var now = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  if(!dayData.bp) dayData.bp = [];
   dayData.bp.push({sys:sys,dia:dia,pul:pul,time:now});
   
   // Log activity
@@ -857,9 +915,12 @@ function logBP() {
   logActivity('blood-pressure', 'Added BP reading: ' + bpText);
   
   renderBP();
-  document.getElementById('bp-sys').value='';
-  document.getElementById('bp-dia').value='';
-  document.getElementById('bp-pul').value='';
+  
+  // Clear inputs safely
+  if (sysInput) sysInput.value = '';
+  if (diaInput) diaInput.value = '';
+  if (pulInput) pulInput.value = '';
+  
   commitSave();
 }
 
@@ -1032,19 +1093,176 @@ function manualSync() {
 }
 
 function toggleMonthTask(id) {
-  console.log('Month task toggle:', id);
+  var monthKey = toMonthKey(0);
+  if (!monthData[monthKey]) monthData[monthKey] = {};
+  if (!monthData[monthKey].tasks) monthData[monthKey].tasks = {};
+  
+  monthData[monthKey].tasks[id] = !monthData[monthKey].tasks[id];
+  
+  // Update UI
+  var row = document.getElementById('row-' + id);
+  if (row) {
+    if (monthData[monthKey].tasks[id]) {
+      row.classList.add('checked');
+    } else {
+      row.classList.remove('checked');
+    }
+  }
+  
+  // Save to localStorage
+  localStorage.setItem('bmj_monthly', JSON.stringify(monthData));
+  flashSave();
+}
+
+function debouncedMonthSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function() {
+    var monthKey = toMonthKey(0);
+    if (!monthData[monthKey]) monthData[monthKey] = {};
+    
+    var apptNotes = document.getElementById('appt-notes');
+    var monthNotes = document.getElementById('month-notes');
+    
+    if (apptNotes) monthData[monthKey].appointments = apptNotes.value;
+    if (monthNotes) monthData[monthKey].notes = monthNotes.value;
+    
+    localStorage.setItem('bmj_monthly', JSON.stringify(monthData));
+    flashSave();
+  }, 1200);
 }
 
 function addTransaction() {
-  console.log('Add transaction - placeholder');
+  var dateInput = document.getElementById('tx-date');
+  var amountInput = document.getElementById('tx-amount');
+  var typeSelect = document.getElementById('tx-type');
+  var noteInput = document.getElementById('tx-note');
+  
+  if (!dateInput || !amountInput || !typeSelect) {
+    alert('Transaction input fields not found');
+    return;
+  }
+  
+  if (!dateInput.value || !amountInput.value) {
+    alert('Please enter date and amount');
+    return;
+  }
+  
+  var amount = parseFloat(amountInput.value);
+  if (isNaN(amount) || amount <= 0 || amount > 50000) {
+    alert('Please enter a valid amount (0.01-50000)');
+    return;
+  }
+  
+  var transaction = {
+    id: 'tx_' + Date.now(),
+    date: dateInput.value,
+    amount: amount,
+    type: typeSelect.value || 'payment',
+    note: noteInput ? noteInput.value || '' : ''
+  };
+  
+  transactions.push(transaction);
+  
+  try {
+    localStorage.setItem('bmj_transactions', JSON.stringify(transactions));
+  } catch(e) {
+    alert('Error saving transaction: ' + e.message);
+    transactions.pop(); // Remove the transaction we just added
+    return;
+  }
+  
+  // Clear inputs
+  dateInput.value = '';
+  amountInput.value = '';
+  typeSelect.value = 'payment';
+  if (noteInput) noteInput.value = '';
+  
+  renderTransactions();
+  flashSave();
 }
 
 function addQuestion() {
-  console.log('Add question - placeholder');
+  var input = document.getElementById('new-q-input');
+  if (!input.value.trim()) return;
+  
+  var question = {
+    id: 'q_' + Date.now(),
+    text: input.value.trim(),
+    date: new Date().toLocaleDateString(),
+    answered: false,
+    answer: ''
+  };
+  
+  questions.push(question);
+  localStorage.setItem('bmj_questions', JSON.stringify(questions));
+  
+  input.value = '';
+  renderQuestions();
+  flashSave();
 }
 
 function loadStats() {
-  console.log('Load stats - placeholder');
+  var loadingEl = document.getElementById('stats-loading');
+  var contentEl = document.getElementById('stats-content');
+  
+  if (loadingEl) loadingEl.style.display = 'none';
+  if (contentEl) contentEl.classList.remove('hidden');
+  
+  try {
+    // Calculate streak
+    var streak = 0;
+    var today = new Date();
+    for (var i = 0; i < 365; i++) {
+      var d = new Date(today);
+      d.setDate(d.getDate() - i);
+      var dk = d.toISOString().slice(0, 10);
+      var dayD = lsGet(dk);
+      
+      if (dayD && (dayD.meds || dayD.rating || dayD.notes)) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+    
+    // Calculate medication adherence (last 30 days)
+    var totalPossible = MEDS.length * 30;
+    var totalTaken = 0;
+    
+    for (var i = 0; i < 30; i++) {
+      var d = new Date(today);
+      d.setDate(d.getDate() - i);
+      var dk = d.toISOString().slice(0, 10);
+      var dayD = lsGet(dk);
+      
+      if (dayD && dayD.meds) {
+        MEDS.forEach(function(medId) {
+          if (dayD.meds[medId] === true) totalTaken++;
+        });
+      }
+    }
+    
+    var adherence = Math.round((totalTaken / totalPossible) * 100);
+    
+    // Update UI safely
+    var streakEl = document.getElementById('st-streak');
+    var adhEl = document.getElementById('st-adh');
+    
+    if (streakEl) streakEl.textContent = streak;
+    if (adhEl) adhEl.textContent = adherence + '%';
+    
+    // Color code adherence
+    var adhCard = document.getElementById('st-adh-card');
+    if (adhCard) {
+      adhCard.className = 'kpi-tile';
+      if (adherence >= 80) adhCard.classList.add('good');
+      else if (adherence >= 60) adhCard.classList.add('okay');
+      else adhCard.classList.add('poor');
+    }
+  } catch(e) {
+    console.error('Error loading statistics:', e);
+    alert('Error loading statistics. Please try again.');
+  }
 }
 
 function exportAllData() {
@@ -1238,10 +1456,135 @@ function loadHistoricalDataFromExcel() {
 // ═══════════════════════════════════════════════════════════
 // INITIALIZATION
 // ═══════════════════════════════════════════════════════════
+function renderTransactions() {
+  var list = document.getElementById('tx-list');
+  if (!list) return;
+  
+  if (transactions.length === 0) {
+    list.innerHTML = '<div style="font-size:12px;color:#9b8880;font-family:sans-serif;text-align:center;padding:8px">No transactions logged yet.</div>';
+    return;
+  }
+  
+  // Sort by date (newest first)
+  var sortedTx = transactions.slice().sort(function(a, b) {
+    return new Date(b.date) - new Date(a.date);
+  });
+  
+  list.innerHTML = sortedTx.map(function(tx) {
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(200,185,165,0.2)">' +
+      '<div>' +
+        '<div style="font-size:12px;color:#5c4a42;font-weight:500">$' + tx.amount.toFixed(2) + ' · ' + tx.type + '</div>' +
+        '<div style="font-size:10px;color:#9b8880">' + new Date(tx.date).toLocaleDateString() + (tx.note ? ' · ' + tx.note : '') + '</div>' +
+      '</div>' +
+      '<button onclick="removeTransaction(\'' + tx.id + '\')" style="background:none;border:none;color:#c46070;cursor:pointer;font-size:14px">&times;</button>' +
+      '</div>';
+  }).join('');
+  
+  // Update payment summary
+  var total = transactions.reduce(function(sum, tx) {
+    return sum + (tx.type === 'payment' ? tx.amount : 0);
+  }, 0);
+  
+  var totalDisplay = document.getElementById('pay-total-display');
+  var remaining = document.getElementById('remaining');
+  var pctLabel = document.getElementById('pay-pct-label');
+  var progBar = document.getElementById('pay-prog');
+  
+  if (totalDisplay) totalDisplay.textContent = '$' + total.toFixed(0);
+  if (remaining) remaining.textContent = '$' + (6700 - total).toFixed(0);
+  
+  var pct = Math.min(100, Math.round((total / 6700) * 100));
+  if (pctLabel) pctLabel.textContent = pct + '% paid of $6,700';
+  if (progBar) progBar.style.width = pct + '%';
+}
+
+function removeTransaction(id) {
+  transactions = transactions.filter(function(tx) { return tx.id !== id; });
+  localStorage.setItem('bmj_transactions', JSON.stringify(transactions));
+  renderTransactions();
+  flashSave();
+}
+
+function renderQuestions() {
+  var list = document.getElementById('q-list');
+  if (!list) return;
+  
+  if (questions.length === 0) {
+    list.innerHTML = '<div style="text-align:center;padding:1.5rem;color:#9b8880;font-family:sans-serif;font-style:italic">No questions yet.</div>';
+    return;
+  }
+  
+  list.innerHTML = questions.map(function(q) {
+    return '<div style="border:1px solid rgba(200,185,165,0.3);border-radius:8px;padding:12px;margin-bottom:8px;background:rgba(255,255,255,0.5)">' +
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">' +
+        '<div style="flex:1;font-size:13px;color:#5c4a42">' + q.text + '</div>' +
+        '<button onclick="removeQuestion(\'' + q.id + '\')" style="background:none;border:none;color:#c46070;cursor:pointer;font-size:14px;margin-left:8px">&times;</button>' +
+      '</div>' +
+      '<div style="font-size:10px;color:#9b8880;margin-bottom:' + (q.answered ? '8px' : '0') + '">' + q.date + '</div>' +
+      (q.answered ? '<div style="font-size:12px;color:#4a7c43;font-style:italic">Answer: ' + q.answer + '</div>' : '') +
+      '</div>';
+  }).join('');
+}
+
+function removeQuestion(id) {
+  questions = questions.filter(function(q) { return q.id !== id; });
+  localStorage.setItem('bmj_questions', JSON.stringify(questions));
+  renderQuestions();
+  flashSave();
+}
+
+function renderMonthlyTasks() {
+  var monthKey = toMonthKey(0);
+  var monthLabel = document.getElementById('month-label');
+  if (monthLabel) {
+    var d = new Date();
+    monthLabel.textContent = d.toLocaleDateString('en-US', {month: 'long', year: 'numeric'});
+  }
+  
+  // Load monthly data
+  if (monthData[monthKey] && monthData[monthKey].tasks) {
+    ['castoroil', 'calcium'].forEach(function(taskId) {
+      var row = document.getElementById('row-' + taskId);
+      if (row && monthData[monthKey].tasks[taskId]) {
+        row.classList.add('checked');
+      }
+    });
+  }
+  
+  // Load text areas
+  if (monthData[monthKey]) {
+    var apptNotes = document.getElementById('appt-notes');
+    var monthNotes = document.getElementById('month-notes');
+    
+    if (apptNotes && monthData[monthKey].appointments) {
+      apptNotes.value = monthData[monthKey].appointments;
+    }
+    if (monthNotes && monthData[monthKey].notes) {
+      monthNotes.value = monthData[monthKey].notes;
+    }
+  }
+}
+
 function loadAll() {
   var dk = toKey(offset);
   dayData = lsGet(dk) || {};
+  
+  // Load other data
+  try {
+    transactions = JSON.parse(localStorage.getItem('bmj_transactions') || '[]');
+    questions = JSON.parse(localStorage.getItem('bmj_questions') || '[]');
+    monthData = JSON.parse(localStorage.getItem('bmj_monthly') || '{}');
+  } catch(e) {
+    console.error('Error loading data:', e);
+    transactions = [];
+    questions = [];
+    monthData = {};
+  }
+  
   renderAll();
+  renderTransactions();
+  renderQuestions();
+  renderMonthlyTasks();
   hideLoading();
 }
 
