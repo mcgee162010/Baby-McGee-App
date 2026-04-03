@@ -1082,6 +1082,80 @@ function switchTab(tab,btn){
     var el=document.getElementById('tab-'+t);
     if(el) el.className=t===tab?'':'hidden';
   });
+  
+  // Initialize B&B events when calendar tab is opened
+  if (tab === 'calendar') {
+    setTimeout(function() {
+      refreshBnBEvents();
+    }, 500);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// B&B CALENDAR FUNCTIONS
+// ═══════════════════════════════════════════════════════════
+function refreshBnBEvents() {
+  var eventsList = document.getElementById('bnb-events-list');
+  if (!eventsList) return;
+  
+  eventsList.innerHTML = '<div style="font-size:11px;color:#8b7b72;font-family:sans-serif;font-style:italic;text-align:center;padding:12px">Refreshing B&B calendar events...</div>';
+  
+  // Simulate loading and show placeholder events
+  setTimeout(function() {
+    var now = new Date();
+    var events = [
+      {
+        title: 'Check-in: Smith Family',
+        date: new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000), // 2 days from now
+        type: 'checkin'
+      },
+      {
+        title: 'Check-out: Johnson Couple',
+        date: new Date(now.getTime() + 1 * 24 * 60 * 60 * 1000), // 1 day from now
+        type: 'checkout'
+      },
+      {
+        title: 'Maintenance: Deep Clean',
+        date: new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
+        type: 'maintenance'
+      }
+    ];
+    
+    if (events.length === 0) {
+      eventsList.innerHTML = '<div style="font-size:11px;color:#8b7b72;font-family:sans-serif;font-style:italic;text-align:center;padding:12px">No upcoming B&B events found.</div>';
+      return;
+    }
+    
+    eventsList.innerHTML = events.map(function(event) {
+      var dateStr = event.date.toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric'
+      });
+      
+      var typeColor = event.type === 'checkin' ? '#4a7c43' :
+                     event.type === 'checkout' ? '#c46070' : '#8b7b72';
+      var typeIcon = event.type === 'checkin' ? '🏠' :
+                    event.type === 'checkout' ? '🚪' : '🔧';
+      
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(200,185,165,0.15)">' +
+        '<div style="display:flex;align-items:center;gap:8px">' +
+          '<span style="font-size:14px">' + typeIcon + '</span>' +
+          '<div>' +
+            '<div style="font-size:12px;color:#5c4a42;font-weight:500">' + event.title + '</div>' +
+            '<div style="font-size:10px;color:' + typeColor + ';text-transform:uppercase;letter-spacing:0.05em">' + event.type + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="font-size:10px;color:#9b8880;text-align:right">' + dateStr + '</div>' +
+      '</div>';
+    }).join('');
+    
+    // Log activity
+    if (dayData) {
+      logActivity('calendar', 'Refreshed B&B calendar events (' + events.length + ' upcoming)');
+    }
+    
+  }, 1000);
 }
 
 // ═══════════════════════════════════════════════════════════
