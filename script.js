@@ -7,8 +7,8 @@
 // CONSTANTS
 // ═══════════════════════════════════════════════════════════
 var DUE = new Date('2026-09-04');
-var MEDS = ['aspirin','prenatal','vitd','fishoil','lemonbalm','magnesium'];
-var MED_NAMES = {aspirin:'Baby Aspirin',prenatal:'Thorne Prenatal',vitd:'Vitamin D3',fishoil:'Fish Oil',lemonbalm:'Lemon Balm',magnesium:'Calm Powder'};
+var MEDS = ['aspirin','prenatal','vitd','fishoil','lemonbalm','magnesium','passionflower','lavender','ashwagandha','holybasil','motherwort','moringa'];
+var MED_NAMES = {aspirin:'Baby Aspirin',prenatal:'Thorne Prenatal',vitd:'Vitamin D3',fishoil:'Fish Oil',lemonbalm:'Lemon Balm',magnesium:'Magnesium',passionflower:'Passion Flower',lavender:'Lavender',ashwagandha:'Ashwagandha',holybasil:'Holy Basil',motherwort:'Mother Wort',moringa:'Moringa'};
 var STAR_LABELS = ['','Rough day','Okay','Feeling alright','Good day','Feeling great!'];
 
 // Baby development data by week

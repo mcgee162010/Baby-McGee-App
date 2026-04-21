@@ -243,7 +243,7 @@
       <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
     </div>
-    <div style="flex:1"><div class="med-name">Vitamin D3 <span class="tag t-amber">Immune Support</span></div><div class="med-dose">1000-2000 IU daily</div><div class="med-note">Essential for calcium absorption and immune function during pregnancy.</div></div>
+    <div style="flex:1"><div class="med-name">Vitamin D3 <span class="tag t-amber">Immune Support</span></div><div class="med-dose">5,000 IU daily</div><div class="med-note">Midwife approved dose. Goal vitamin D labs: 50-75. Monitoring levels regularly.</div></div>
     <button class="med-skip-btn" onclick="skipMed(event,'vitd')" title="Mark as not taken">✕</button>
   </div>
   <div class="med-row" id="row-fishoil" onclick="toggleMed('fishoil')">
@@ -270,8 +270,65 @@
       <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
     </div>
-    <div style="flex:1"><div class="med-name">Calm Powder <span class="tag t-green">Muscle Support</span></div><div class="med-dose">200-400mg daily</div><div class="med-note">Helps with muscle cramps, sleep, and supports healthy blood pressure.</div></div>
+    <div style="flex:1"><div class="med-name">Magnesium <span class="tag t-green">Sleep & Muscle Support</span></div><div class="med-dose">400-600mg at night</div><div class="med-note">Midwife approved dose for sleep, muscle support, and nervous system health.</div></div>
     <button class="med-skip-btn" onclick="skipMed(event,'magnesium')" title="Mark as not taken">✕</button>
+  </div>
+
+  <!-- Additional Supplements Section -->
+  <div class="section-title">Additional Supplements — As Needed</div>
+  <div class="med-row" id="row-passionflower" onclick="toggleMed('passionflower')">
+    <div class="circle">
+      <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </div>
+    <div style="flex:1"><div class="med-name">Passion Flower <span class="tag t-rose">Relaxation</span></div><div class="med-dose">As needed</div><div class="med-note">Midwife approved - safe for pregnancy. Use as much as wanted for relaxation.</div></div>
+    <button class="med-skip-btn" onclick="skipMed(event,'passionflower')" title="Mark as not taken">✕</button>
+  </div>
+  <div class="med-row" id="row-lavender" onclick="toggleMed('lavender')">
+    <div class="circle">
+      <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </div>
+    <div style="flex:1"><div class="med-name">Lavender <span class="tag t-rose">Calming</span></div><div class="med-dose">As needed</div><div class="med-note">Midwife approved - safe for pregnancy. Use as much as wanted for calming.</div></div>
+    <button class="med-skip-btn" onclick="skipMed(event,'lavender')" title="Mark as not taken">✕</button>
+  </div>
+
+  <!-- Limited Research Supplements -->
+  <div class="section-title">Limited Research — Use with Caution</div>
+  <div class="med-row" id="row-ashwagandha" onclick="toggleMed('ashwagandha')">
+    <div class="circle">
+      <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </div>
+    <div style="flex:1"><div class="med-name">Ashwagandha <span class="tag t-amber">Limited Research</span></div><div class="med-dose">Within limitations</div><div class="med-note">Not enough research but okay within limitation - use sparingly.</div></div>
+    <button class="med-skip-btn" onclick="skipMed(event,'ashwagandha')" title="Mark as not taken">✕</button>
+  </div>
+  <div class="med-row" id="row-holybasil" onclick="toggleMed('holybasil')">
+    <div class="circle">
+      <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </div>
+    <div style="flex:1"><div class="med-name">Holy Basil <span class="tag t-amber">Limited Research</span></div><div class="med-dose">Within limitations</div><div class="med-note">Not enough research but okay within limitation - use sparingly.</div></div>
+    <button class="med-skip-btn" onclick="skipMed(event,'holybasil')" title="Mark as not taken">✕</button>
+  </div>
+  <div class="med-row" id="row-motherwort" onclick="toggleMed('motherwort')">
+    <div class="circle">
+      <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </div>
+    <div style="flex:1"><div class="med-name">Mother Wort <span class="tag t-amber">Limited Research</span></div><div class="med-dose">Within limitations</div><div class="med-note">Not enough research but okay within limitation - use sparingly.</div></div>
+    <button class="med-skip-btn" onclick="skipMed(event,'motherwort')" title="Mark as not taken">✕</button>
+  </div>
+
+  <!-- Topical Treatments -->
+  <div class="section-title">Topical Treatments</div>
+  <div class="med-row" id="row-moringa" onclick="toggleMed('moringa')">
+    <div class="circle">
+      <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </div>
+    <div style="flex:1"><div class="med-name">Moringa (Foot Rash) <span class="tag t-blue">Topical</span></div><div class="med-dose">As needed</div><div class="med-note">Generally well tolerated. Monitor skin response and report if worsens.</div></div>
+    <button class="med-skip-btn" onclick="skipMed(event,'moringa')" title="Mark as not taken">✕</button>
   </div>
 
   <!-- Hypnobabies -->
