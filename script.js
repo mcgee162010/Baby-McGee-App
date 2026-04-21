@@ -147,7 +147,9 @@ let appState = {
   activityLog: [],
   isOnline: navigator.onLine,
   lastSync: null,
-  pendingChanges: new Set()
+  pendingChanges: new Set(),
+  autoSyncTimer: null,
+  syncTimer: null
 };
 
 // Global variables for backward compatibility
@@ -1781,6 +1783,9 @@ function commitSave() {
   var dk = toKey(offset);
   lsPut(dk, dayData);
   flashSave();
+  
+  // Trigger auto-sync when data changes
+  triggerAutoSync();
 }
 
 function debouncedSave(field) {
@@ -1920,11 +1925,98 @@ function refreshBnBEvents() {
 }
 
 // ═══════════════════════════════════════════════════════════
-// PLACEHOLDER FUNCTIONS (for future implementation)
+// ENHANCED SYNC FUNCTIONS
 // ═══════════════════════════════════════════════════════════
-function manualSync() {
-  console.log('Sync functionality - placeholder');
-  flashSave();
+async function manualSync() {
+  if (!CONFIG.GITHUB_TOKEN) {
+    showNotification('Please connect to GitHub first in Settings', 'error');
+    return;
+  }
+  
+  try {
+    updateSyncButton('syncing');
+    showNotification('Starting sync...', 'info', 2000);
+    
+    await syncAllData();
+    
+    updateSyncButton('success');
+    setTimeout(() => updateSyncButton('idle'), 2000);
+  } catch (error) {
+    console.error('Manual sync error:', error);
+    updateSyncButton('error');
+    setTimeout(() => updateSyncButton('idle'), 3000);
+  }
+}
+
+async function saveAndSync() {
+  // Save current data first
+  if (dayData) {
+    collectDayData();
+    commitSave();
+  }
+  
+  // Then sync if GitHub is connected
+  if (CONFIG.GITHUB_TOKEN) {
+    await manualSync();
+  } else {
+    showNotification('Data saved locally. Connect to GitHub in Settings to sync across devices.', 'info', 4000);
+    flashSave();
+  }
+}
+
+function updateSyncButton(state) {
+  const syncBtn = getElement('header-sync-btn');
+  const syncIcon = getElement('sync-icon');
+  
+  if (!syncBtn || !syncIcon) return;
+  
+  // Reset classes
+  syncBtn.className = 'header-sync-btn';
+  
+  switch (state) {
+    case 'syncing':
+      syncBtn.classList.add('syncing');
+      syncIcon.textContent = '⟳';
+      syncBtn.title = 'Syncing data...';
+      break;
+    case 'success':
+      syncBtn.classList.add('success');
+      syncIcon.textContent = '✓';
+      syncBtn.title = 'Sync successful';
+      break;
+    case 'error':
+      syncBtn.classList.add('error');
+      syncIcon.textContent = '⚠';
+      syncBtn.title = 'Sync failed - click to retry';
+      break;
+    default: // idle
+      syncBtn.classList.add('idle');
+      syncIcon.textContent = '↻';
+      syncBtn.title = 'Sync data to cloud';
+  }
+}
+
+// Auto-sync when changes are made
+function triggerAutoSync() {
+  if (!CONFIG.GITHUB_TOKEN || CONFIG.OFFLINE_MODE) return;
+  
+  // Add current change to pending changes
+  appState.pendingChanges.add(Date.now());
+  updateSyncStatus();
+  
+  // Debounced auto-sync
+  clearTimeout(appState.autoSyncTimer);
+  appState.autoSyncTimer = setTimeout(async () => {
+    if (appState.pendingChanges.size > 0) {
+      try {
+        await syncAllData();
+        appState.pendingChanges.clear();
+        updateSyncStatus();
+      } catch (error) {
+        console.error('Auto-sync failed:', error);
+      }
+    }
+  }, 30000); // Auto-sync after 30 seconds of inactivity
 }
 
 function toggleMonthTask(id) {
@@ -2747,6 +2839,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize settings and GitHub connection
     initializeSettings();
+    
+    // Initialize sync button state
+    updateSyncButton('idle');
     
     // Load historical data on first run
     var hasHistoricalData = localStorage.getItem('bmj_historical_loaded');
