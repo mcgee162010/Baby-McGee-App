@@ -8,7 +8,7 @@
 // ═══════════════════════════════════════════════════════════
 const CONFIG = {
   DUE_DATE: new Date('2026-09-04'),
-  GITHUB_DATA_REPO: 'mcgee162010/baby-mcgee-data', // Private repo for personal data
+  GITHUB_DATA_REPO: 'mcgee162010/Baby-McGee-App', // Your existing private repo
   GITHUB_TOKEN: null, // Will be set by user
   CACHE_DURATION: 5 * 60 * 1000, // 5 minutes
   DEBOUNCE_DELAY: 800, // Reduced from 1200ms for better responsiveness
