@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════
-// Baby McGee Journal - Local Version
-// Based on Google Script version but using localStorage
+// Baby McGee Journal - Enhanced Local Version
+// Revamped with modern features, better error handling, and accessibility
 // ═══════════════════════════════════════════════════════════
 
 // ═══════════════════════════════════════════════════════════
@@ -126,12 +126,63 @@ function lsGet(dateKey) {
 function lsPut(dateKey, data) {
   try {
     localStorage.setItem(lsKey(dateKey), JSON.stringify(data));
+    return true;
   } catch(e) {
-    console.error('localStorage full:', e);
-    alert('Storage is full. Please export your data and clear old entries.');
-    return false;
+    console.error('localStorage error:', e);
+    
+    // Better error handling with user-friendly messages
+    if (e.name === 'QuotaExceededError') {
+      showNotification('Storage is full. Please export your data and clear old entries.', 'error');
+      return false;
+    } else if (e.name === 'SecurityError') {
+      showNotification('Storage access denied. Please check your browser settings.', 'error');
+      return false;
+    } else {
+      showNotification('Error saving data. Please try again.', 'error');
+      return false;
+    }
   }
-  return true;
+}
+
+// Enhanced notification system
+function showNotification(message, type = 'info', duration = 5000) {
+  // Remove existing notifications
+  const existing = document.querySelector('.notification');
+  if (existing) existing.remove();
+  
+  const notification = document.createElement('div');
+  notification.className = `notification notification-${type}`;
+  notification.innerHTML = `
+    <div class="notification-content">
+      <span class="notification-message">${message}</span>
+      <button class="notification-close" onclick="this.parentElement.parentElement.remove()" aria-label="Close notification">&times;</button>
+    </div>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Auto-remove after duration
+  setTimeout(() => {
+    if (notification.parentElement) {
+      notification.remove();
+    }
+  }, duration);
+}
+
+// Performance optimization: debounced resize handler
+let resizeTimeout;
+function handleResize() {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+    // Recalculate any responsive elements if needed
+    updateViewportHeight();
+  }, 250);
+}
+
+function updateViewportHeight() {
+  // Fix for mobile viewport height issues
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1729,9 +1780,17 @@ function forceLoad() {
   loadAll();
 }
 
-// Initialize when DOM is ready
+// Enhanced initialization with modern features
 document.addEventListener('DOMContentLoaded', function() {
   try {
+    // Initialize viewport height fix
+    updateViewportHeight();
+    window.addEventListener('resize', handleResize);
+    
+    // Add keyboard navigation support
+    document.addEventListener('keydown', handleKeyboardNavigation);
+    
+    // Initialize app
     renderStats();
     
     // Load historical data on first run
@@ -1741,15 +1800,161 @@ document.addEventListener('DOMContentLoaded', function() {
       if (imported > 0) {
         localStorage.setItem('bmj_historical_loaded', 'true');
         console.log('Loaded ' + imported + ' days of historical data');
+        showNotification('Historical data loaded successfully!', 'success');
       }
     }
+    
+    // Check for app updates
+    checkForUpdates();
     
     loadAll();
   } catch(e) {
     console.error('Init error:', e);
+    showNotification('Error initializing app. Please refresh the page.', 'error');
     hideLoading();
   }
 });
+
+// Keyboard navigation for accessibility
+function handleKeyboardNavigation(e) {
+  // Tab navigation for bottom nav
+  if (e.key === 'Tab' && e.target.classList.contains('nav-btn')) {
+    e.preventDefault();
+    const navBtns = document.querySelectorAll('.nav-btn');
+    const currentIndex = Array.from(navBtns).indexOf(e.target);
+    const nextIndex = e.shiftKey ?
+      (currentIndex - 1 + navBtns.length) % navBtns.length :
+      (currentIndex + 1) % navBtns.length;
+    navBtns[nextIndex].focus();
+  }
+  
+  // Enter key for nav buttons
+  if (e.key === 'Enter' && e.target.classList.contains('nav-btn')) {
+    e.target.click();
+  }
+}
+
+// Check for app updates (service worker support)
+function checkForUpdates() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js')
+      .then(function(registration) {
+        console.log('Service Worker registered successfully');
+        
+        registration.addEventListener('updatefound', function() {
+          showNotification('App update available! Refresh to get the latest version.', 'info', 10000);
+        });
+      })
+      .catch(function(error) {
+        console.log('Service Worker registration failed:', error);
+      });
+  }
+}
+
+// Enhanced data export with better formatting
+function exportEnhancedData() {
+  try {
+    var allData = {
+      exportDate: new Date().toISOString(),
+      appVersion: '2.0.0',
+      dailyData: {},
+      transactions: JSON.parse(localStorage.getItem('bmj_transactions') || '[]'),
+      questions: JSON.parse(localStorage.getItem('bmj_questions') || '[]'),
+      monthlyData: JSON.parse(localStorage.getItem('bmj_monthly') || '{}'),
+      statistics: generateExportStatistics()
+    };
+    
+    // Collect all daily data
+    for (var i = 0; i < localStorage.length; i++) {
+      var key = localStorage.key(i);
+      if (key && key.startsWith(LS_PREFIX)) {
+        var dateKey = key.replace(LS_PREFIX, '');
+        allData.dailyData[dateKey] = JSON.parse(localStorage.getItem(key));
+      }
+    }
+    
+    var dataStr = JSON.stringify(allData, null, 2);
+    var dataBlob = new Blob([dataStr], {type: 'application/json'});
+    var url = URL.createObjectURL(dataBlob);
+    var link = document.createElement('a');
+    link.href = url;
+    link.download = 'baby-mcgee-enhanced-export-' + new Date().toISOString().slice(0,10) + '.json';
+    link.click();
+    URL.revokeObjectURL(url);
+    
+    showNotification('Data exported successfully!', 'success');
+  } catch(e) {
+    console.error('Export error:', e);
+    showNotification('Error exporting data: ' + e.message, 'error');
+  }
+}
+
+function generateExportStatistics() {
+  var stats = {
+    totalDaysLogged: 0,
+    medicationAdherence: {},
+    averageRating: 0,
+    totalExerciseSessions: 0,
+    averageSteps: 0
+  };
+  
+  var totalRating = 0;
+  var ratingCount = 0;
+  var totalSteps = 0;
+  var stepsCount = 0;
+  
+  // Initialize medication counters
+  MEDS.forEach(function(med) {
+    stats.medicationAdherence[med] = { taken: 0, total: 0 };
+  });
+  
+  // Analyze all daily data
+  for (var i = 0; i < localStorage.length; i++) {
+    var key = localStorage.key(i);
+    if (key && key.startsWith(LS_PREFIX)) {
+      var dayData = JSON.parse(localStorage.getItem(key));
+      if (dayData && Object.keys(dayData).length > 0) {
+        stats.totalDaysLogged++;
+        
+        // Rating analysis
+        if (dayData.rating) {
+          totalRating += dayData.rating;
+          ratingCount++;
+        }
+        
+        // Steps analysis
+        if (dayData.steps) {
+          var steps = parseInt(dayData.steps);
+          if (!isNaN(steps)) {
+            totalSteps += steps;
+            stepsCount++;
+          }
+        }
+        
+        // Medication analysis
+        if (dayData.meds) {
+          MEDS.forEach(function(med) {
+            stats.medicationAdherence[med].total++;
+            if (dayData.meds[med] === true) {
+              stats.medicationAdherence[med].taken++;
+            }
+          });
+        }
+        
+        // Exercise analysis
+        if (dayData.exerciseSessions) {
+          stats.totalExerciseSessions += dayData.exerciseSessions.length;
+        }
+      }
+    }
+  }
+  
+  // Calculate averages
+  stats.averageRating = ratingCount > 0 ? (totalRating / ratingCount).toFixed(1) : 0;
+  stats.averageSteps = stepsCount > 0 ? Math.round(totalSteps / stepsCount) : 0;
+  
+  return stats;
+}
 
 // Show "Tap to Load" button after 3s if overlay is still showing
 setTimeout(function() {
