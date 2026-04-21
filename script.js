@@ -1062,7 +1062,413 @@ function deleteBPReading(idx) {
   }
   dayData.bp.splice(idx,1);
   renderBP();
+  updateBPTrends();
   commitSave();
+}
+
+// ═══════════════════════════════════════════════════════════
+// BLOOD PRESSURE TREND ANALYSIS
+// ═══════════════════════════════════════════════════════════
+
+function updateBPTrends() {
+  updateBPSummaryCards();
+  renderBPCharts();
+  analyzeBPPatterns();
+}
+
+function getAllBPReadings() {
+  var allReadings = [];
+  var today = new Date();
+  
+  // Collect readings from the last 9 months (pregnancy duration)
+  for (var i = 0; i < 270; i++) {
+    var date = new Date(today);
+    date.setDate(date.getDate() - i);
+    var dateKey = date.toISOString().slice(0, 10);
+    var dayD = lsGet(dateKey);
+    
+    if (dayD && dayD.bp && dayD.bp.length > 0) {
+      dayD.bp.forEach(function(reading) {
+        allReadings.push({
+          date: date,
+          dateKey: dateKey,
+          sys: reading.sys,
+          dia: reading.dia,
+          pul: reading.pul || null,
+          time: reading.time
+        });
+      });
+    }
+  }
+  
+  return allReadings.sort(function(a, b) { return a.date - b.date; });
+}
+
+function updateBPSummaryCards() {
+  var allReadings = getAllBPReadings();
+  var today = new Date();
+  
+  // Weekly summary (last 7 days)
+  var weekReadings = allReadings.filter(function(r) {
+    var daysDiff = Math.floor((today - r.date) / (24 * 60 * 60 * 1000));
+    return daysDiff <= 7;
+  });
+  
+  // Monthly summary (last 30 days)
+  var monthReadings = allReadings.filter(function(r) {
+    var daysDiff = Math.floor((today - r.date) / (24 * 60 * 60 * 1000));
+    return daysDiff <= 30;
+  });
+  
+  updateSummaryCard('week', weekReadings);
+  updateSummaryCard('month', monthReadings);
+  updateSummaryCard('pregnancy', allReadings);
+}
+
+function updateSummaryCard(period, readings) {
+  var avgSys = 0, avgDia = 0;
+  var status = 'normal';
+  
+  if (readings.length > 0) {
+    avgSys = Math.round(readings.reduce(function(sum, r) { return sum + r.sys; }, 0) / readings.length);
+    avgDia = Math.round(readings.reduce(function(sum, r) { return sum + r.dia; }, 0) / readings.length);
+    
+    // Determine status
+    if (avgSys >= 140 || avgDia >= 90) {
+      status = 'high';
+    } else if (avgSys >= 130 || avgDia >= 80) {
+      status = 'elevated';
+    }
+  }
+  
+  var avgEl = document.getElementById('bp-' + period + '-avg');
+  var rangeEl = document.getElementById('bp-' + period + '-range');
+  var statusEl = document.getElementById('bp-' + period + '-status');
+  
+  if (avgEl) avgEl.textContent = readings.length > 0 ? avgSys + '/' + avgDia : '--/--';
+  if (rangeEl) rangeEl.textContent = readings.length + ' reading' + (readings.length !== 1 ? 's' : '');
+  if (statusEl) {
+    statusEl.textContent = status === 'normal' ? 'Normal' : status === 'elevated' ? 'Elevated' : 'High';
+    statusEl.className = 'bp-summary-status ' + status;
+  }
+}
+
+function renderBPCharts() {
+  renderWeeklyChart();
+  renderMonthlyChart();
+  renderPregnancyChart();
+}
+
+function renderWeeklyChart() {
+  var canvas = document.getElementById('bp-weekly-chart');
+  if (!canvas) return;
+  
+  var ctx = canvas.getContext('2d');
+  var allReadings = getAllBPReadings();
+  var today = new Date();
+  
+  // Get last 7 days of readings
+  var weekReadings = [];
+  for (var i = 6; i >= 0; i--) {
+    var date = new Date(today);
+    date.setDate(date.getDate() - i);
+    var dateKey = date.toISOString().slice(0, 10);
+    
+    var dayReadings = allReadings.filter(function(r) { return r.dateKey === dateKey; });
+    var avgSys = 0, avgDia = 0, avgPul = 0;
+    
+    if (dayReadings.length > 0) {
+      avgSys = dayReadings.reduce(function(sum, r) { return sum + r.sys; }, 0) / dayReadings.length;
+      avgDia = dayReadings.reduce(function(sum, r) { return sum + r.dia; }, 0) / dayReadings.length;
+      avgPul = dayReadings.reduce(function(sum, r) { return sum + (r.pul || 0); }, 0) / dayReadings.length;
+    }
+    
+    weekReadings.push({
+      date: date,
+      label: date.toLocaleDateString('en-US', { weekday: 'short' }),
+      sys: avgSys,
+      dia: avgDia,
+      pul: avgPul,
+      hasData: dayReadings.length > 0
+    });
+  }
+  
+  drawLineChart(ctx, canvas, weekReadings, 'weekly');
+}
+
+function renderMonthlyChart() {
+  var canvas = document.getElementById('bp-monthly-chart');
+  if (!canvas) return;
+  
+  var ctx = canvas.getContext('2d');
+  var allReadings = getAllBPReadings();
+  var today = new Date();
+  
+  // Get last 30 days, grouped by week
+  var weeklyData = [];
+  for (var week = 0; week < 4; week++) {
+    var weekReadings = [];
+    for (var day = 0; day < 7; day++) {
+      var date = new Date(today);
+      date.setDate(date.getDate() - (week * 7 + day));
+      var dateKey = date.toISOString().slice(0, 10);
+      var dayReadings = allReadings.filter(function(r) { return r.dateKey === dateKey; });
+      weekReadings = weekReadings.concat(dayReadings);
+    }
+    
+    var avgSys = 0, avgDia = 0;
+    if (weekReadings.length > 0) {
+      avgSys = weekReadings.reduce(function(sum, r) { return sum + r.sys; }, 0) / weekReadings.length;
+      avgDia = weekReadings.reduce(function(sum, r) { return sum + r.dia; }, 0) / weekReadings.length;
+    }
+    
+    weeklyData.unshift({
+      label: 'Week ' + (4 - week),
+      sys: avgSys,
+      dia: avgDia,
+      hasData: weekReadings.length > 0
+    });
+  }
+  
+  drawLineChart(ctx, canvas, weeklyData, 'monthly');
+}
+
+function renderPregnancyChart() {
+  var canvas = document.getElementById('bp-pregnancy-chart');
+  if (!canvas) return;
+  
+  var ctx = canvas.getContext('2d');
+  var allReadings = getAllBPReadings();
+  
+  // Group by month for pregnancy timeline
+  var monthlyData = {};
+  allReadings.forEach(function(reading) {
+    var monthKey = reading.date.toISOString().slice(0, 7);
+    if (!monthlyData[monthKey]) {
+      monthlyData[monthKey] = [];
+    }
+    monthlyData[monthKey].push(reading);
+  });
+  
+  var chartData = Object.keys(monthlyData).sort().map(function(monthKey) {
+    var readings = monthlyData[monthKey];
+    var avgSys = readings.reduce(function(sum, r) { return sum + r.sys; }, 0) / readings.length;
+    var avgDia = readings.reduce(function(sum, r) { return sum + r.dia; }, 0) / readings.length;
+    
+    return {
+      label: new Date(monthKey + '-01').toLocaleDateString('en-US', { month: 'short' }),
+      sys: avgSys,
+      dia: avgDia,
+      hasData: true
+    };
+  });
+  
+  drawLineChart(ctx, canvas, chartData, 'pregnancy');
+}
+
+function drawLineChart(ctx, canvas, data, type) {
+  var width = canvas.width;
+  var height = canvas.height;
+  
+  // Clear canvas
+  ctx.clearRect(0, 0, width, height);
+  
+  if (data.length === 0 || !data.some(function(d) { return d.hasData; })) {
+    // Draw "No data" message
+    ctx.fillStyle = '#90a898';
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('No data available', width / 2, height / 2);
+    return;
+  }
+  
+  var padding = 30;
+  var chartWidth = width - padding * 2;
+  var chartHeight = height - padding * 2;
+  
+  // Find min/max values
+  var validData = data.filter(function(d) { return d.hasData; });
+  var minSys = Math.min.apply(Math, validData.map(function(d) { return d.sys; }));
+  var maxSys = Math.max.apply(Math, validData.map(function(d) { return d.sys; }));
+  var minDia = Math.min.apply(Math, validData.map(function(d) { return d.dia; }));
+  var maxDia = Math.max.apply(Math, validData.map(function(d) { return d.dia; }));
+  
+  var minY = Math.max(40, Math.min(minSys, minDia) - 10);
+  var maxY = Math.min(200, Math.max(maxSys, maxDia) + 10);
+  
+  // Draw grid lines
+  ctx.strokeStyle = 'rgba(175, 152, 132, 0.2)';
+  ctx.lineWidth = 1;
+  
+  // Horizontal grid lines
+  for (var i = 0; i <= 5; i++) {
+    var y = padding + (chartHeight / 5) * i;
+    ctx.beginPath();
+    ctx.moveTo(padding, y);
+    ctx.lineTo(width - padding, y);
+    ctx.stroke();
+  }
+  
+  // Draw high BP alert zone
+  if (maxY > 140) {
+    var alertY = padding + chartHeight * (1 - (140 - minY) / (maxY - minY));
+    ctx.fillStyle = 'rgba(244, 67, 54, 0.1)';
+    ctx.fillRect(padding, padding, chartWidth, alertY - padding);
+  }
+  
+  // Draw systolic line
+  ctx.strokeStyle = '#e74c3c';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  var firstSys = true;
+  data.forEach(function(point, i) {
+    if (point.hasData) {
+      var x = padding + (chartWidth / (data.length - 1)) * i;
+      var y = padding + chartHeight * (1 - (point.sys - minY) / (maxY - minY));
+      
+      if (firstSys) {
+        ctx.moveTo(x, y);
+        firstSys = false;
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+  });
+  ctx.stroke();
+  
+  // Draw diastolic line
+  ctx.strokeStyle = '#3498db';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  var firstDia = true;
+  data.forEach(function(point, i) {
+    if (point.hasData) {
+      var x = padding + (chartWidth / (data.length - 1)) * i;
+      var y = padding + chartHeight * (1 - (point.dia - minY) / (maxY - minY));
+      
+      if (firstDia) {
+        ctx.moveTo(x, y);
+        firstDia = false;
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+  });
+  ctx.stroke();
+  
+  // Draw data points
+  data.forEach(function(point, i) {
+    if (point.hasData) {
+      var x = padding + (chartWidth / (data.length - 1)) * i;
+      
+      // Systolic point
+      var sysY = padding + chartHeight * (1 - (point.sys - minY) / (maxY - minY));
+      ctx.fillStyle = '#e74c3c';
+      ctx.beginPath();
+      ctx.arc(x, sysY, 3, 0, 2 * Math.PI);
+      ctx.fill();
+      
+      // Diastolic point
+      var diaY = padding + chartHeight * (1 - (point.dia - minY) / (maxY - minY));
+      ctx.fillStyle = '#3498db';
+      ctx.beginPath();
+      ctx.arc(x, diaY, 3, 0, 2 * Math.PI);
+      ctx.fill();
+    }
+  });
+  
+  // Draw labels
+  ctx.fillStyle = '#90a898';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'center';
+  data.forEach(function(point, i) {
+    var x = padding + (chartWidth / (data.length - 1)) * i;
+    ctx.fillText(point.label, x, height - 5);
+  });
+}
+
+function analyzeBPPatterns() {
+  var allReadings = getAllBPReadings();
+  
+  if (allReadings.length < 3) {
+    updatePatternAnalysis('Not enough data', 'Need more readings', '0 high readings', 'Continue monitoring');
+    return;
+  }
+  
+  // Calculate trend
+  var recentReadings = allReadings.slice(-10); // Last 10 readings
+  var avgSysRecent = recentReadings.reduce(function(sum, r) { return sum + r.sys; }, 0) / recentReadings.length;
+  var avgDiaRecent = recentReadings.reduce(function(sum, r) { return sum + r.dia; }, 0) / recentReadings.length;
+  
+  var olderReadings = allReadings.slice(-20, -10); // Previous 10 readings
+  var avgSysOlder = olderReadings.length > 0 ? olderReadings.reduce(function(sum, r) { return sum + r.sys; }, 0) / olderReadings.length : avgSysRecent;
+  var avgDiaOlder = olderReadings.length > 0 ? olderReadings.reduce(function(sum, r) { return sum + r.dia; }, 0) / olderReadings.length : avgDiaRecent;
+  
+  var sysTrend = avgSysRecent - avgSysOlder;
+  var diaTrend = avgDiaRecent - avgDiaOlder;
+  
+  var trendDirection = 'Stable';
+  if (sysTrend > 5 || diaTrend > 3) {
+    trendDirection = 'Rising';
+  } else if (sysTrend < -5 || diaTrend < -3) {
+    trendDirection = 'Improving';
+  }
+  
+  // Calculate variability
+  var sysValues = recentReadings.map(function(r) { return r.sys; });
+  var diaValues = recentReadings.map(function(r) { return r.dia; });
+  var sysStdDev = calculateStdDev(sysValues);
+  var diaStdDev = calculateStdDev(diaValues);
+  
+  var variability = 'Low';
+  if (sysStdDev > 15 || diaStdDev > 10) {
+    variability = 'High';
+  } else if (sysStdDev > 10 || diaStdDev > 7) {
+    variability = 'Moderate';
+  }
+  
+  // Count high readings
+  var highReadings = allReadings.filter(function(r) { return r.sys >= 140 || r.dia >= 90; }).length;
+  var alertCount = highReadings + ' high reading' + (highReadings !== 1 ? 's' : '');
+  
+  // Generate recommendation
+  var recommendation = 'Continue monitoring';
+  if (highReadings > 0) {
+    recommendation = 'Discuss with midwife';
+  }
+  if (trendDirection === 'Rising' && variability === 'High') {
+    recommendation = 'Contact midwife soon';
+  }
+  if (avgSysRecent >= 140 || avgDiaRecent >= 90) {
+    recommendation = 'Contact midwife immediately';
+  }
+  
+  updatePatternAnalysis(trendDirection, variability, alertCount, recommendation);
+}
+
+function calculateStdDev(values) {
+  var avg = values.reduce(function(sum, val) { return sum + val; }, 0) / values.length;
+  var squareDiffs = values.map(function(val) { return Math.pow(val - avg, 2); });
+  var avgSquareDiff = squareDiffs.reduce(function(sum, val) { return sum + val; }, 0) / values.length;
+  return Math.sqrt(avgSquareDiff);
+}
+
+function updatePatternAnalysis(trend, variability, alerts, recommendation) {
+  var trendEl = document.getElementById('bp-trend-direction');
+  var variabilityEl = document.getElementById('bp-variability');
+  var alertsEl = document.getElementById('bp-alert-count');
+  var recommendationEl = document.getElementById('bp-recommendation');
+  
+  if (trendEl) {
+    trendEl.textContent = trend;
+    trendEl.className = 'pattern-value trend-' + (trend === 'Stable' ? 'stable' : trend === 'Rising' ? 'rising' : 'stable');
+  }
+  if (variabilityEl) variabilityEl.textContent = variability;
+  if (alertsEl) alertsEl.textContent = alerts;
+  if (recommendationEl) {
+    recommendationEl.textContent = recommendation;
+    recommendationEl.className = 'pattern-value trend-' + (recommendation.includes('immediately') ? 'concerning' : recommendation.includes('soon') ? 'rising' : 'stable');
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1197,6 +1603,13 @@ function switchTab(tab,btn){
     setTimeout(function() {
       refreshBnBEvents();
     }, 500);
+  }
+  
+  // Initialize BP trends when BP tab is opened
+  if (tab === 'bp') {
+    setTimeout(function() {
+      updateBPTrends();
+    }, 300);
   }
 }
 

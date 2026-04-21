@@ -523,9 +523,33 @@
     </div>
   </div>
   <input type="date" class="date-picker-hidden" id="date-picker-bp" oninput="jumpToDate(this.value)" style="position:absolute;left:-9999px;opacity:0;">
+  
+  <!-- BP Trend Summary Cards -->
+  <div class="bp-summary-grid">
+    <div class="bp-summary-card">
+      <div class="bp-summary-title">This Week</div>
+      <div class="bp-summary-avg" id="bp-week-avg">--/--</div>
+      <div class="bp-summary-range" id="bp-week-range">-- readings</div>
+      <div class="bp-summary-status" id="bp-week-status">--</div>
+    </div>
+    <div class="bp-summary-card">
+      <div class="bp-summary-title">This Month</div>
+      <div class="bp-summary-avg" id="bp-month-avg">--/--</div>
+      <div class="bp-summary-range" id="bp-month-range">-- readings</div>
+      <div class="bp-summary-status" id="bp-month-status">--</div>
+    </div>
+    <div class="bp-summary-card">
+      <div class="bp-summary-title">Pregnancy Avg</div>
+      <div class="bp-summary-avg" id="bp-pregnancy-avg">--/--</div>
+      <div class="bp-summary-range" id="bp-pregnancy-range">-- readings</div>
+      <div class="bp-summary-status" id="bp-pregnancy-status">--</div>
+    </div>
+  </div>
+
   <div class="card alert-card">
     <div style="font-size:11px;font-family:sans-serif;color:#8b5a42;line-height:1.6">Sit quietly 5 min · Feet flat · Arm at heart level<br><strong>Alert: ≥140 systolic OR ≥90 diastolic → Contact midwife immediately</strong></div>
   </div>
+  
   <div class="card">
     <div class="card-title">Log a reading</div>
     <div class="row3">
@@ -535,10 +559,80 @@
     </div>
     <button class="log-btn" onclick="logBP()">Add Reading</button>
   </div>
+  
   <div class="card" id="bp-history-card" style="display:none">
     <div class="card-title">Readings this day — <span style="font-weight:400;color:#90a898">tap × to delete</span></div>
     <div id="bp-history"></div>
   </div>
+
+  <!-- BP Trend Charts -->
+  <div class="section-title">Blood Pressure Trends</div>
+  
+  <!-- Weekly Trend -->
+  <div class="card">
+    <div class="card-title">📊 Weekly Trend (Last 7 Days)</div>
+    <div class="bp-chart-container">
+      <canvas id="bp-weekly-chart" width="300" height="150"></canvas>
+    </div>
+    <div class="bp-chart-legend">
+      <div class="bp-legend-item"><span class="bp-legend-dot systolic"></span>Systolic</div>
+      <div class="bp-legend-item"><span class="bp-legend-dot diastolic"></span>Diastolic</div>
+      <div class="bp-legend-item"><span class="bp-legend-dot pulse"></span>Pulse</div>
+    </div>
+  </div>
+
+  <!-- Monthly Trend -->
+  <div class="card">
+    <div class="card-title">📈 Monthly Trend (Last 30 Days)</div>
+    <div class="bp-chart-container">
+      <canvas id="bp-monthly-chart" width="300" height="150"></canvas>
+    </div>
+    <div class="bp-chart-legend">
+      <div class="bp-legend-item"><span class="bp-legend-dot systolic"></span>Systolic Average</div>
+      <div class="bp-legend-item"><span class="bp-legend-dot diastolic"></span>Diastolic Average</div>
+      <div class="bp-legend-item"><span class="bp-legend-dot high-alert"></span>High Alert Zone</div>
+    </div>
+  </div>
+
+  <!-- Pregnancy Timeline -->
+  <div class="card">
+    <div class="card-title">🤰 Pregnancy Timeline (Full Journey)</div>
+    <div class="bp-chart-container">
+      <canvas id="bp-pregnancy-chart" width="300" height="180"></canvas>
+    </div>
+    <div class="bp-chart-legend">
+      <div class="bp-legend-item"><span class="bp-legend-dot systolic"></span>Systolic Trend</div>
+      <div class="bp-legend-item"><span class="bp-legend-dot diastolic"></span>Diastolic Trend</div>
+      <div class="bp-legend-item"><span class="bp-legend-dot trimester"></span>Trimester Markers</div>
+    </div>
+    <div style="font-size:10px;color:#90a898;font-family:sans-serif;margin-top:8px;text-align:center">
+      Track patterns across your entire pregnancy journey
+    </div>
+  </div>
+
+  <!-- BP Pattern Analysis -->
+  <div class="card">
+    <div class="card-title">🔍 Pattern Analysis</div>
+    <div id="bp-pattern-analysis">
+      <div class="pattern-insight" id="bp-insight-trend">
+        <div class="pattern-label">Overall Trend:</div>
+        <div class="pattern-value" id="bp-trend-direction">Analyzing...</div>
+      </div>
+      <div class="pattern-insight" id="bp-insight-variability">
+        <div class="pattern-label">Variability:</div>
+        <div class="pattern-value" id="bp-variability">Calculating...</div>
+      </div>
+      <div class="pattern-insight" id="bp-insight-alerts">
+        <div class="pattern-label">High Readings:</div>
+        <div class="pattern-value" id="bp-alert-count">Checking...</div>
+      </div>
+      <div class="pattern-insight" id="bp-insight-recommendation">
+        <div class="pattern-label">Recommendation:</div>
+        <div class="pattern-value" id="bp-recommendation">Evaluating...</div>
+      </div>
+    </div>
+  </div>
+
   <div class="section-title">POTS Reminders</div>
   <div class="card pots-card">
     Rise slowly from sitting or lying down<br>

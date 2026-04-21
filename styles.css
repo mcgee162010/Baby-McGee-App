@@ -1088,6 +1088,151 @@ body {
 .calc-food-item { margin-bottom: 4px; }
 .calc-food-item:last-child { margin-bottom: 0; }
 
+/* ── BLOOD PRESSURE TRENDS ── */
+.bp-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.bp-summary-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.bp-summary-title {
+  font-size: 9px;
+  color: var(--text-3);
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.bp-summary-avg {
+  font-size: 16px;
+  color: var(--text-1);
+  font-family: var(--font-serif);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.bp-summary-range {
+  font-size: 9px;
+  color: var(--text-3);
+  font-family: var(--font-sans);
+  margin-bottom: 3px;
+}
+
+.bp-summary-status {
+  font-size: 8px;
+  padding: 2px 6px;
+  border-radius: 99px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.bp-summary-status.normal {
+  background: var(--green-bg);
+  color: var(--green);
+  border: 1px solid var(--green-border);
+}
+
+.bp-summary-status.elevated {
+  background: var(--amber-bg);
+  color: var(--amber);
+  border: 1px solid rgba(192, 120, 8, 0.3);
+}
+
+.bp-summary-status.high {
+  background: var(--rose-bg);
+  color: var(--rose);
+  border: 1px solid rgba(184, 72, 88, 0.3);
+}
+
+.bp-chart-container {
+  position: relative;
+  height: 150px;
+  margin: 12px 0;
+  background: rgba(250, 248, 244, 0.5);
+  border-radius: var(--radius-sm);
+  padding: 8px;
+  overflow: hidden;
+}
+
+.bp-chart-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: var(--radius-sm);
+}
+
+.bp-chart-legend {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.bp-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--text-3);
+  font-family: var(--font-sans);
+}
+
+.bp-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.bp-legend-dot.systolic { background: #e74c3c; }
+.bp-legend-dot.diastolic { background: #3498db; }
+.bp-legend-dot.pulse { background: #9b59b6; }
+.bp-legend-dot.high-alert { background: #f39c12; }
+.bp-legend-dot.trimester { background: var(--green); }
+
+.pattern-insight {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-sans);
+}
+
+.pattern-insight:last-child {
+  border-bottom: none;
+}
+
+.pattern-label {
+  font-size: 11px;
+  color: var(--text-2);
+  font-weight: 600;
+}
+
+.pattern-value {
+  font-size: 11px;
+  color: var(--text-1);
+  font-weight: 500;
+}
+
+.pattern-value.trend-stable { color: var(--green); }
+.pattern-value.trend-rising { color: var(--amber); }
+.pattern-value.trend-concerning { color: var(--rose); }
+
 /* ── NOTIFICATIONS ── */
 .notification {
   position: fixed;
