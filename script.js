@@ -15,6 +15,9 @@ const CONFIG = {
   MAX_RETRIES: 3
 };
 
+// Local storage prefix for daily data
+const LS_PREFIX = 'bmj_day_';
+
 const MEDS = ['aspirin','prenatal','vitd','fishoil','lemonbalm','magnesium','passionflower','lavender','ashwagandha','holybasil','motherwort','moringa'];
 const MED_NAMES = {
   aspirin:'Baby Aspirin',prenatal:'Thorne Prenatal',vitd:'Vitamin D3',fishoil:'Fish Oil',
@@ -146,6 +149,15 @@ let appState = {
   lastSync: null,
   pendingChanges: new Set()
 };
+
+// Global variables for backward compatibility
+var offset = 0;
+var dayData = null;
+var monthData = {};
+var transactions = [];
+var questions = [];
+var activeTab = 'today';
+var saveTimer = null;
 
 // ═══════════════════════════════════════════════════════════
 // GITHUB DATA STORAGE SYSTEM
@@ -416,7 +428,7 @@ function updateViewportHeight() {
 // HELPERS
 // ═══════════════════════════════════════════════════════════
 function renderStats() {
-  var c = new Date(DUE); c.setDate(c.getDate()-280);
+  var c = new Date(CONFIG.DUE_DATE); c.setDate(c.getDate()-280);
   var t = new Date(), diff = t - c;
   var w = Math.floor(diff/(7*24*3600*1000));
   var d = Math.floor((diff%(7*24*3600*1000))/(24*3600*1000));
@@ -426,7 +438,7 @@ function renderStats() {
   var triEl = document.getElementById('stat-tri');
   
   if (weeksEl) weeksEl.textContent = w+'w '+d+'d';
-  if (daysEl) daysEl.textContent = Math.ceil((DUE-t)/(24*3600*1000));
+  if (daysEl) daysEl.textContent = Math.ceil((CONFIG.DUE_DATE-t)/(24*3600*1000));
   if (triEl) triEl.textContent = w<13?'1st':w<27?'2nd':'3rd';
   updateBabyCard(w);
 }
@@ -2724,9 +2736,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize settings and GitHub connection
     initializeSettings();
     
-    // Initialize app
-    renderStats();
-    
     // Load historical data on first run
     var hasHistoricalData = localStorage.getItem('bmj_historical_loaded');
     if (!hasHistoricalData) {
@@ -2741,7 +2750,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check for app updates
     checkForUpdates();
     
+    // Load all data first, then render stats
     loadAll();
+    
   } catch(e) {
     console.error('Init error:', e);
     showNotification('Error initializing app. Please refresh the page.', 'error');
