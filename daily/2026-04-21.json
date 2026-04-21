@@ -20,5 +20,77 @@
     }
   },
   "water": "",
-  "protein": "0"
+  "protein": "0",
+  "bp": [
+    {
+      "sys": 110,
+      "dia": 70,
+      "pul": 80,
+      "time": "08:48 PM"
+    }
+  ],
+  "activityLog": [
+    {
+      "time": "08:48 PM",
+      "action": "blood-pressure",
+      "details": "Added BP reading: 110/70 (pulse: 80)",
+      "id": "act_1776743291365"
+    },
+    {
+      "time": "08:48 PM",
+      "action": "medication",
+      "details": "Marked Baby Aspirin as taken",
+      "id": "act_1776743304541"
+    },
+    {
+      "time": "08:48 PM",
+      "action": "medication",
+      "details": "Marked Thorne Prenatal as taken",
+      "id": "act_1776743305909"
+    },
+    {
+      "time": "08:48 PM",
+      "action": "medication",
+      "details": "Marked Fish Oil as taken",
+      "id": "act_1776743308774"
+    },
+    {
+      "time": "08:48 PM",
+      "action": "medication",
+      "details": "Marked Lemon Balm as taken",
+      "id": "act_1776743310874"
+    },
+    {
+      "time": "08:48 PM",
+      "action": "medication",
+      "details": "Marked Magnesium as taken",
+      "id": "act_1776743322425"
+    },
+    {
+      "time": "08:48 PM",
+      "action": "medication",
+      "details": "Unmarked Magnesium",
+      "id": "act_1776743326724"
+    },
+    {
+      "time": "08:49 PM",
+      "action": "medication",
+      "details": "Marked Holy Basil as taken",
+      "id": "act_1776743348074"
+    },
+    {
+      "time": "08:49 PM",
+      "action": "medication",
+      "details": "Unmarked Holy Basil",
+      "id": "act_1776743349491"
+    }
+  ],
+  "meds": {
+    "aspirin": true,
+    "prenatal": true,
+    "fishoil": true,
+    "lemonbalm": true,
+    "magnesium": false,
+    "holybasil": false
+  }
 }
