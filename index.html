@@ -10,7 +10,8 @@
 <meta name="theme-color" content="#1a3824">
 <title>Baby McGee Journal</title>
 <link rel="stylesheet" href="styles.css">
-<link rel="manifest" href="manifest.json">
+<!-- Manifest link with fallback handling -->
+<link rel="manifest" href="manifest.json" onerror="console.log('Manifest loading failed (normal for file:// protocol)')">
 <link rel="apple-touch-icon" href="icon-192.svg">
 <link rel="icon" type="image/svg+xml" href="icon-192.svg">
 </head>
@@ -546,8 +547,62 @@
     </div>
   </div>
 
-  <div class="card alert-card">
-    <div style="font-size:11px;font-family:sans-serif;color:#8b5a42;line-height:1.6">Sit quietly 5 min · Feet flat · Arm at heart level<br><strong>Alert: ≥140 systolic OR ≥90 diastolic → Contact midwife immediately</strong></div>
+  <!-- Blood Pressure Guidelines -->
+  <div class="card">
+    <div class="card-title">📋 Blood Pressure Guidelines</div>
+    
+    <!-- Measurement Instructions -->
+    <div style="background:rgba(240,248,255,0.8);border:1px solid rgba(56,120,176,0.2);border-radius:8px;padding:10px;margin-bottom:12px">
+      <div style="font-size:11px;font-family:sans-serif;color:#2a5a8a;font-weight:600;margin-bottom:4px">Proper Measurement Technique:</div>
+      <div style="font-size:10px;font-family:sans-serif;color:#3a6a9a;line-height:1.5">
+        • Sit quietly for 5 minutes before measuring<br>
+        • Keep feet flat on floor, back supported<br>
+        • Position arm at heart level<br>
+        • Use proper cuff size
+      </div>
+    </div>
+
+    <!-- Blood Pressure Ranges -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+      <!-- Normal Range -->
+      <div style="background:rgba(230,248,225,0.9);border:1px solid rgba(77,140,68,0.3);border-radius:8px;padding:8px">
+        <div style="font-size:10px;font-family:sans-serif;color:#4d8c44;font-weight:600;margin-bottom:3px">✓ NORMAL</div>
+        <div style="font-size:11px;font-family:serif;color:#2a5a2a;font-weight:600">< 120/80</div>
+        <div style="font-size:9px;font-family:sans-serif;color:#4a7a4a;margin-top:2px">Optimal range</div>
+      </div>
+
+      <!-- Elevated Range -->
+      <div style="background:rgba(255,248,225,0.9);border:1px solid rgba(192,120,8,0.3);border-radius:8px;padding:8px">
+        <div style="font-size:10px;font-family:sans-serif;color:#c07808;font-weight:600;margin-bottom:3px">⚠ ELEVATED</div>
+        <div style="font-size:11px;font-family:serif;color:#8a5a08;font-weight:600">120-129/<80</div>
+        <div style="font-size:9px;font-family:sans-serif;color:#aa6a08;margin-top:2px">Monitor closely</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+      <!-- High Stage 1 -->
+      <div style="background:rgba(255,240,225,0.9);border:1px solid rgba(184,72,88,0.3);border-radius:8px;padding:8px">
+        <div style="font-size:10px;font-family:sans-serif;color:#b84858;font-weight:600;margin-bottom:3px">⚠ HIGH STAGE 1</div>
+        <div style="font-size:11px;font-family:serif;color:#8a3848;font-weight:600">130-139/80-89</div>
+        <div style="font-size:9px;font-family:sans-serif;color:#aa4858;margin-top:2px">Discuss with midwife</div>
+      </div>
+
+      <!-- High Stage 2 -->
+      <div style="background:rgba(252,234,237,0.9);border:1px solid rgba(184,72,88,0.5);border-radius:8px;padding:8px">
+        <div style="font-size:10px;font-family:sans-serif;color:#b84858;font-weight:600;margin-bottom:3px">🚨 HIGH STAGE 2</div>
+        <div style="font-size:11px;font-family:serif;color:#8a3848;font-weight:600">≥140/90</div>
+        <div style="font-size:9px;font-family:sans-serif;color:#aa4858;margin-top:2px">Contact midwife immediately</div>
+      </div>
+    </div>
+
+    <!-- Pregnancy-Specific Alert -->
+    <div style="background:rgba(255,245,245,0.95);border:1px solid rgba(184,72,88,0.4);border-radius:8px;padding:10px">
+      <div style="font-size:11px;font-family:sans-serif;color:#8a3848;font-weight:600;margin-bottom:4px">🤰 Pregnancy Alert:</div>
+      <div style="font-size:10px;font-family:sans-serif;color:#aa4858;line-height:1.5">
+        <strong>Preeclampsia Risk:</strong> Any reading ≥140/90 requires immediate midwife contact.<br>
+        <strong>Watch for:</strong> Headaches, vision changes, upper abdominal pain, sudden swelling
+      </div>
+    </div>
   </div>
   
   <div class="card">

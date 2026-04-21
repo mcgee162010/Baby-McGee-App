@@ -2726,6 +2726,18 @@ function forceLoad() {
 // Enhanced initialization with modern features
 document.addEventListener('DOMContentLoaded', function() {
   try {
+    // Handle file:// protocol specific setup
+    if (location.protocol === 'file:') {
+      console.log('Running in file:// mode - some features may be limited');
+      // Suppress manifest errors for file protocol
+      window.addEventListener('error', function(e) {
+        if (e.message && e.message.includes('manifest')) {
+          e.preventDefault();
+          console.log('Manifest error suppressed for file:// protocol');
+        }
+      });
+    }
+    
     // Initialize viewport height fix
     updateViewportHeight();
     window.addEventListener('resize', handleResize);
@@ -2782,6 +2794,12 @@ function handleKeyboardNavigation(e) {
 // Check for app updates (service worker support)
 function checkForUpdates() {
   if ('serviceWorker' in navigator) {
+    // Skip service worker registration for file:// protocol to avoid CORS issues
+    if (location.protocol === 'file:') {
+      console.log('File protocol detected, skipping service worker registration');
+      return;
+    }
+    
     navigator.serviceWorker.register('./sw.js')
       .then(function(registration) {
         console.log('Service Worker registered successfully');
@@ -2791,7 +2809,7 @@ function checkForUpdates() {
         });
       })
       .catch(function(error) {
-        console.log('Service Worker registration failed:', error);
+        console.log('Service Worker registration failed (this is normal for file:// protocol):', error);
       });
   }
 }

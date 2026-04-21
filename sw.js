@@ -16,6 +16,14 @@ const STATIC_ASSETS = [
 // Install event - cache static resources
 self.addEventListener('install', (event) => {
     console.log('Service Worker installing...');
+    
+    // Skip caching for file:// protocol
+    if (location.protocol === 'file:') {
+        console.log('File protocol detected, skipping cache setup');
+        self.skipWaiting();
+        return;
+    }
+    
     event.waitUntil(
         caches.open(STATIC_CACHE)
             .then((cache) => {
@@ -28,6 +36,8 @@ self.addEventListener('install', (event) => {
             })
             .catch((error) => {
                 console.error('Service Worker installation failed:', error);
+                // Continue anyway for file:// protocol
+                return self.skipWaiting();
             })
     );
 });
@@ -66,6 +76,11 @@ self.addEventListener('fetch', (event) => {
         return;
     }
     
+    // Skip file:// protocol requests to avoid CORS issues
+    if (url.protocol === 'file:') {
+        return;
+    }
+    
     // Handle static assets with cache-first strategy
     if (STATIC_ASSETS.some(asset => url.pathname.endsWith(asset.replace('./', '')))) {
         event.respondWith(
@@ -83,6 +98,9 @@ self.addEventListener('fetch', (event) => {
                                 caches.open(STATIC_CACHE)
                                     .then((cache) => {
                                         cache.put(request, responseClone);
+                                    })
+                                    .catch(() => {
+                                        // Ignore cache errors for file:// protocol
                                     });
                             }
                             return networkResponse;
@@ -94,6 +112,10 @@ self.addEventListener('fetch', (event) => {
                             }
                         });
                 })
+                .catch(() => {
+                    // If cache fails, try direct fetch
+                    return fetch(request);
+                })
         );
         return;
     }
@@ -102,12 +124,15 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
         fetch(request)
             .then((networkResponse) => {
-                // Cache successful responses
-                if (networkResponse.status === 200) {
+                // Cache successful responses (skip for file:// protocol)
+                if (networkResponse.status === 200 && url.protocol !== 'file:') {
                     const responseClone = networkResponse.clone();
                     caches.open(DYNAMIC_CACHE)
                         .then((cache) => {
                             cache.put(request, responseClone);
+                        })
+                        .catch(() => {
+                            // Ignore cache errors
                         });
                 }
                 return networkResponse;
@@ -132,6 +157,13 @@ self.addEventListener('fetch', (event) => {
                             headers: new Headers({
                                 'Content-Type': 'text/plain'
                             })
+                        });
+                    })
+                    .catch(() => {
+                        // Final fallback
+                        return new Response('Service Unavailable', {
+                            status: 503,
+                            statusText: 'Service Unavailable'
                         });
                     });
             })
