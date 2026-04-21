@@ -1,0 +1,21 @@
+{
+  "water": "91",
+  "buoy": "",
+  "notes": "",
+  "steps": "",
+  "meals": {
+    "breakfast": {
+      "foods": ""
+    },
+    "lunch": {
+      "foods": ""
+    },
+    "dinner": {
+      "foods": ""
+    },
+    "snacks": {
+      "foods": ""
+    }
+  },
+  "protein": "0"
+}

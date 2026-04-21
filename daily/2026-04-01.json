@@ -1,0 +1,34 @@
+{
+  "meds": {
+    "aspirin": true,
+    "prenatal": true,
+    "vitd": "skip",
+    "fishoil": "skip",
+    "lemonbalm": true,
+    "magnesium": true
+  },
+  "hypno": "notstarted",
+  "steps": "6703",
+  "water": "90",
+  "protein": "73",
+  "meals": {
+    "breakfast": {
+      "foods": "",
+      "protein": "9"
+    },
+    "lunch": {
+      "foods": "",
+      "protein": "9"
+    },
+    "dinner": {
+      "foods": "",
+      "protein": "55"
+    },
+    "snacks": {
+      "foods": ""
+    }
+  },
+  "buoy": "",
+  "notes": "",
+  "rating": 3
+}
