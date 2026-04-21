@@ -11,6 +11,47 @@ var MEDS = ['aspirin','prenatal','vitd','fishoil','lemonbalm','magnesium'];
 var MED_NAMES = {aspirin:'Baby Aspirin',prenatal:'Thorne Prenatal',vitd:'Vitamin D3',fishoil:'Fish Oil',lemonbalm:'Lemon Balm',magnesium:'Calm Powder'};
 var STAR_LABELS = ['','Rough day','Okay','Feeling alright','Good day','Feeling great!'];
 
+// Baby development data by week
+var BABY_SIZES = {
+  4:  {emoji:'🌸', size:'poppy seed',        fact:'Blastocyst has implanted in the uterus'},
+  5:  {emoji:'🌱', size:'sesame seed',        fact:'The tiny heart is beginning to form'},
+  6:  {emoji:'🫐', size:'lentil',             fact:'Brain, spinal cord, and heart forming rapidly'},
+  7:  {emoji:'🍓', size:'blueberry',          fact:'Hands and feet are forming — tiny arm buds visible'},
+  8:  {emoji:'🍇', size:'raspberry',          fact:'Fingers are beginning to separate'},
+  9:  {emoji:'🍒', size:'grape',              fact:'Essential organs forming, baby can move'},
+  10: {emoji:'🍊', size:'kumquat',            fact:'All vital organs are present and developing'},
+  11: {emoji:'🌿', size:'fig',               fact:'Baby can swallow and make facial expressions'},
+  12: {emoji:'🍋', size:'lime',              fact:'Reflexes are developing rapidly'},
+  13: {emoji:'🍑', size:'peach',             fact:'Fingerprints forming! End of first trimester'},
+  14: {emoji:'🍋', size:'lemon',             fact:'Baby can make facial expressions like squinting'},
+  15: {emoji:'🍎', size:'apple',             fact:'Skeleton is forming and baby is very active'},
+  16: {emoji:'🥑', size:'avocado',           fact:'Baby can hear your voice — talk to them!'},
+  17: {emoji:'🍐', size:'pear',              fact:'Baby is storing fat for warmth and energy'},
+  18: {emoji:'🫑', size:'bell pepper',       fact:'Baby is very active — you may feel kicks soon'},
+  19: {emoji:'🥭', size:'mango',             fact:'Vernix coating is forming to protect baby\'s skin'},
+  20: {emoji:'🍌', size:'banana',            fact:'Halfway there! Baby can taste what you eat'},
+  21: {emoji:'🥕', size:'carrot',            fact:'Eyebrows and eyelids are present and distinct'},
+  22: {emoji:'🌽', size:'ear of corn',       fact:'Baby looks like a miniature newborn'},
+  23: {emoji:'🥭', size:'large mango',       fact:'Hearing is fully developed — baby knows your voice'},
+  24: {emoji:'🍈', size:'cantaloupe',        fact:'✨ Viability milestone reached — 24 weeks!'},
+  25: {emoji:'🥦', size:'cauliflower',       fact:'Hair color and texture are developing'},
+  26: {emoji:'🥬', size:'scallion',          fact:'Eyes are beginning to open for the first time'},
+  27: {emoji:'🥬', size:'head of lettuce',   fact:'Brain is very active and developing rapidly'},
+  28: {emoji:'🍆', size:'eggplant',          fact:'🎉 Welcome to the third trimester!'},
+  29: {emoji:'🎃', size:'acorn squash',      fact:'Muscles and lungs are maturing for birth'},
+  30: {emoji:'🥬', size:'cabbage',           fact:'Baby has billions of neurons connecting'},
+  31: {emoji:'🍍', size:'pineapple',         fact:'Baby is moving a lot — track those kicks!'},
+  32: {emoji:'🥥', size:'coconut',           fact:'Toenails are visible and growing'},
+  33: {emoji:'🍍', size:'pineapple',         fact:'Skull bones are firming up but remain flexible'},
+  34: {emoji:'🍈', size:'large cantaloupe',  fact:'Central nervous system is maturing rapidly'},
+  35: {emoji:'🍈', size:'honeydew melon',    fact:'Kidneys are fully developed and functioning'},
+  36: {emoji:'🥭', size:'papaya',            fact:'Baby may be dropping into birth position'},
+  37: {emoji:'🍈', size:'winter melon',      fact:'✓ Early term — baby is nearly ready!'},
+  38: {emoji:'🎃', size:'small pumpkin',     fact:'Baby is practicing breathing movements'},
+  39: {emoji:'🍉', size:'watermelon slice',  fact:'Almost ready — could arrive any day!'},
+  40: {emoji:'🎃', size:'pumpkin',           fact:'🌟 Full term — Baby McGee is ready to meet you!'}
+};
+
 // Protein food database (protein per 100g serving)
 var PROTEIN_FOODS = {
   // Meat & Poultry
@@ -109,6 +150,7 @@ function renderStats() {
   if (weeksEl) weeksEl.textContent = w+'w '+d+'d';
   if (daysEl) daysEl.textContent = Math.ceil((DUE-t)/(24*3600*1000));
   if (triEl) triEl.textContent = w<13?'1st':w<27?'2nd':'3rd';
+  updateBabyCard(w);
 }
 
 function toKey(o) { var d=new Date(); d.setDate(d.getDate()+o); return d.toISOString().slice(0,10); }
@@ -121,8 +163,24 @@ function getDateLabel(o) {
   return d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
 }
 
+function updateBabyCard(week) {
+  var w = Math.min(Math.max(week || 4, 4), 40);
+  var info = BABY_SIZES[w] || BABY_SIZES[20];
+  var triLabel = w < 13 ? '1st Trimester' : w < 27 ? '2nd Trimester' : '3rd Trimester';
+  var emojiEl = document.getElementById('baby-card-emoji');
+  var weekEl  = document.getElementById('baby-card-week');
+  var sizeEl  = document.getElementById('baby-card-size');
+  var factEl  = document.getElementById('baby-card-fact');
+  var triEl   = document.getElementById('baby-card-tri');
+  if (emojiEl) emojiEl.textContent = info.emoji;
+  if (weekEl)  weekEl.textContent  = 'Week ' + w;
+  if (sizeEl)  sizeEl.textContent  = 'Size of a ' + info.size;
+  if (factEl)  factEl.textContent  = info.fact;
+  if (triEl)   triEl.textContent   = triLabel;
+}
+
 function flashSave() {
-  var b=document.getElementById('save-badge'); 
+  var b=document.getElementById('save-badge');
   if(b) {
     b.classList.add('show');
     setTimeout(function(){b.classList.remove('show');},1800);

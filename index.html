@@ -37,8 +37,8 @@
 <!-- Nature background -->
 <div class="bg-canvas">
   <div class="bg-base"></div>
-  <svg style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0.12" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-    <!-- Fawn 1 top right -->
+  <svg style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0.10" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <!-- Fawn top right -->
     <g transform="translate(300,80) scale(0.7)">
       <ellipse cx="20" cy="35" rx="14" ry="18" fill="#8b6040"/>
       <circle cx="20" cy="14" r="10" fill="#8b6040"/>
@@ -79,16 +79,17 @@
       <ellipse cx="20" cy="18" rx="5" ry="7" fill="#4a8c42" opacity="0.5" transform="rotate(20 20 18)"/>
       <rect x="14" y="6" width="2" height="20" rx="1" fill="#3a200a" opacity="0.6"/>
     </g>
-    <!-- Leaves scattered -->
-    <ellipse cx="80" cy="350" rx="12" ry="6" fill="#6aab62" opacity="0.3" transform="rotate(30 80 350)"/>
-    <ellipse cx="360" cy="400" rx="10" ry="5" fill="#6aab62" opacity="0.25" transform="rotate(-20 360 400)"/>
-    <ellipse cx="50" cy="550" rx="9" ry="4" fill="#8b6040" opacity="0.2" transform="rotate(45 50 550)"/>
-    <ellipse cx="340" cy="280" rx="11" ry="5" fill="#6aab62" opacity="0.2" transform="rotate(-35 340 280)"/>
+    <!-- Scattered leaves -->
+    <ellipse cx="80" cy="350" rx="12" ry="6" fill="#6aab62" opacity="0.25" transform="rotate(30 80 350)"/>
+    <ellipse cx="360" cy="400" rx="10" ry="5" fill="#6aab62" opacity="0.2" transform="rotate(-20 360 400)"/>
+    <ellipse cx="50" cy="550" rx="9" ry="4" fill="#8b6040" opacity="0.18" transform="rotate(45 50 550)"/>
+    <ellipse cx="340" cy="280" rx="11" ry="5" fill="#6aab62" opacity="0.18" transform="rotate(-35 340 280)"/>
   </svg>
 </div>
 
 <div class="content-wrap">
 
+<!-- ─── HEADER ─── -->
 <div class="header">
   <div style="display:flex;justify-content:space-between;align-items:flex-start">
     <div>
@@ -109,25 +110,29 @@
   </div>
 </div>
 
-<div class="nav-wrap">
-  <button class="nav-btn active" onclick="switchTab('today',this)">Daily Log</button>
-  <button class="nav-btn" onclick="switchTab('bp',this)">Blood Pressure</button>
-  <button class="nav-btn" onclick="switchTab('monthly',this)">Monthly</button>
-  <button class="nav-btn" onclick="switchTab('payment',this)">Payments</button>
-  <button class="nav-btn" onclick="switchTab('calendar',this)">Calendar</button>
-  <button class="nav-btn" onclick="switchTab('questions',this)">Midwife Q</button>
-  <button class="nav-btn" onclick="switchTab('stats',this)">Statistics</button>
-  <button class="nav-btn" onclick="switchTab('settings',this)">⚙ Setup</button>
-</div>
-
+<!-- ─── MAIN CONTENT ─── -->
 <div class="body">
 
 <!-- ═══ DAILY LOG ═══ -->
 <div id="tab-today">
+
+  <!-- Baby Development Card -->
+  <div class="baby-card" id="baby-development-card">
+    <div class="baby-emoji-wrap">
+      <span id="baby-card-emoji">🥑</span>
+    </div>
+    <div class="baby-info">
+      <div class="baby-tri-badge" id="baby-card-tri">2nd Trimester</div>
+      <div class="baby-week-num" id="baby-card-week">Week 20</div>
+      <div class="baby-size-label" id="baby-card-size">Size of a banana</div>
+      <div class="baby-fact-label" id="baby-card-fact">Baby can hear your voice!</div>
+    </div>
+  </div>
+
   <div class="date-bar">
     <div class="date-label-wrap" onclick="showDatePicker()">
       <span class="date-text" id="date-label-today">Today</span>
-      <span style="font-size:11px;color:#8b7b72;font-family:sans-serif">▼</span>
+      <span style="font-size:11px;color:#90a898;font-family:sans-serif">▼</span>
     </div>
     <div class="date-nav">
       <button class="arrow-btn" onclick="changeDay(-1)">←</button>
@@ -139,10 +144,9 @@
 
   <!-- Week progress summary -->
   <div class="week-card" id="week-summary-card">
-    <div class="week-card-title">This week's progress <span style="font-weight:400;font-size:10px;color:#9b8880;text-transform:none;letter-spacing:0">(Mon → today)</span></div>
+    <div class="week-card-title">This week's progress <span style="font-weight:400;font-size:10px;color:#90a898;text-transform:none;letter-spacing:0">(Mon → today)</span></div>
 
-    <!-- Per-medication rows -->
-    <div style="font-size:10px;font-family:sans-serif;color:#8b7b72;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Medications taken this week</div>
+    <div style="font-size:10px;font-family:sans-serif;color:#90a898;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Medications taken this week</div>
     <div class="week-row">
       <div class="week-row-label"><span>Baby Aspirin</span><span class="week-row-pct" id="wk-med-aspirin-pct">--</span></div>
       <div class="prog-wrap" style="height:5px;margin-bottom:4px"><div class="prog-fill green" id="wk-med-aspirin-bar" style="width:0%"></div></div>
@@ -168,8 +172,7 @@
       <div class="prog-wrap" style="height:5px;margin-bottom:10px"><div class="prog-fill green" id="wk-med-magnesium-bar" style="width:0%"></div></div>
     </div>
 
-    <!-- Other weekly metrics -->
-    <div style="font-size:10px;font-family:sans-serif;color:#8b7b72;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Other goals</div>
+    <div style="font-size:10px;font-family:sans-serif;color:#90a898;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Other goals</div>
     <div class="week-row">
       <div class="week-row-label"><span>Exercise sessions</span><span class="week-row-pct" id="wk-ex-pct">--</span></div>
       <div class="prog-wrap" style="height:5px;margin-bottom:4px"><div class="prog-fill teal" id="wk-ex-bar" style="width:0%"></div></div>
@@ -186,16 +189,16 @@
 
   <!-- Clear All Button -->
   <div style="text-align:center;margin-bottom:12px">
-    <button class="log-btn" onclick="clearAllMedications()" style="background:#c46070;border-color:#c46070;font-size:12px;padding:6px 12px">Clear All Medications</button>
+    <button class="log-btn" onclick="clearAllMedications()" style="background:#b84858;border-color:#b84858;color:white;font-size:12px;padding:7px 14px;width:auto">Clear All Medications</button>
   </div>
 
   <!-- Daily medication progress -->
   <div class="prog-label" id="prog-label">0 of 6 medications taken</div>
   <div class="prog-wrap"><div class="prog-fill green" id="prog-fill" style="width:0%"></div></div>
-  <div style="display:flex;gap:12px;font-size:10px;font-family:sans-serif;color:#9b8880;margin-bottom:0.75rem;flex-wrap:wrap">
-    <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:50%;background:#6aab62"></div>Taken</div>
-    <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:50%;background:#c46070"></div>Did not take — tap ✕</div>
-    <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(180,160,140,0.5)"></div>Not logged</div>
+  <div style="display:flex;gap:12px;font-size:10px;font-family:sans-serif;color:#90a898;margin-bottom:0.75rem;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:50%;background:#4d8c44"></div>Taken</div>
+    <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:50%;background:#b84858"></div>Did not take — tap ✕</div>
+    <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(175,152,132,0.5)"></div>Not logged</div>
   </div>
 
   <!-- Star rating -->
@@ -211,7 +214,7 @@
     <div class="star-label" id="star-label">Tap to rate your day</div>
   </div>
 
-  <!-- Medications -->
+  <!-- Medications — Morning -->
   <div class="section-title">Morning — with food</div>
   <div class="med-row" id="row-aspirin" onclick="toggleMed('aspirin')">
     <div class="circle">
@@ -230,6 +233,7 @@
     <button class="med-skip-btn" onclick="skipMed(event,'prenatal')" title="Mark as not taken">✕</button>
   </div>
 
+  <!-- Medications — Anytime -->
   <div class="section-title">Anytime</div>
   <div class="med-row" id="row-vitd" onclick="toggleMed('vitd')">
     <div class="circle">
@@ -248,6 +252,7 @@
     <button class="med-skip-btn" onclick="skipMed(event,'fishoil')" title="Mark as not taken">✕</button>
   </div>
 
+  <!-- Medications — Bedtime -->
   <div class="section-title">Bedtime</div>
   <div class="med-row" id="row-lemonbalm" onclick="toggleMed('lemonbalm')">
     <div class="circle">
@@ -282,10 +287,10 @@
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
       <div style="font-size:22px;color:#2a8a70;font-family:'Georgia',serif" id="steps-display">0</div>
-      <input class="field-input" type="number" id="steps-input" placeholder="Enter steps" style="width:120px;font-size:15px;text-align:right" oninput="debouncedSave('steps')">
+      <input class="field-input" type="number" id="steps-input" placeholder="Enter steps" style="width:130px;font-size:15px;text-align:right" oninput="debouncedSave('steps')">
     </div>
     <div class="steps-bar-wrap"><div class="steps-bar-fill" id="steps-bar" style="width:0%"></div></div>
-    <div style="display:flex;justify-content:space-between;font-size:10px;color:#9b8880;font-family:sans-serif">
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:#90a898;font-family:sans-serif">
       <span id="steps-pct-label">0% of 10,000 goal</span>
       <span>Check iPhone Health app</span>
     </div>
@@ -297,11 +302,11 @@
     <div class="row2">
       <div>
         <label class="field-label">Min</label>
-        <input class="field-input" type="number" id="exercise-minutes" placeholder="30" style="width:80px">
+        <input class="field-input" type="number" id="exercise-minutes" placeholder="30" style="width:100%">
       </div>
       <div>
         <label class="field-label">Type</label>
-        <select class="field-input" id="exercise-type" style="font-size:12px">
+        <select class="field-input" id="exercise-type" style="font-size:13px">
           <option value="">Select...</option>
           <option value="Outdoor Walk">Outdoor Walk</option>
           <option value="Treadmill">Treadmill</option>
@@ -313,9 +318,9 @@
         </select>
       </div>
     </div>
-    <button class="log-btn" onclick="addExerciseSession()" style="margin-top:8px">+ Add</button>
+    <button class="log-btn" onclick="addExerciseSession()" style="margin-top:8px">+ Add Session</button>
   </div>
-  
+
   <div class="card" id="exercise-sessions-card" style="display:none">
     <div class="card-title">Today's Sessions</div>
     <div id="exercise-sessions-list"></div>
@@ -325,13 +330,13 @@
   <div class="section-title">Protein Goal — 60g / day</div>
   <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <div style="font-size:12px;color:#5c4a42;font-weight:600">Daily Total</div>
-      <div style="font-size:20px;color:#4a7c43;font-weight:600" id="protein-goal-display">0g / 60g</div>
+      <div style="font-size:12px;color:#506058;font-weight:600;font-family:sans-serif">Daily Total</div>
+      <div style="font-size:20px;color:#4d8c44;font-weight:600;font-family:'Georgia',serif" id="protein-goal-display">0g / 60g</div>
     </div>
     <div class="prog-wrap" style="height:8px;margin-bottom:4px">
       <div class="prog-fill green" id="protein-goal-bar" style="width:0%"></div>
     </div>
-    <div style="font-size:10px;color:#9b8880;font-family:sans-serif" id="protein-goal-pct">0% of goal</div>
+    <div style="font-size:10px;color:#90a898;font-family:sans-serif" id="protein-goal-pct">0% of goal</div>
   </div>
 
   <!-- Hydration -->
@@ -350,7 +355,7 @@
         </div>
       </div>
     </div>
-    <div style="font-size:12px;color:#5c4a42;margin-bottom:4px" id="hydration-summary">0 oz of 90 oz goal (0%)</div>
+    <div style="font-size:12px;color:#506058;margin-bottom:4px;font-family:sans-serif" id="hydration-summary">0 oz of 90 oz goal (0%)</div>
     <div class="prog-wrap" style="height:8px">
       <div class="prog-fill blue" id="hydration-bar" style="width:0%"></div>
     </div>
@@ -358,8 +363,7 @@
 
   <!-- Meals & Protein Tracking -->
   <div class="section-title">Meals & Protein Tracking</div>
-  
-  <!-- Breakfast -->
+
   <div class="card">
     <div class="card-title">🌅 Breakfast</div>
     <div style="margin-bottom:8px">
@@ -369,13 +373,12 @@
     <div style="display:flex;align-items:end;gap:8px">
       <div>
         <label class="field-label">Protein (grams)</label>
-        <input class="field-input" type="number" id="breakfast-protein" placeholder="0" style="width:80px" oninput="updateProteinFromInput(); debouncedSave('meals')">
+        <input class="field-input" type="number" id="breakfast-protein" placeholder="0" style="width:90px" oninput="updateProteinFromInput(); debouncedSave('meals')">
       </div>
       <button class="calc-btn" onclick="openProteinCalculator('breakfast')" title="Use protein calculator">🧮</button>
     </div>
   </div>
 
-  <!-- Lunch -->
   <div class="card">
     <div class="card-title">🌞 Lunch</div>
     <div style="margin-bottom:8px">
@@ -385,13 +388,12 @@
     <div style="display:flex;align-items:end;gap:8px">
       <div>
         <label class="field-label">Protein (grams)</label>
-        <input class="field-input" type="number" id="lunch-protein" placeholder="0" style="width:80px" oninput="updateProteinFromInput(); debouncedSave('meals')">
+        <input class="field-input" type="number" id="lunch-protein" placeholder="0" style="width:90px" oninput="updateProteinFromInput(); debouncedSave('meals')">
       </div>
       <button class="calc-btn" onclick="openProteinCalculator('lunch')" title="Use protein calculator">🧮</button>
     </div>
   </div>
 
-  <!-- Dinner -->
   <div class="card">
     <div class="card-title">🌙 Dinner</div>
     <div style="margin-bottom:8px">
@@ -401,13 +403,12 @@
     <div style="display:flex;align-items:end;gap:8px">
       <div>
         <label class="field-label">Protein (grams)</label>
-        <input class="field-input" type="number" id="dinner-protein" placeholder="0" style="width:80px" oninput="updateProteinFromInput(); debouncedSave('meals')">
+        <input class="field-input" type="number" id="dinner-protein" placeholder="0" style="width:90px" oninput="updateProteinFromInput(); debouncedSave('meals')">
       </div>
       <button class="calc-btn" onclick="openProteinCalculator('dinner')" title="Use protein calculator">🧮</button>
     </div>
   </div>
 
-  <!-- Snacks -->
   <div class="card">
     <div class="card-title">🍎 Snacks</div>
     <div style="margin-bottom:8px">
@@ -417,19 +418,19 @@
     <div style="display:flex;align-items:end;gap:8px">
       <div>
         <label class="field-label">Protein (grams)</label>
-        <input class="field-input" type="number" id="snacks-protein" placeholder="0" style="width:80px" oninput="updateProteinFromInput(); debouncedSave('meals')">
+        <input class="field-input" type="number" id="snacks-protein" placeholder="0" style="width:90px" oninput="updateProteinFromInput(); debouncedSave('meals')">
       </div>
       <button class="calc-btn" onclick="openProteinCalculator('snacks')" title="Use protein calculator">🧮</button>
     </div>
   </div>
 
-  <!-- Total Protein Summary -->
-  <div class="card" style="background:rgba(232,245,228,0.9);border-color:#b8d8b0">
+  <!-- Total Protein -->
+  <div class="card" style="background:rgba(230,248,225,0.9);border-color:rgba(77,140,68,0.25)">
     <div style="display:flex;justify-content:space-between;align-items:center">
-      <div style="font-size:12px;color:#4a7c43;font-weight:600">Total Protein Today</div>
-      <div style="font-size:20px;color:#4a7c43;font-weight:600" id="total-protein-display">0g</div>
+      <div style="font-size:12px;color:#4d8c44;font-weight:600;font-family:sans-serif">Total Protein Today</div>
+      <div style="font-size:22px;color:#4d8c44;font-weight:600;font-family:'Georgia',serif" id="total-protein-display">0g</div>
     </div>
-    <div style="font-size:10px;color:#6b5a52;margin-top:2px">Goal: 60g+ daily for healthy pregnancy</div>
+    <div style="font-size:10px;color:#506058;margin-top:2px;font-family:sans-serif">Goal: 60g+ daily for healthy pregnancy</div>
   </div>
 
   <!-- Symptoms -->
@@ -442,7 +443,7 @@
   <div class="section-title">Activity Log</div>
   <div class="card">
     <div class="card-title">📝 Change History — <span id="activity-log-date">Today</span></div>
-    <div id="activity-log-content" style="font-size:11px;color:#8b7b72;font-family:sans-serif;font-style:italic;text-align:center;padding:12px">
+    <div id="activity-log-content" style="font-size:11px;color:#90a898;font-family:sans-serif;font-style:italic;text-align:center;padding:12px">
       No activity logged yet for this date.
     </div>
   </div>
@@ -453,7 +454,7 @@
   <div class="date-bar">
     <div class="date-label-wrap" onclick="showDatePickerBP()">
       <span class="date-text" id="date-label-bp">Today</span>
-      <span style="font-size:11px;color:#8b7b72;font-family:sans-serif">▼</span>
+      <span style="font-size:11px;color:#90a898;font-family:sans-serif">▼</span>
     </div>
     <div class="date-nav">
       <button class="arrow-btn" onclick="changeDay(-1)">←</button>
@@ -475,7 +476,7 @@
     <button class="log-btn" onclick="logBP()">Add Reading</button>
   </div>
   <div class="card" id="bp-history-card" style="display:none">
-    <div class="card-title">Readings this day — <span style="font-weight:400;color:#9b8880">tap × to delete</span></div>
+    <div class="card-title">Readings this day — <span style="font-weight:400;color:#90a898">tap × to delete</span></div>
     <div id="bp-history"></div>
   </div>
   <div class="section-title">POTS Reminders</div>
@@ -515,10 +516,10 @@
   <div class="card">
     <div class="card-title">Payment Summary</div>
     <div style="display:flex;justify-content:space-between;font-family:sans-serif;font-size:13px;margin-bottom:8px">
-      <div><div style="font-size:10px;color:#8b7b72;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px">Total Paid</div><div style="font-size:22px;color:#4a7c43" id="pay-total-display">$0</div></div>
-      <div style="text-align:right"><div style="font-size:10px;color:#8b7b72;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px">Remaining</div><div style="font-size:22px;color:#7a5c48" id="remaining">$6,700</div></div>
+      <div><div style="font-size:10px;color:#90a898;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px">Total Paid</div><div style="font-size:22px;color:#4d8c44;font-family:'Georgia',serif" id="pay-total-display">$0</div></div>
+      <div style="text-align:right"><div style="font-size:10px;color:#90a898;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px">Remaining</div><div style="font-size:22px;color:#7a5c48;font-family:'Georgia',serif" id="remaining">$6,700</div></div>
     </div>
-    <div style="font-size:10px;color:#8b7b72;font-family:sans-serif;margin-bottom:4px" id="pay-pct-label">0% paid of $6,700</div>
+    <div style="font-size:10px;color:#90a898;font-family:sans-serif;margin-bottom:4px" id="pay-pct-label">0% paid of $6,700</div>
     <div class="prog-wrap" style="height:6px"><div class="prog-fill green" id="pay-prog" style="width:0%"></div></div>
   </div>
   <div class="section-title">Log a Transaction</div>
@@ -538,21 +539,20 @@
     <button class="log-btn" onclick="addTransaction()">Add Transaction</button>
   </div>
   <div class="section-title">Transaction History</div>
-  <div class="card"><div id="tx-list"><div style="font-size:12px;color:#9b8880;font-family:sans-serif;text-align:center;padding:8px">No transactions logged yet.</div></div></div>
+  <div class="card"><div id="tx-list"><div style="font-size:12px;color:#90a898;font-family:sans-serif;text-align:center;padding:8px">No transactions logged yet.</div></div></div>
 </div>
 
 <!-- ═══ CALENDAR ═══ -->
 <div id="tab-calendar" class="hidden">
-  <div class="card" style="background:rgba(240,234,250,0.88);border-color:rgba(212,192,232,0.4);margin-bottom:12px">
-    <div style="font-size:11px;font-family:sans-serif;color:#5c3d7a;line-height:1.6;margin-bottom:8px">Important pregnancy milestones, appointments, and B&B calendar.</div>
+  <div class="card" style="background:rgba(240,234,250,0.88);border-color:rgba(200,180,230,0.35);margin-bottom:12px">
+    <div style="font-size:11px;font-family:sans-serif;color:#5c3d7a;line-height:1.6">Important pregnancy milestones, appointments, and B&B calendar.</div>
   </div>
-  
-  <!-- B&B Calendar Section -->
+
   <div class="section-title">🏠 B&B Calendar</div>
   <div class="card" style="padding:0;overflow:hidden">
-    <div style="padding:12px;background:rgba(232,245,228,0.9);border-bottom:1px solid rgba(200,185,165,0.3)">
-      <div style="font-size:12px;color:#4a7c43;font-weight:600;margin-bottom:4px">B&B Availability & Bookings</div>
-      <div style="font-size:10px;color:#6b5a52">Synced with Google Calendar</div>
+    <div style="padding:12px;background:rgba(230,248,225,0.9);border-bottom:1px solid rgba(175,152,132,0.2)">
+      <div style="font-size:12px;color:#4d8c44;font-weight:600;font-family:sans-serif;margin-bottom:2px">B&B Availability & Bookings</div>
+      <div style="font-size:10px;color:#506058;font-family:sans-serif">Synced with Google Calendar</div>
     </div>
     <div id="bnb-calendar-container" style="height:400px;overflow:hidden">
       <iframe
@@ -563,17 +563,15 @@
       </iframe>
     </div>
   </div>
-  
-  <!-- Recent B&B Events -->
+
   <div class="card" style="margin-top:12px">
     <div class="card-title">📅 Upcoming B&B Events</div>
-    <div id="bnb-events-list" style="font-size:11px;color:#8b7b72;font-family:sans-serif;font-style:italic;text-align:center;padding:12px">
+    <div id="bnb-events-list" style="font-size:11px;color:#90a898;font-family:sans-serif;font-style:italic;text-align:center;padding:12px">
       Loading B&B calendar events...
     </div>
     <button class="log-btn" onclick="refreshBnBEvents()" style="margin-top:8px;font-size:11px">↻ Refresh Events</button>
   </div>
-  
-  <!-- Pregnancy Milestones -->
+
   <div class="section-title">🌿 Pregnancy Milestones</div>
   <div id="milestones-list">
     <div class="cal-event">
@@ -589,7 +587,7 @@
 
 <!-- ═══ MIDWIFE QUESTIONS ═══ -->
 <div id="tab-questions" class="hidden">
-  <div class="card" style="background:rgba(240,234,250,0.88);border-color:rgba(212,192,232,0.4);margin-bottom:10px">
+  <div class="card" style="background:rgba(240,234,250,0.88);border-color:rgba(200,180,230,0.35);margin-bottom:10px">
     <div style="font-size:11px;font-family:sans-serif;color:#5c3d7a;line-height:1.5">Add questions as they come to mind. Log midwife feedback and attach appointment photos.</div>
   </div>
   <div class="add-q-row">
@@ -597,14 +595,14 @@
     <button class="add-q-btn" onclick="addQuestion()">+ Add</button>
   </div>
   <div id="q-list">
-    <div style="text-align:center;padding:1.5rem;color:#9b8880;font-family:sans-serif;font-style:italic">No questions yet.</div>
+    <div style="text-align:center;padding:1.5rem;color:#90a898;font-family:sans-serif;font-style:italic">No questions yet.</div>
   </div>
 </div>
 
 <!-- ═══ STATISTICS ═══ -->
 <div id="tab-stats" class="hidden">
   <button class="sync-btn" onclick="loadStats()">↻ Refresh Statistics</button>
-  <div id="stats-loading" style="text-align:center;padding:2rem;color:#8b7b72;font-style:italic;font-family:sans-serif">Tap Refresh to load</div>
+  <div id="stats-loading" style="text-align:center;padding:2rem;color:#90a898;font-style:italic;font-family:sans-serif">Tap Refresh to load</div>
   <div id="stats-content" class="hidden">
     <div class="stat-section-hdr">At a Glance</div>
     <div class="kpi-summary-grid">
@@ -627,24 +625,60 @@
   <div class="section-title">App Settings</div>
   <div class="card">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-      <div class="conn-dot" id="conn-dot" style="background:rgba(200,185,165,0.5)"></div>
+      <div class="conn-dot" id="conn-dot" style="background:rgba(195,178,158,0.45)"></div>
       <div>
-        <div style="font-size:14px;color:#2c2420" id="conn-text">Local Storage Only</div>
-        <div style="font-size:11px;color:#9b8880;font-family:sans-serif;margin-top:2px" id="conn-sub">Data saved locally on this device.</div>
+        <div style="font-size:14px;color:#1c2820" id="conn-text">Local Storage Only</div>
+        <div style="font-size:11px;color:#90a898;font-family:sans-serif;margin-top:2px" id="conn-sub">Data saved locally on this device.</div>
       </div>
     </div>
   </div>
   <div class="section-title">Data Management</div>
   <div class="card">
-    <div style="font-size:12px;font-family:sans-serif;color:#5c4a42;margin-bottom:8px">Import historical data, export your data, or clear all stored information.</div>
+    <div style="font-size:12px;font-family:sans-serif;color:#506058;margin-bottom:8px">Import historical data, export your data, or clear all stored information.</div>
     <button class="log-btn" onclick="importHistoricalData()" style="margin-bottom:6px">📤 Import Historical Data</button>
     <button class="log-btn" onclick="exportAllData()" style="margin-bottom:6px">📥 Export All Data</button>
-    <button class="log-btn" onclick="clearAllData()" style="background:#c46070;border-color:#c46070">🗑 Clear All Data</button>
+    <button class="log-btn" onclick="clearAllData()" style="background:#b84858;border-color:#b84858;color:white">🗑 Clear All Data</button>
   </div>
 </div>
 
 </div><!-- end body -->
 </div><!-- end content-wrap -->
+
+<!-- ─── BOTTOM NAVIGATION ─── -->
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="nav-btn active" onclick="switchTab('today',this)" data-tab="today">
+    <span class="nav-icon">📋</span>
+    <span class="nav-label">Daily</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('bp',this)" data-tab="bp">
+    <span class="nav-icon">❤️</span>
+    <span class="nav-label">BP</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('monthly',this)" data-tab="monthly">
+    <span class="nav-icon">📅</span>
+    <span class="nav-label">Monthly</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('payment',this)" data-tab="payment">
+    <span class="nav-icon">💳</span>
+    <span class="nav-label">Payments</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('calendar',this)" data-tab="calendar">
+    <span class="nav-icon">🗓️</span>
+    <span class="nav-label">Calendar</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('questions',this)" data-tab="questions">
+    <span class="nav-icon">💬</span>
+    <span class="nav-label">Midwife</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('stats',this)" data-tab="stats">
+    <span class="nav-icon">📊</span>
+    <span class="nav-label">Stats</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('settings',this)" data-tab="settings">
+    <span class="nav-icon">⚙️</span>
+    <span class="nav-label">Setup</span>
+  </button>
+</nav>
 
 <!-- Protein Calculator Modal -->
 <div id="protein-calculator-modal" class="modal" style="display:none">
@@ -653,7 +687,7 @@
       <h3>🧮 Protein Calculator - <span id="calc-meal-type">Meal</span></h3>
       <button class="modal-close" onclick="closeProteinCalculator()">&times;</button>
     </div>
-    
+
     <div class="modal-body">
       <div style="margin-bottom:16px">
         <label class="field-label">Select Food</label>
@@ -701,29 +735,27 @@
             <option value="peanuts">Peanuts - 26g per 100g</option>
           </optgroup>
         </select>
-        
+
         <div style="display:flex;gap:8px;align-items:end">
           <div style="flex:1">
             <label class="field-label">Serving Size</label>
             <input class="field-input" type="number" id="calc-serving-size" placeholder="100" step="0.1">
           </div>
-          <button class="log-btn" onclick="addFoodToCalculator()" style="margin:0">+ Add</button>
+          <button class="log-btn" onclick="addFoodToCalculator()" style="margin:0;width:auto;padding:8px 14px">+ Add</button>
         </div>
       </div>
-      
-      <div id="calc-food-list" style="margin-bottom:16px;min-height:60px;border:1px solid rgba(200,185,165,0.3);border-radius:8px;padding:8px">
-        <!-- Food items will be added here -->
-      </div>
-      
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding:12px;background:rgba(232,245,228,0.9);border-radius:8px;border:1px solid #b8d8b0">
-        <div style="font-size:14px;color:#4a7c43;font-weight:600">Total Protein:</div>
-        <div style="font-size:18px;color:#4a7c43;font-weight:600" id="calc-total-protein">0g</div>
+
+      <div id="calc-food-list" style="margin-bottom:16px;min-height:60px;border:1px solid rgba(175,152,132,0.25);border-radius:10px;padding:10px"></div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding:12px;background:rgba(230,248,225,0.9);border-radius:10px;border:1px solid rgba(77,140,68,0.25)">
+        <div style="font-size:14px;color:#4d8c44;font-weight:600;font-family:sans-serif">Total Protein:</div>
+        <div style="font-size:18px;color:#4d8c44;font-weight:600;font-family:'Georgia',serif" id="calc-total-protein">0g</div>
       </div>
     </div>
-    
+
     <div class="modal-footer">
-      <button class="log-btn" onclick="applyCalculatorResult()" style="background:#4a7c43;border-color:#4a7c43">Add to Meal</button>
-      <button class="log-btn" onclick="closeProteinCalculator()" style="background:#9b8880;border-color:#9b8880">Cancel</button>
+      <button class="log-btn" onclick="applyCalculatorResult()" style="background:#4d8c44;border-color:#4d8c44;color:white;width:auto;padding:8px 20px">Add to Meal</button>
+      <button class="log-btn" onclick="closeProteinCalculator()" style="background:#7a5c48;border-color:#7a5c48;color:white;width:auto;padding:8px 20px">Cancel</button>
     </div>
   </div>
 </div>
