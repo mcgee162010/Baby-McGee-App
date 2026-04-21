@@ -1,15 +1,49 @@
 // ═══════════════════════════════════════════════════════════
-// Baby McGee Journal - Enhanced Local Version
-// Revamped with modern features, better error handling, and accessibility
+// Baby McGee Journal - Optimized Cloud Version
+// Enhanced with GitHub data storage, performance optimizations, and improved UX
 // ═══════════════════════════════════════════════════════════
 
 // ═══════════════════════════════════════════════════════════
-// CONSTANTS
+// CONSTANTS & CONFIGURATION
 // ═══════════════════════════════════════════════════════════
-var DUE = new Date('2026-09-04');
-var MEDS = ['aspirin','prenatal','vitd','fishoil','lemonbalm','magnesium','passionflower','lavender','ashwagandha','holybasil','motherwort','moringa'];
-var MED_NAMES = {aspirin:'Baby Aspirin',prenatal:'Thorne Prenatal',vitd:'Vitamin D3',fishoil:'Fish Oil',lemonbalm:'Lemon Balm',magnesium:'Magnesium',passionflower:'Passion Flower',lavender:'Lavender',ashwagandha:'Ashwagandha',holybasil:'Holy Basil',motherwort:'Mother Wort',moringa:'Moringa'};
-var STAR_LABELS = ['','Rough day','Okay','Feeling alright','Good day','Feeling great!'];
+const CONFIG = {
+  DUE_DATE: new Date('2026-09-04'),
+  GITHUB_DATA_REPO: 'mcgee162010/baby-mcgee-data', // Private repo for personal data
+  GITHUB_TOKEN: null, // Will be set by user
+  CACHE_DURATION: 5 * 60 * 1000, // 5 minutes
+  DEBOUNCE_DELAY: 800, // Reduced from 1200ms for better responsiveness
+  MAX_RETRIES: 3
+};
+
+const MEDS = ['aspirin','prenatal','vitd','fishoil','lemonbalm','magnesium','passionflower','lavender','ashwagandha','holybasil','motherwort','moringa'];
+const MED_NAMES = {
+  aspirin:'Baby Aspirin',prenatal:'Thorne Prenatal',vitd:'Vitamin D3',fishoil:'Fish Oil',
+  lemonbalm:'Lemon Balm',magnesium:'Magnesium',passionflower:'Passion Flower',lavender:'Lavender',
+  ashwagandha:'Ashwagandha',holybasil:'Holy Basil',motherwort:'Mother Wort',moringa:'Moringa'
+};
+const STAR_LABELS = ['','Rough day','Okay','Feeling alright','Good day','Feeling great!'];
+
+// Performance optimization: Cache frequently accessed DOM elements
+const DOM_CACHE = {};
+function getElement(id) {
+  if (!DOM_CACHE[id]) {
+    DOM_CACHE[id] = document.getElementById(id);
+  }
+  return DOM_CACHE[id];
+}
+
+// Debounced function factory for better performance
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
 
 // Baby development data by week
 var BABY_SIZES = {
@@ -97,27 +131,220 @@ var PROTEIN_FOODS = {
 };
 
 // ═══════════════════════════════════════════════════════════
-// STATE
+// STATE MANAGEMENT
 // ═══════════════════════════════════════════════════════════
-var offset = 0;
-var dayData = null;
-var monthData = {};
-var transactions = [];
-var questions = [];
-var activeTab = 'today';
-var saveTimer = null;
-var activityLog = [];
+let appState = {
+  offset: 0,
+  dayData: null,
+  monthData: {},
+  transactions: [],
+  questions: [],
+  activeTab: 'today',
+  saveTimer: null,
+  activityLog: [],
+  isOnline: navigator.onLine,
+  lastSync: null,
+  pendingChanges: new Set()
+};
 
 // ═══════════════════════════════════════════════════════════
-// LOCAL STORAGE FUNCTIONS
+// GITHUB DATA STORAGE SYSTEM
 // ═══════════════════════════════════════════════════════════
-var LS_PREFIX = 'bmj_day_';
+class GitHubDataManager {
+  constructor() {
+    this.baseUrl = `https://api.github.com/repos/${CONFIG.GITHUB_DATA_REPO}/contents`;
+    this.cache = new Map();
+    this.retryQueue = [];
+  }
 
-function lsKey(dateKey) { return LS_PREFIX + dateKey; }
+  async setToken(token) {
+    CONFIG.GITHUB_TOKEN = token;
+    localStorage.setItem('github_token', token);
+    return this.testConnection();
+  }
+
+  async testConnection() {
+    try {
+      const response = await fetch(`https://api.github.com/repos/${CONFIG.GITHUB_DATA_REPO}`, {
+        headers: this.getHeaders()
+      });
+      return response.ok;
+    } catch (error) {
+      console.error('GitHub connection test failed:', error);
+      return false;
+    }
+  }
+
+  getHeaders() {
+    return {
+      'Authorization': `token ${CONFIG.GITHUB_TOKEN}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    };
+  }
+
+  async getData(path) {
+    // Check cache first
+    const cacheKey = path;
+    const cached = this.cache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CONFIG.CACHE_DURATION) {
+      return cached.data;
+    }
+
+    try {
+      const response = await fetch(`${this.baseUrl}/${path}`, {
+        headers: this.getHeaders()
+      });
+
+      if (response.status === 404) {
+        return null; // File doesn't exist yet
+      }
+
+      if (!response.ok) {
+        throw new Error(`GitHub API error: ${response.status}`);
+      }
+
+      const result = await response.json();
+      const data = JSON.parse(atob(result.content));
+      
+      // Cache the result
+      this.cache.set(cacheKey, {
+        data,
+        timestamp: Date.now(),
+        sha: result.sha
+      });
+
+      return data;
+    } catch (error) {
+      console.error('Error fetching from GitHub:', error);
+      // Fallback to localStorage
+      return this.getLocalFallback(path);
+    }
+  }
+
+  async saveData(path, data) {
+    try {
+      // Get current file info for SHA
+      let sha = null;
+      const cached = this.cache.get(path);
+      if (cached) {
+        sha = cached.sha;
+      } else {
+        try {
+          const response = await fetch(`${this.baseUrl}/${path}`, {
+            headers: this.getHeaders()
+          });
+          if (response.ok) {
+            const result = await response.json();
+            sha = result.sha;
+          }
+        } catch (e) {
+          // File might not exist yet
+        }
+      }
+
+      const content = btoa(JSON.stringify(data, null, 2));
+      const payload = {
+        message: `Update ${path} - ${new Date().toISOString()}`,
+        content,
+        ...(sha && { sha })
+      };
+
+      const response = await fetch(`${this.baseUrl}/${path}`, {
+        method: 'PUT',
+        headers: this.getHeaders(),
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error(`GitHub save error: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      // Update cache
+      this.cache.set(path, {
+        data,
+        timestamp: Date.now(),
+        sha: result.content.sha
+      });
+
+      // Also save locally as backup
+      this.saveLocalBackup(path, data);
+      
+      return true;
+    } catch (error) {
+      console.error('Error saving to GitHub:', error);
+      // Save locally and add to retry queue
+      this.saveLocalBackup(path, data);
+      this.addToRetryQueue(path, data);
+      return false;
+    }
+  }
+
+  saveLocalBackup(path, data) {
+    try {
+      localStorage.setItem(`backup_${path}`, JSON.stringify(data));
+    } catch (e) {
+      console.error('Local backup failed:', e);
+    }
+  }
+
+  getLocalFallback(path) {
+    try {
+      const backup = localStorage.getItem(`backup_${path}`);
+      return backup ? JSON.parse(backup) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  addToRetryQueue(path, data) {
+    this.retryQueue.push({ path, data, timestamp: Date.now() });
+    // Limit queue size
+    if (this.retryQueue.length > 50) {
+      this.retryQueue = this.retryQueue.slice(-50);
+    }
+  }
+
+  async processRetryQueue() {
+    if (!appState.isOnline || this.retryQueue.length === 0) return;
+
+    const toRetry = [...this.retryQueue];
+    this.retryQueue = [];
+
+    for (const item of toRetry) {
+      const success = await this.saveData(item.path, item.data);
+      if (!success) {
+        // Re-add to queue if still failing
+        this.addToRetryQueue(item.path, item.data);
+      }
+    }
+  }
+}
+
+// Initialize GitHub data manager
+const githubData = new GitHubDataManager();
+
+// ═══════════════════════════════════════════════════════════
+// OPTIMIZED DATA ACCESS FUNCTIONS
+// ═══════════════════════════════════════════════════════════
+async function getData(dateKey) {
+  const path = `daily/${dateKey}.json`;
+  return await githubData.getData(path);
+}
+
+async function saveData(dateKey, data) {
+  const path = `daily/${dateKey}.json`;
+  return await githubData.saveData(path, data);
+}
+
+// Legacy localStorage functions for backward compatibility
+function lsKey(dateKey) { return `bmj_day_${dateKey}`; }
 
 function lsGet(dateKey) {
   try {
-    var raw = localStorage.getItem(lsKey(dateKey));
+    const raw = localStorage.getItem(lsKey(dateKey));
     if (!raw) return null;
     return JSON.parse(raw);
   } catch(e) { return null; }
@@ -2014,6 +2241,297 @@ function clearAllData() {
   }
 }
 
+// ═══════════════════════════════════════════════════════════
+// GITHUB SETUP & MANAGEMENT FUNCTIONS
+// ═══════════════════════════════════════════════════════════
+
+async function setupGitHubStorage() {
+  const tokenInput = getElement('github-token-input');
+  const token = tokenInput.value.trim();
+  
+  if (!token) {
+    showNotification('Please enter a GitHub Personal Access Token', 'error');
+    return;
+  }
+  
+  if (!token.startsWith('ghp_') && !token.startsWith('github_pat_')) {
+    showNotification('Invalid token format. Please use a valid GitHub Personal Access Token', 'error');
+    return;
+  }
+  
+  try {
+    updateConnectionStatus('syncing', 'Connecting...', 'Testing GitHub connection');
+    
+    const success = await githubData.setToken(token);
+    
+    if (success) {
+      updateConnectionStatus('online', 'Connected to GitHub', 'Data will sync to private repository');
+      showNotification('Successfully connected to GitHub! Your data will now sync to the cloud.', 'success');
+      
+      // Start initial sync
+      setTimeout(() => {
+        syncAllData();
+      }, 1000);
+    } else {
+      updateConnectionStatus('offline', 'Connection Failed', 'Please check your token and try again');
+      showNotification('Failed to connect to GitHub. Please check your token and repository access.', 'error');
+    }
+  } catch (error) {
+    console.error('GitHub setup error:', error);
+    updateConnectionStatus('offline', 'Connection Error', error.message);
+    showNotification('Error connecting to GitHub: ' + error.message, 'error');
+  }
+}
+
+async function testGitHubConnection() {
+  const tokenInput = getElement('github-token-input');
+  const token = tokenInput.value.trim();
+  
+  if (!token) {
+    showNotification('Please enter a GitHub Personal Access Token first', 'error');
+    return;
+  }
+  
+  try {
+    updateConnectionStatus('syncing', 'Testing...', 'Verifying connection');
+    
+    CONFIG.GITHUB_TOKEN = token;
+    const success = await githubData.testConnection();
+    
+    if (success) {
+      updateConnectionStatus('online', 'Connection Successful', 'Ready to sync data');
+      showNotification('GitHub connection test successful!', 'success');
+    } else {
+      updateConnectionStatus('offline', 'Connection Failed', 'Check token and repository access');
+      showNotification('Connection test failed. Please verify your token and repository access.', 'error');
+    }
+  } catch (error) {
+    console.error('Connection test error:', error);
+    updateConnectionStatus('offline', 'Test Failed', error.message);
+    showNotification('Connection test failed: ' + error.message, 'error');
+  }
+}
+
+function updateConnectionStatus(status, text, subText) {
+  const dot = getElement('github-conn-dot');
+  const textEl = getElement('github-conn-text');
+  const subEl = getElement('github-conn-sub');
+  const indicator = getElement('status-indicator');
+  const statusText = getElement('status-text');
+  
+  if (dot) {
+    dot.className = 'conn-dot';
+    if (status === 'online') {
+      dot.style.background = 'var(--green)';
+    } else if (status === 'syncing') {
+      dot.style.background = 'var(--amber)';
+    } else {
+      dot.style.background = 'rgba(195,178,158,0.45)';
+    }
+  }
+  
+  if (textEl) textEl.textContent = text;
+  if (subEl) subEl.textContent = subText;
+  
+  if (indicator) {
+    indicator.className = `status-indicator ${status}`;
+  }
+  if (statusText) {
+    statusText.textContent = status === 'online' ? 'Online' :
+                            status === 'syncing' ? 'Syncing' : 'Offline';
+  }
+}
+
+async function syncAllData() {
+  if (!CONFIG.GITHUB_TOKEN) {
+    showNotification('Please connect to GitHub first', 'error');
+    return;
+  }
+  
+  try {
+    updateConnectionStatus('syncing', 'Syncing...', 'Uploading data to GitHub');
+    
+    let syncCount = 0;
+    const errors = [];
+    
+    // Sync daily data
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('bmj_day_')) {
+        const dateKey = key.replace('bmj_day_', '');
+        const data = lsGet(dateKey);
+        if (data) {
+          const success = await saveData(dateKey, data);
+          if (success) {
+            syncCount++;
+          } else {
+            errors.push(`Failed to sync ${dateKey}`);
+          }
+        }
+      }
+    }
+    
+    // Sync other data types
+    const otherData = [
+      { key: 'bmj_transactions', path: 'transactions.json' },
+      { key: 'bmj_questions', path: 'questions.json' },
+      { key: 'bmj_monthly', path: 'monthly.json' }
+    ];
+    
+    for (const item of otherData) {
+      const data = localStorage.getItem(item.key);
+      if (data) {
+        try {
+          const success = await githubData.saveData(item.path, JSON.parse(data));
+          if (success) syncCount++;
+          else errors.push(`Failed to sync ${item.path}`);
+        } catch (e) {
+          errors.push(`Error syncing ${item.path}: ${e.message}`);
+        }
+      }
+    }
+    
+    // Update sync status
+    appState.lastSync = new Date().toISOString();
+    localStorage.setItem('last_sync', appState.lastSync);
+    updateSyncStatus();
+    
+    if (errors.length === 0) {
+      updateConnectionStatus('online', 'Sync Complete', `${syncCount} items synced successfully`);
+      showNotification(`Successfully synced ${syncCount} items to GitHub!`, 'success');
+    } else {
+      updateConnectionStatus('online', 'Partial Sync', `${syncCount} synced, ${errors.length} errors`);
+      showNotification(`Synced ${syncCount} items with ${errors.length} errors. Check console for details.`, 'error');
+      console.error('Sync errors:', errors);
+    }
+    
+  } catch (error) {
+    console.error('Sync error:', error);
+    updateConnectionStatus('offline', 'Sync Failed', error.message);
+    showNotification('Sync failed: ' + error.message, 'error');
+  }
+}
+
+function updateSyncInterval() {
+  const select = getElement('sync-interval');
+  if (select) {
+    const interval = parseInt(select.value);
+    CONFIG.SYNC_INTERVAL = interval;
+    localStorage.setItem('sync_interval', interval.toString());
+    
+    // Restart sync timer
+    if (appState.syncTimer) {
+      clearInterval(appState.syncTimer);
+    }
+    
+    if (CONFIG.GITHUB_TOKEN && interval > 0) {
+      appState.syncTimer = setInterval(() => {
+        if (appState.pendingChanges.size > 0) {
+          syncAllData();
+        }
+      }, interval);
+    }
+  }
+}
+
+function updateCacheDuration() {
+  const select = getElement('cache-duration');
+  if (select) {
+    CONFIG.CACHE_DURATION = parseInt(select.value);
+    localStorage.setItem('cache_duration', CONFIG.CACHE_DURATION.toString());
+    
+    // Clear current cache to apply new duration
+    githubData.cache.clear();
+  }
+}
+
+function toggleOfflineMode() {
+  const checkbox = getElement('offline-mode');
+  if (checkbox) {
+    CONFIG.OFFLINE_MODE = checkbox.checked;
+    localStorage.setItem('offline_mode', CONFIG.OFFLINE_MODE.toString());
+    
+    if (CONFIG.OFFLINE_MODE) {
+      showNotification('Offline mode enabled. Data will only be stored locally.', 'info');
+    } else {
+      showNotification('Offline mode disabled. Data will sync to GitHub when connected.', 'info');
+    }
+  }
+}
+
+function updateSyncStatus() {
+  const lastSyncEl = getElement('last-sync-time');
+  const pendingEl = getElement('pending-changes-count');
+  
+  if (lastSyncEl) {
+    if (appState.lastSync) {
+      const date = new Date(appState.lastSync);
+      lastSyncEl.textContent = date.toLocaleString();
+    } else {
+      lastSyncEl.textContent = 'Never';
+    }
+  }
+  
+  if (pendingEl) {
+    pendingEl.textContent = appState.pendingChanges.size.toString();
+  }
+}
+
+// Initialize settings on load
+function initializeSettings() {
+  // Load saved token
+  const savedToken = localStorage.getItem('github_token');
+  if (savedToken) {
+    const tokenInput = getElement('github-token-input');
+    if (tokenInput) {
+      tokenInput.value = savedToken;
+      // Auto-test connection
+      setTimeout(() => {
+        testGitHubConnection();
+      }, 1000);
+    }
+  }
+  
+  // Load other settings
+  const syncInterval = localStorage.getItem('sync_interval');
+  if (syncInterval) {
+    const select = getElement('sync-interval');
+    if (select) select.value = syncInterval;
+    CONFIG.SYNC_INTERVAL = parseInt(syncInterval);
+  }
+  
+  const cacheDuration = localStorage.getItem('cache_duration');
+  if (cacheDuration) {
+    const select = getElement('cache-duration');
+    if (select) select.value = cacheDuration;
+    CONFIG.CACHE_DURATION = parseInt(cacheDuration);
+  }
+  
+  const offlineMode = localStorage.getItem('offline_mode');
+  if (offlineMode) {
+    const checkbox = getElement('offline-mode');
+    if (checkbox) checkbox.checked = offlineMode === 'true';
+    CONFIG.OFFLINE_MODE = offlineMode === 'true';
+  }
+  
+  // Load last sync time
+  appState.lastSync = localStorage.getItem('last_sync');
+  updateSyncStatus();
+  
+  // Monitor online status
+  window.addEventListener('online', () => {
+    appState.isOnline = true;
+    updateConnectionStatus('online', 'Back Online', 'Connection restored');
+    // Process retry queue
+    githubData.processRetryQueue();
+  });
+  
+  window.addEventListener('offline', () => {
+    appState.isOnline = false;
+    updateConnectionStatus('offline', 'Offline', 'Working in offline mode');
+  });
+}
+
 // Function to load historical data from the Excel file
 function loadHistoricalDataFromExcel() {
   // Historical data extracted from Baby McGee Tracker.xlsx
@@ -2202,6 +2720,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Add keyboard navigation support
     document.addEventListener('keydown', handleKeyboardNavigation);
+    
+    // Initialize settings and GitHub connection
+    initializeSettings();
     
     // Initialize app
     renderStats();

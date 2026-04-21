@@ -776,22 +776,96 @@
 
 <!-- ═══ SETTINGS ═══ -->
 <div id="tab-settings" class="hidden">
-  <div class="section-title">App Settings</div>
+  <!-- GitHub Cloud Storage Setup -->
+  <div class="section-title">Cloud Storage Setup</div>
   <div class="card">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
-      <div class="conn-dot" id="conn-dot" style="background:rgba(195,178,158,0.45)"></div>
-      <div>
-        <div style="font-size:14px;color:#1c2820" id="conn-text">Local Storage Only</div>
-        <div style="font-size:11px;color:#90a898;font-family:sans-serif;margin-top:2px" id="conn-sub">Data saved locally on this device.</div>
+    <div class="card-title">🔐 GitHub Private Repository</div>
+    <div style="font-size:12px;color:#506058;margin-bottom:12px;font-family:sans-serif;line-height:1.5">
+      Connect to your private GitHub repository to securely store your pregnancy data in the cloud. This enables access from any device while keeping your data private.
+    </div>
+    
+    <div style="margin-bottom:12px">
+      <label class="field-label">GitHub Personal Access Token</label>
+      <input class="field-input" type="password" id="github-token-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="font-family:monospace;font-size:12px">
+      <div style="font-size:10px;color:#90a898;margin-top:4px;font-family:sans-serif">
+        <a href="https://github.com/settings/tokens/new?scopes=repo&description=Baby%20McGee%20App" target="_blank" style="color:#4d8c44">Create a new token</a> with 'repo' scope
+      </div>
+    </div>
+    
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <button class="log-btn" onclick="setupGitHubStorage()" style="background:#4d8c44;border-color:#4d8c44;color:white;flex:1">🔗 Connect to GitHub</button>
+      <button class="log-btn" onclick="testGitHubConnection()" style="flex:1">🧪 Test Connection</button>
+    </div>
+    
+    <div class="connection-status" id="github-status">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="conn-dot" id="github-conn-dot" style="background:rgba(195,178,158,0.45)"></div>
+        <div>
+          <div style="font-size:12px;color:#1c2820" id="github-conn-text">Not Connected</div>
+          <div style="font-size:10px;color:#90a898;font-family:sans-serif" id="github-conn-sub">Data stored locally only</div>
+        </div>
       </div>
     </div>
   </div>
+
+  <!-- App Settings -->
+  <div class="section-title">App Settings</div>
+  <div class="card">
+    <div class="card-title">⚡ Performance</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div style="font-size:12px;color:#506058">Auto-sync interval</div>
+      <select class="field-input" id="sync-interval" style="width:120px;font-size:11px" onchange="updateSyncInterval()">
+        <option value="300000">5 minutes</option>
+        <option value="600000">10 minutes</option>
+        <option value="1800000" selected>30 minutes</option>
+        <option value="3600000">1 hour</option>
+      </select>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div style="font-size:12px;color:#506058">Cache duration</div>
+      <select class="field-input" id="cache-duration" style="width:120px;font-size:11px" onchange="updateCacheDuration()">
+        <option value="300000" selected>5 minutes</option>
+        <option value="600000">10 minutes</option>
+        <option value="1800000">30 minutes</option>
+      </select>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:12px;color:#506058">Offline mode</div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="offline-mode" onchange="toggleOfflineMode()">
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Data Management -->
   <div class="section-title">Data Management</div>
   <div class="card">
-    <div style="font-size:12px;font-family:sans-serif;color:#506058;margin-bottom:8px">Import historical data, export your data, or clear all stored information.</div>
+    <div style="font-size:12px;font-family:sans-serif;color:#506058;margin-bottom:8px">Import historical data, export your data, or manage stored information.</div>
     <button class="log-btn" onclick="importHistoricalData()" style="margin-bottom:6px">📤 Import Historical Data</button>
-    <button class="log-btn" onclick="exportAllData()" style="margin-bottom:6px">📥 Export All Data</button>
+    <button class="log-btn" onclick="exportEnhancedData()" style="margin-bottom:6px">📥 Export All Data</button>
+    <button class="log-btn" onclick="syncAllData()" style="margin-bottom:6px;background:#4d8c44;border-color:#4d8c44;color:white">☁️ Sync to GitHub</button>
     <button class="log-btn" onclick="clearAllData()" style="background:#b84858;border-color:#b84858;color:white">🗑 Clear All Data</button>
+  </div>
+
+  <!-- Sync Status -->
+  <div class="section-title">Sync Status</div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div style="font-size:12px;color:#506058">Last sync</div>
+      <div style="font-size:11px;color:#90a898;font-family:sans-serif" id="last-sync-time">Never</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div style="font-size:12px;color:#506058">Pending changes</div>
+      <div style="font-size:11px;color:#90a898;font-family:sans-serif" id="pending-changes-count">0</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:12px;color:#506058">Connection status</div>
+      <div style="font-size:11px;font-family:sans-serif" id="connection-status">
+        <span class="status-indicator" id="status-indicator">●</span>
+        <span id="status-text">Offline</span>
+      </div>
+    </div>
   </div>
 </div>
 
