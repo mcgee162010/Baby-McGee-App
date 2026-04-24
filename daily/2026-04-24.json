@@ -1,0 +1,19 @@
+{
+  "steps": "",
+  "meals": {
+    "breakfast": {
+      "foods": "",
+      "protein": "0"
+    },
+    "lunch": {
+      "foods": "",
+      "protein": "0"
+    },
+    "dinner": {
+      "foods": "",
+      "protein": "0"
+    }
+  },
+  "water": "",
+  "protein": "0"
+}
