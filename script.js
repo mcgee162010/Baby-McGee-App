@@ -1,69 +1,71 @@
 
-/* ── WEEK STRIP RENDERER ── */
-function renderWeekStrip() {
-  var container  = document.getElementById('week-strip-days');
-  var monthLabel = document.getElementById('week-strip-month');
-  if (!container) return;
+/* ── ACCORDION SECTIONS ── */
+var ACC_OPEN = {};  // track open state
 
-  var today    = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  // Use the app's offset variable if available, else default to today
-  var viewDate = new Date(today);
-  if (typeof offset !== 'undefined' && offset !== 0) {
-    viewDate.setDate(today.getDate() + offset);
-  }
-  viewDate.setHours(0, 0, 0, 0);
-
-  // Find Monday of this week
-  var dow      = viewDate.getDay(); // 0=Sun
-  var toMon    = (dow === 0) ? -6 : 1 - dow;
-  var monday   = new Date(viewDate);
-  monday.setDate(viewDate.getDate() + toMon);
-  monday.setHours(0, 0, 0, 0);
-
-  // Update month label
-  var MONTHS = ['January','February','March','April','May','June',
-                'July','August','September','October','November','December'];
-  if (monthLabel) monthLabel.textContent = MONTHS[viewDate.getMonth()] + ' ' + viewDate.getFullYear();
-
-  var LETTERS = ['M','T','W','T','F','S','S'];
-  var out = '';
-
-  for (var i = 0; i < 7; i++) {
-    var d = new Date(monday);
-    d.setDate(monday.getDate() + i);
-    d.setHours(0, 0, 0, 0);
-
-    var isToday   = d.getTime() === today.getTime();
-    var isSel     = d.getTime() === viewDate.getTime();
-    var isFuture  = d.getTime() >   today.getTime();
-
-    var cls = 'week-day-cell';
-    if (isToday)  cls += ' is-today';
-    if (isSel)    cls += ' is-selected';
-    if (isFuture) cls += ' is-future';
-
-    var yr  = d.getFullYear();
-    var mo  = String(d.getMonth() + 1).padStart(2, '0');
-    var dy  = String(d.getDate()).padStart(2, '0');
-    var key = yr + '-' + mo + '-' + dy;
-
-    // Small green dot if data exists for this day
-    var hasDot = !isFuture && window.allData && window.allData[key]
-                 && Object.keys(window.allData[key]).length > 0;
-    var dot = hasDot ? '<span class="week-day-dot"></span>' : '<span class="week-day-dot-placeholder"></span>';
-
-    out += '<button class="' + cls + '" onclick="jumpToDate(\'' + key + '\')">'
-         +   '<span class="week-day-letter">' + LETTERS[i] + '</span>'
-         +   '<span class="week-day-num">'    + d.getDate() + '</span>'
-         +   dot
-         + '</button>';
-  }
-
-  container.innerHTML = out;
+function toggleAcc(id) {
+  var body    = document.getElementById('acc-body-' + id);
+  var chevron = document.getElementById('acc-chevron-' + id);
+  if (!body) return;
+  ACC_OPEN[id] = !ACC_OPEN[id];
+  body.style.maxHeight    = ACC_OPEN[id] ? body.scrollHeight + 500 + 'px' : '0';
+  body.style.opacity      = ACC_OPEN[id] ? '1' : '0';
+  if (chevron) chevron.style.transform = ACC_OPEN[id] ? 'rotate(90deg)' : 'rotate(0deg)';
 }
-/* ── END WEEK STRIP RENDERER ── */
+
+function updateAccordionBadges() {
+  if (!window.dayData) return;
+
+  // ① Feeling: done if rating set AND bp logged
+  var hasMood = window.dayData.rating && window.dayData.rating > 0;
+  var hasBP   = window.dayData.bp && window.dayData.bp.length > 0;
+  setAccStatus('feeling', hasMood && hasBP, hasMood || hasBP ? '!' : '');
+
+  // ② Meds: count taken vs total 6 core meds
+  var coreMeds = ['aspirin','prenatal','vitd','fishoil','lemonbalm','magnesium'];
+  var taken = 0;
+  coreMeds.forEach(function(m) {
+    if (window.dayData.meds && window.dayData.meds[m] === 'taken') taken++;
+  });
+  var medDone = taken === coreMeds.length;
+  setAccStatus('meds', medDone, taken + '/' + coreMeds.length);
+
+  // ③ Movement: done if steps > 0 OR exercise session logged OR hypno done
+  var hasSteps    = window.dayData.steps && parseInt(window.dayData.steps) > 0;
+  var hasExercise = window.dayData.exercise && window.dayData.exercise.length > 0;
+  var hasHypno    = window.dayData.hypno === 'yes';
+  var movDone = hasSteps && (hasExercise || hasHypno);
+  setAccStatus('movement', movDone, (hasSteps || hasExercise || hasHypno) ? '!' : '');
+
+  // ④ Nutrition: done if protein >= 60g AND water >= 90oz AND buoy taken
+  var protein = parseFloat(window.dayData.totalProtein || 0);
+  var water   = parseFloat(window.dayData.water || 0);
+  var buoy    = window.dayData.buoy === 'yes';
+  var nutDone = protein >= 60 && water >= 90 && buoy;
+  setAccStatus('nutrition', nutDone, (protein > 0 || water > 0) ? '!' : '');
+
+  // ⑤ Notes: done if any text entered
+  var hasNotes = window.dayData.symptomsNotes && window.dayData.symptomsNotes.trim().length > 0;
+  setAccStatus('notes', hasNotes, '');
+}
+
+function setAccStatus(id, done, badge) {
+  var checkEl = document.getElementById('acc-check-' + id);
+  var badgeEl = document.getElementById('acc-badge-' + id);
+  var headerEl = document.querySelector('#acc-' + id + ' .acc-header');
+
+  if (checkEl) {
+    checkEl.textContent   = done ? '✓' : '';
+    checkEl.style.display = done ? 'flex' : 'none';
+  }
+  if (badgeEl) {
+    badgeEl.textContent   = (!done && badge) ? badge : '';
+    badgeEl.style.display = (!done && badge) ? 'flex' : 'none';
+  }
+  if (headerEl) {
+    headerEl.classList.toggle('acc-header--done', done);
+  }
+}
+/* ── END ACCORDION ── */
 
 
 /* ── WEEK STRIP RENDERER ── */
@@ -744,6 +746,7 @@ function showDatePickerBP() {
 function renderAll() {
   if (!dayData) return;
   renderStats();
+  updateAccordionBadges();
   renderWeekStrip();
   renderBPDailyCard();
 
@@ -1993,7 +1996,7 @@ function switchTab(tab,btn){
   });
   btn.classList.add('active');
   
-  ['today','bp','payment','questions','stats','settings'].forEach(function(t){
+  ['today','bp','payment','calendar','questions','stats','settings'].forEach(function(t){
     var el=document.getElementById('tab-'+t);
     if(el) el.className=t===tab?'':'hidden';
   });
@@ -2886,7 +2889,6 @@ function forceLoad() {
 
 // Enhanced initialization with modern features
 document.addEventListener('DOMContentLoaded', function() {
-  renderWeekStrip(); // show week strip immediately
   try {
     // Handle file:// protocol specific setup
     if (location.protocol === 'file:') {
