@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Baby McGee">
@@ -107,10 +107,23 @@
       <div class="save-badge" id="save-badge">✓ Saved</div>
     </div>
   </div>
-  <div class="stats-row">
-    <div class="stat"><span class="stat-num" id="stat-weeks">--</span><span class="stat-sub">pregnant</span></div>
-    <div class="stat"><span class="stat-num" id="stat-days">--</span><span class="stat-sub">days left</span></div>
-    <div class="stat"><span class="stat-num" id="stat-tri">--</span><span class="stat-sub">trimester</span></div>
+  <!-- iOS Health Stat Tiles -->
+  <div class="stat-tiles-row">
+    <div class="stat-tile stat-tile--green">
+      <div class="stat-tile-icon">🤰</div>
+      <div class="stat-tile-num" id="stat-weeks">--</div>
+      <div class="stat-tile-sub">Weeks</div>
+    </div>
+    <div class="stat-tile stat-tile--rose">
+      <div class="stat-tile-icon">📅</div>
+      <div class="stat-tile-num" id="stat-days">--</div>
+      <div class="stat-tile-sub">Days Left</div>
+    </div>
+    <div class="stat-tile stat-tile--amber">
+      <div class="stat-tile-icon">✨</div>
+      <div class="stat-tile-num" id="stat-tri">--</div>
+      <div class="stat-tile-sub">Trimester</div>
+    </div>
   </div>
 </div>
 
@@ -133,18 +146,19 @@
     </div>
   </div>
 
-  <div class="date-bar">
-    <div class="date-label-wrap" onclick="showDatePicker()">
-      <span class="date-text" id="date-label-today">Today</span>
-      <span style="font-size:11px;color:#90a898;font-family:sans-serif">▼</span>
+  <!-- Week Strip -->
+  <div class="week-strip-bar">
+    <div class="week-strip-header">
+      <span class="week-strip-month" id="week-strip-month">April 2026</span>
+      <button class="week-strip-cal-btn" onclick="showDatePicker()" aria-label="Open calendar">
+        📅
+      </button>
     </div>
-    <div class="date-nav">
-      <button class="arrow-btn" onclick="changeDay(-1)">←</button>
-      <button class="arrow-btn" id="btn-today" onclick="changeDay(0)" style="display:none">Today</button>
-      <button class="arrow-btn" onclick="changeDay(1)">→</button>
+    <div class="week-strip-days" id="week-strip-days">
+      <!-- Rendered by JS -->
     </div>
+    <input type="date" class="date-picker-hidden" id="date-picker-today" oninput="jumpToDate(this.value)" style="position:absolute;left:-9999px;opacity:0;">
   </div>
-  <input type="date" class="date-picker-hidden" id="date-picker-today" oninput="jumpToDate(this.value)" style="position:absolute;left:-9999px;opacity:0;">
 
   <!-- Week progress summary -->
   <div class="week-card" id="week-summary-card">
@@ -203,6 +217,23 @@
     <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:50%;background:#4d8c44"></div>Taken</div>
     <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:50%;background:#b84858"></div>Did not take — tap ✕</div>
     <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(175,152,132,0.5)"></div>Not logged</div>
+  </div>
+
+
+  <!-- ── BP Quick-Log Card (Daily) ── -->
+  <div class="section-title">Blood Pressure</div>
+  <div class="bp-daily-card" id="bp-daily-card" onclick="switchTab('bp', document.querySelector('[data-tab=bp]'))">
+    <div class="bp-daily-left">
+      <div class="bp-daily-icon">💗</div>
+      <div class="bp-daily-info">
+        <div class="bp-daily-reading" id="bp-daily-reading">— / — <span class="bp-daily-unit">mmHg</span></div>
+        <div class="bp-daily-time" id="bp-daily-time">No reading today</div>
+      </div>
+    </div>
+    <div class="bp-daily-right">
+      <div class="bp-daily-status" id="bp-daily-status"></div>
+      <div class="bp-daily-cta">Log BP →</div>
+    </div>
   </div>
 
   <!-- Star rating -->
@@ -699,27 +730,6 @@
   </div>
 </div>
 
-<!-- ═══ MONTHLY ═══ -->
-<div id="tab-monthly" class="hidden">
-  <div class="card alert-card">
-    <div style="font-size:12px;font-family:sans-serif;color:#6b3a28;line-height:1.6">Monthly tasks for <strong id="month-label"></strong>. Tap to mark complete.</div>
-  </div>
-  <div class="section-title">VBAC Prep</div>
-  <div class="month-row" id="row-castoroil" onclick="toggleMonthTask('castoroil')">
-    <div class="circle"><svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-    <div><div class="med-name">Castor Oil — C-Section Scar Massage <span class="tag t-rose">VBAC Prep</span></div><div class="med-dose">Once per month</div><div class="med-note">Circular motions on scar 5–10 min. Helps flexibility for VBAC.</div></div>
-  </div>
-  <div class="section-title">Preeclampsia Prevention</div>
-  <div class="month-row" id="row-calcium" onclick="toggleMonthTask('calcium')">
-    <div class="circle"><svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-    <div><div class="med-name">Confirm Calcium Supplement <span class="tag t-amber">With Midwife</span></div><div class="med-dose">1,000–1,500mg / day target</div><div class="med-note">Confirm dose with midwife for preeclampsia prevention.</div></div>
-  </div>
-  <div class="section-title">Appointments this month</div>
-  <div class="card"><textarea class="textarea" id="appt-notes" rows="3" placeholder="Dates · Providers · What was discussed..." oninput="debouncedMonthSave()"></textarea></div>
-  <div class="section-title">Notes & questions</div>
-  <div class="card"><textarea class="textarea" id="month-notes" rows="3" placeholder="Questions for midwife · Symptom changes · Follow ups..." oninput="debouncedMonthSave()"></textarea></div>
-</div>
-
 <!-- ═══ PAYMENTS ═══ -->
 <div id="tab-payment" class="hidden">
   <div class="card">
@@ -937,10 +947,7 @@
     <span class="nav-icon">❤️</span>
     <span class="nav-label">BP</span>
   </button>
-  <button class="nav-btn" onclick="switchTab('monthly',this)" data-tab="monthly">
-    <span class="nav-icon">📅</span>
-    <span class="nav-label">Monthly</span>
-  </button>
+
   <button class="nav-btn" onclick="switchTab('payment',this)" data-tab="payment">
     <span class="nav-icon">💳</span>
     <span class="nav-label">Payments</span>
