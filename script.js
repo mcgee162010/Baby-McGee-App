@@ -1,75 +1,109 @@
 
-/* ── WEEK STRIP RENDERER v3 ── */
-function renderWeekStrip() {
-  var container  = document.getElementById('week-strip-days');
-  var monthLabel = document.getElementById('week-strip-month');
-  if (!container) return;
+/* ── SOFTWARE UPDATE ── */
+var APP_VERSION = '3.0';
+var APP_REPO_API = 'https://api.github.com/repos/mcgee162010/Baby-McGee-App/commits/main';
 
-  var today = new Date();
-  today.setHours(0,0,0,0);
+function checkForAppUpdate() {
+  var btn     = document.getElementById('check-update-btn');
+  var btnIcon = document.getElementById('update-btn-icon');
+  var btnText = document.getElementById('update-btn-text');
+  var msgEl   = document.getElementById('update-message');
+  var dotEl   = document.getElementById('update-status-dot');
+  var checkedEl = document.getElementById('last-checked-label');
 
-  // Resolve the currently viewed date from app's offset variable
-  var viewDate = new Date(today);
-  try {
-    if (typeof offset !== 'undefined' && !isNaN(offset) && offset !== 0) {
-      viewDate = new Date(today);
-      viewDate.setDate(today.getDate() + offset);
-    }
-  } catch(e) {}
-  viewDate.setHours(0,0,0,0);
+  // Spinner state
+  btnIcon.textContent = '⏳';
+  btnText.textContent = 'Checking...';
+  if (btn) btn.disabled = true;
 
-  // Find Monday of the week containing viewDate
-  var dow   = viewDate.getDay(); // 0=Sun
-  var toMon = (dow === 0) ? -6 : 1 - dow;
-  var mon   = new Date(viewDate);
-  mon.setDate(viewDate.getDate() + toMon);
-  mon.setHours(0,0,0,0);
+  // Check the latest commit date on GitHub
+  fetch(APP_REPO_API)
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var lastCommit = data && data.commit && data.commit.author && data.commit.author.date;
+      var sha        = data && data.sha ? data.sha.slice(0,7) : '?';
+      var msg        = data && data.commit && data.commit.message ? data.commit.message.split('\n')[0] : '';
 
-  // Update month/year label
-  var MONTHS = ['January','February','March','April','May','June',
-                'July','August','September','October','November','December'];
-  if (monthLabel) {
-    monthLabel.textContent = MONTHS[viewDate.getMonth()] + ' ' + viewDate.getFullYear();
-  }
+      var now = new Date();
+      checkedEl.textContent = 'Last checked: ' + now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 
-  var DAY_LETTERS = ['M','T','W','T','F','S','S'];
-  var out = '';
+      // Compare commit date to when the SW was installed
+      if (lastCommit) {
+        var commitTime = new Date(lastCommit);
+        var swTime = null;
+        try {
+          var stored = localStorage.getItem('bmj_sw_install_time');
+          if (stored) swTime = new Date(stored);
+        } catch(e) {}
 
-  for (var i = 0; i < 7; i++) {
-    var d = new Date(mon);
-    d.setDate(mon.getDate() + i);
-    d.setHours(0,0,0,0);
+        var hasUpdate = !swTime || commitTime > swTime;
 
-    var isToday   = d.getTime() === today.getTime();
-    var isSel     = d.getTime() === viewDate.getTime();
-    var isFuture  = d.getTime() >   today.getTime();
-
-    // Build classes
-    var cls = 'wday';
-    if (isToday) cls += ' wday-today';
-    if (isSel)   cls += ' wday-sel';
-    if (isFuture) cls += ' wday-future';
-
-    // Date key
-    var yr = d.getFullYear();
-    var mo = String(d.getMonth()+1).padStart(2,'0');
-    var dy = String(d.getDate()).padStart(2,'0');
-    var key = yr + '-' + mo + '-' + dy;
-
-    // Small dot if data logged for that day
-    var hasDot = !isFuture && window.allData && window.allData[key]
-                 && Object.keys(window.allData[key]).length > 0;
-
-    out += '<button class="' + cls + '" onclick="jumpToDate(\'' + key + '\')" type="button">'
-         + '<span class="wday-letter">' + DAY_LETTERS[i] + '</span>'
-         + '<span class="wday-num">'    + d.getDate()    + '</span>'
-         + '<span class="wday-dot' + (hasDot ? ' wday-dot-vis' : '') + '"></span>'
-         + '</button>';
-  }
-
-  container.innerHTML = out;
+        if (hasUpdate) {
+          // Update available
+          dotEl.style.background    = '#e07830';
+          msgEl.style.display       = 'block';
+          msgEl.innerHTML           = '<strong style="color:#7a4800">✨ Update available!</strong><br>'
+                                    + 'Latest: <code style="font-size:10px;background:#f4f1eb;padding:1px 4px;border-radius:4px">' + sha + '</code> · '
+                                    + commitTime.toLocaleDateString([], {month:'short',day:'numeric'}) + '<br>'
+                                    + '<span style="color:#90a898">' + msg.slice(0,60) + '</span>';
+          btnIcon.textContent       = '⬆️';
+          btnText.textContent       = 'Update Now';
+          btn.onclick               = function() { forceAppReload(); };
+          btn.style.background      = '#e07830';
+          btn.style.borderColor     = '#e07830';
+        } else {
+          // Up to date
+          dotEl.style.background    = '#4d8c44';
+          msgEl.style.display       = 'block';
+          msgEl.innerHTML           = '✅ <strong style="color:#2d6a26">You\'re up to date!</strong><br>'
+                                    + '<span style="color:#90a898">Commit: ' + sha + ' · ' + msg.slice(0,60) + '</span>';
+          msgEl.style.color         = '#506058';
+          btnIcon.textContent       = '✓';
+          btnText.textContent       = 'Up to Date';
+        }
+      }
+    })
+    .catch(function(err) {
+      dotEl.style.background  = '#b84858';
+      msgEl.style.display     = 'block';
+      msgEl.textContent       = '⚠️ Could not check for updates. Are you online?';
+      btnIcon.textContent     = '⚠️';
+      btnText.textContent     = 'Check Failed';
+    })
+    .finally(function() {
+      if (btn) btn.disabled = false;
+    });
 }
-/* ── END WEEK STRIP RENDERER v3 ── */
+
+function forceAppReload() {
+  var btn = document.getElementById('force-reload-btn');
+  if (btn) { btn.textContent = '⏳ Clearing...'; btn.disabled = true; }
+
+  // 1. Unregister service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(regs) {
+      var promises = regs.map(function(r) { return r.unregister(); });
+      return Promise.all(promises);
+    }).then(function() {
+      // 2. Clear all caches
+      if ('caches' in window) {
+        return caches.keys().then(function(keys) {
+          return Promise.all(keys.map(function(k) { return caches.delete(k); }));
+        });
+      }
+    }).then(function() {
+      // 3. Store install time
+      localStorage.setItem('bmj_sw_install_time', new Date().toISOString());
+      // 4. Hard reload
+      window.location.reload(true);
+    }).catch(function() {
+      window.location.reload(true);
+    });
+  } else {
+    window.location.reload(true);
+  }
+}
+/* ── END SOFTWARE UPDATE ── */
 
 
 /* ── ACCORDION SECTIONS ── */
