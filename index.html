@@ -755,49 +755,6 @@
 </div>
 
 <!-- ═══ CALENDAR ═══ -->
-<div id="tab-calendar" class="hidden">
-  <div class="card" style="background:rgba(240,234,250,0.88);border-color:rgba(200,180,230,0.35);margin-bottom:12px">
-    <div style="font-size:11px;font-family:sans-serif;color:#5c3d7a;line-height:1.6">Important pregnancy milestones, appointments, and B&B calendar.</div>
-  </div>
-
-  <div class="section-title">🏠 B&B Calendar</div>
-  <div class="card" style="padding:0;overflow:hidden">
-    <div style="padding:12px;background:rgba(230,248,225,0.9);border-bottom:1px solid rgba(175,152,132,0.2)">
-      <div style="font-size:12px;color:#4d8c44;font-weight:600;font-family:sans-serif;margin-bottom:2px">B&B Availability & Bookings</div>
-      <div style="font-size:10px;color:#506058;font-family:sans-serif">Synced with Google Calendar</div>
-    </div>
-    <div id="bnb-calendar-container" style="height:400px;overflow:hidden">
-      <iframe
-        src="https://calendar.google.com/calendar/embed?height=400&wkst=1&bgcolor=%23ffffff&ctz=America%2FPhoenix&src=5614d65eeb59dc48865040b3946d728d8d1a44f4047b49018e93c2677b43dc8a%40group.calendar.google.com&color=%23D50000&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=0&showCalendars=0&showTz=0&mode=MONTH"
-        style="border:0;width:100%;height:100%;min-height:400px"
-        frameborder="0"
-        scrolling="no">
-      </iframe>
-    </div>
-  </div>
-
-  <div class="card" style="margin-top:12px">
-    <div class="card-title">📅 Upcoming B&B Events</div>
-    <div id="bnb-events-list" style="font-size:11px;color:#90a898;font-family:sans-serif;font-style:italic;text-align:center;padding:12px">
-      Loading B&B calendar events...
-    </div>
-    <button class="log-btn" onclick="refreshBnBEvents()" style="margin-top:8px;font-size:11px">↻ Refresh Events</button>
-  </div>
-
-  <div class="section-title">🌿 Pregnancy Milestones</div>
-  <div id="milestones-list">
-    <div class="cal-event">
-      <div class="cal-stripe s-teal"></div>
-      <div class="cal-body">
-        <div class="cal-date-lbl">September 4, 2026</div>
-        <div class="cal-title">Due Date — Baby McGee! 🌿</div>
-        <div class="cal-desc">Estimated due date for Baby McGee.</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ MIDWIFE QUESTIONS ═══ -->
 <div id="tab-questions" class="hidden">
   <div class="card" style="background:rgba(240,234,250,0.88);border-color:rgba(200,180,230,0.35);margin-bottom:10px">
     <div style="font-size:11px;font-family:sans-serif;color:#5c3d7a;line-height:1.5">Add questions as they come to mind. Log midwife feedback and attach appointment photos.</div>
@@ -944,6 +901,10 @@
   <button class="nav-btn" onclick="switchTab('payment',this)" data-tab="payment">
     <span class="nav-icon">💳</span>
     <span class="nav-label">Payments</span>
+  </button>
+  <button class="nav-btn" onclick="switchTab('calendar',this)" data-tab="calendar">
+    <span class="nav-icon">🗓️</span>
+    <span class="nav-label">Calendar</span>
   </button>
   <button class="nav-btn" onclick="switchTab('questions',this)" data-tab="questions">
     <span class="nav-icon">💬</span>
