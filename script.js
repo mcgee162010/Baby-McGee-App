@@ -1,4 +1,77 @@
 
+/* ── WEEK STRIP RENDERER v3 ── */
+function renderWeekStrip() {
+  var container  = document.getElementById('week-strip-days');
+  var monthLabel = document.getElementById('week-strip-month');
+  if (!container) return;
+
+  var today = new Date();
+  today.setHours(0,0,0,0);
+
+  // Resolve the currently viewed date from app's offset variable
+  var viewDate = new Date(today);
+  try {
+    if (typeof offset !== 'undefined' && !isNaN(offset) && offset !== 0) {
+      viewDate = new Date(today);
+      viewDate.setDate(today.getDate() + offset);
+    }
+  } catch(e) {}
+  viewDate.setHours(0,0,0,0);
+
+  // Find Monday of the week containing viewDate
+  var dow   = viewDate.getDay(); // 0=Sun
+  var toMon = (dow === 0) ? -6 : 1 - dow;
+  var mon   = new Date(viewDate);
+  mon.setDate(viewDate.getDate() + toMon);
+  mon.setHours(0,0,0,0);
+
+  // Update month/year label
+  var MONTHS = ['January','February','March','April','May','June',
+                'July','August','September','October','November','December'];
+  if (monthLabel) {
+    monthLabel.textContent = MONTHS[viewDate.getMonth()] + ' ' + viewDate.getFullYear();
+  }
+
+  var DAY_LETTERS = ['M','T','W','T','F','S','S'];
+  var out = '';
+
+  for (var i = 0; i < 7; i++) {
+    var d = new Date(mon);
+    d.setDate(mon.getDate() + i);
+    d.setHours(0,0,0,0);
+
+    var isToday   = d.getTime() === today.getTime();
+    var isSel     = d.getTime() === viewDate.getTime();
+    var isFuture  = d.getTime() >   today.getTime();
+
+    // Build classes
+    var cls = 'wday';
+    if (isToday) cls += ' wday-today';
+    if (isSel)   cls += ' wday-sel';
+    if (isFuture) cls += ' wday-future';
+
+    // Date key
+    var yr = d.getFullYear();
+    var mo = String(d.getMonth()+1).padStart(2,'0');
+    var dy = String(d.getDate()).padStart(2,'0');
+    var key = yr + '-' + mo + '-' + dy;
+
+    // Small dot if data logged for that day
+    var hasDot = !isFuture && window.allData && window.allData[key]
+                 && Object.keys(window.allData[key]).length > 0;
+
+    out += '<button class="' + cls + '" onclick="jumpToDate(\'' + key + '\')" type="button">'
+         + '<span class="wday-letter">' + DAY_LETTERS[i] + '</span>'
+         + '<span class="wday-num">'    + d.getDate()    + '</span>'
+         + '<span class="wday-dot' + (hasDot ? ' wday-dot-vis' : '') + '"></span>'
+         + '</button>';
+  }
+
+  container.innerHTML = out;
+}
+/* ── END WEEK STRIP RENDERER v3 ── */
+
+
 /* ── ACCORDION SECTIONS ── */
 var ACC_OPEN = {};  // track open state
 
