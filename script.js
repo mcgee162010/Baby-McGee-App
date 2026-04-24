@@ -1,6 +1,73 @@
 
 /* ── WEEK STRIP RENDERER ── */
 function renderWeekStrip() {
+  var container  = document.getElementById('week-strip-days');
+  var monthLabel = document.getElementById('week-strip-month');
+  if (!container) return;
+
+  var today    = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Use the app's offset variable if available, else default to today
+  var viewDate = new Date(today);
+  if (typeof offset !== 'undefined' && offset !== 0) {
+    viewDate.setDate(today.getDate() + offset);
+  }
+  viewDate.setHours(0, 0, 0, 0);
+
+  // Find Monday of this week
+  var dow      = viewDate.getDay(); // 0=Sun
+  var toMon    = (dow === 0) ? -6 : 1 - dow;
+  var monday   = new Date(viewDate);
+  monday.setDate(viewDate.getDate() + toMon);
+  monday.setHours(0, 0, 0, 0);
+
+  // Update month label
+  var MONTHS = ['January','February','March','April','May','June',
+                'July','August','September','October','November','December'];
+  if (monthLabel) monthLabel.textContent = MONTHS[viewDate.getMonth()] + ' ' + viewDate.getFullYear();
+
+  var LETTERS = ['M','T','W','T','F','S','S'];
+  var out = '';
+
+  for (var i = 0; i < 7; i++) {
+    var d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    d.setHours(0, 0, 0, 0);
+
+    var isToday   = d.getTime() === today.getTime();
+    var isSel     = d.getTime() === viewDate.getTime();
+    var isFuture  = d.getTime() >   today.getTime();
+
+    var cls = 'week-day-cell';
+    if (isToday)  cls += ' is-today';
+    if (isSel)    cls += ' is-selected';
+    if (isFuture) cls += ' is-future';
+
+    var yr  = d.getFullYear();
+    var mo  = String(d.getMonth() + 1).padStart(2, '0');
+    var dy  = String(d.getDate()).padStart(2, '0');
+    var key = yr + '-' + mo + '-' + dy;
+
+    // Small green dot if data exists for this day
+    var hasDot = !isFuture && window.allData && window.allData[key]
+                 && Object.keys(window.allData[key]).length > 0;
+    var dot = hasDot ? '<span class="week-day-dot"></span>' : '<span class="week-day-dot-placeholder"></span>';
+
+    out += '<button class="' + cls + '" onclick="jumpToDate(\'' + key + '\')">'
+         +   '<span class="week-day-letter">' + LETTERS[i] + '</span>'
+         +   '<span class="week-day-num">'    + d.getDate() + '</span>'
+         +   dot
+         + '</button>';
+  }
+
+  container.innerHTML = out;
+}
+/* ── END WEEK STRIP RENDERER ── */
+
+
+/* ── WEEK STRIP RENDERER ── */
+function renderWeekStrip() {
   var container = document.getElementById('week-strip-days');
   var monthLabel = document.getElementById('week-strip-month');
   if (!container) return;
@@ -1926,7 +1993,7 @@ function switchTab(tab,btn){
   });
   btn.classList.add('active');
   
-  ['today','bp','payment','calendar','questions','stats','settings'].forEach(function(t){
+  ['today','bp','payment','questions','stats','settings'].forEach(function(t){
     var el=document.getElementById('tab-'+t);
     if(el) el.className=t===tab?'':'hidden';
   });
@@ -2819,6 +2886,7 @@ function forceLoad() {
 
 // Enhanced initialization with modern features
 document.addEventListener('DOMContentLoaded', function() {
+  renderWeekStrip(); // show week strip immediately
   try {
     // Handle file:// protocol specific setup
     if (location.protocol === 'file:') {
