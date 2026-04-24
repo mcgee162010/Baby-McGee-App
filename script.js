@@ -2185,9 +2185,108 @@ function refreshBnBEvents() {
 // ═══════════════════════════════════════════════════════════
 // PLACEHOLDER FUNCTIONS (for future implementation)
 // ═══════════════════════════════════════════════════════════
-function manualSync() {
-  console.log('Sync functionality - placeholder');
-  flashSave();
+async function manualSync() {
+  var btn      = document.getElementById('header-sync-btn');
+  var iconEl   = document.getElementById('sync-icon');
+
+  // Need a GitHub token to pull data
+  if (!CONFIG.GITHUB_TOKEN) {
+    showNotification('Connect to GitHub in Setup tab first', 'error');
+    return;
+  }
+
+  // Visual: spinning
+  if (iconEl) iconEl.style.animation = 'spin 1s linear infinite';
+  if (btn)    btn.disabled = true;
+
+  try {
+    var headers = {
+      'Authorization': 'token ' + CONFIG.GITHUB_TOKEN,
+      'Accept': 'application/vnd.github.v3+json'
+    };
+
+    // ── Step 1: List all files in the daily/ folder ──────
+    var listResp = await fetch(
+      'https://api.github.com/repos/' + CONFIG.GITHUB_DATA_REPO + '/contents/daily',
+      { headers: headers }
+    );
+
+    if (!listResp.ok) {
+      throw new Error('Could not read daily/ folder (' + listResp.status + ')');
+    }
+
+    var files    = await listResp.json();
+    var pulled   = 0;
+    var skipped  = 0;
+    var errors   = [];
+
+    // ── Step 2: For each daily JSON, fetch & store locally ─
+    for (var i = 0; i < files.length; i++) {
+      var file = files[i];
+      if (!file.name.endsWith('.json')) continue;
+
+      var dateKey = file.name.replace('.json', ''); // e.g. "2026-04-01"
+
+      try {
+        var fileResp = await fetch(file.download_url, { cache: 'no-store' });
+        if (!fileResp.ok) { errors.push(dateKey); continue; }
+
+        var data = await fileResp.json();
+
+        // Write into localStorage (lsKey format: bmj_day_YYYY-MM-DD)
+        localStorage.setItem('bmj_day_' + dateKey, JSON.stringify(data));
+        pulled++;
+      } catch (e) {
+        errors.push(dateKey);
+      }
+    }
+
+    // ── Step 3: Pull transactions.json if it exists ────────
+    try {
+      var txResp = await fetch(
+        'https://raw.githubusercontent.com/' + CONFIG.GITHUB_DATA_REPO + '/main/transactions.json',
+        { cache: 'no-store' }
+      );
+      if (txResp.ok) {
+        var txData = await txResp.json();
+        localStorage.setItem('bmj_transactions', JSON.stringify(txData));
+      }
+    } catch(e) {}
+
+    // ── Step 4: Reload the current day from fresh data ─────
+    var dk = toKey(offset);
+    dayData = lsGet(dk) || {};
+
+    // Rebuild allData for week strip dots
+    window.allData = {};
+    for (var k = 0; k < localStorage.length; k++) {
+      var lk = localStorage.key(k);
+      if (lk && lk.startsWith('bmj_day_')) {
+        var dKey = lk.replace('bmj_day_', '');
+        try { window.allData[dKey] = JSON.parse(localStorage.getItem(lk)); } catch(e){}
+      }
+    }
+
+    renderAll();
+    renderTransactions();
+    flashSave();
+
+    var msg = pulled + ' days loaded from GitHub';
+    if (errors.length) msg += ' (' + errors.length + ' failed)';
+    showNotification('✅ ' + msg, 'success');
+
+    // Update last sync time
+    appState.lastSync = new Date().toISOString();
+    localStorage.setItem('last_sync', appState.lastSync);
+    updateSyncStatus();
+
+  } catch (err) {
+    console.error('Sync error:', err);
+    showNotification('Sync failed: ' + err.message, 'error');
+  } finally {
+    if (iconEl) iconEl.style.animation = '';
+    if (btn)    btn.disabled = false;
+  }
 }
 
 function toggleMonthTask(id) {
@@ -3200,3 +3299,4 @@ setTimeout(function() {
     hideLoading();
   }
 }, 8000);
+/* sync spin */ /* (CSS in styles.css) */
