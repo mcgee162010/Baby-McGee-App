@@ -1,7 +1,7 @@
-// Enhanced Service Worker for Baby McGee App v2.0
-const CACHE_NAME = 'baby-mcgee-v2.0';
-const STATIC_CACHE = 'baby-mcgee-static-v2.0';
-const DYNAMIC_CACHE = 'baby-mcgee-dynamic-v2.0';
+// Enhanced Service Worker for Baby McGee App v3.0 - force refresh
+const CACHE_NAME = 'baby-mcgee-v3.0';
+const STATIC_CACHE = 'baby-mcgee-static-v3.0';
+const DYNAMIC_CACHE = 'baby-mcgee-dynamic-v3.0';
 
 const STATIC_ASSETS = [
     './',
