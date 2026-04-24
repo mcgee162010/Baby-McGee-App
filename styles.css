@@ -1671,3 +1671,14 @@ body {
 .med-row { min-height: 52px; }
 .star { font-size: 26px; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
 .app-name { font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 17px; font-weight: 700; }
+
+.week-day-cell {
+  background: none;
+  border: none;
+  -webkit-appearance: none;
+}
+.week-day-dot-placeholder {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+}
