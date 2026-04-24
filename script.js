@@ -2095,7 +2095,7 @@ function switchTab(tab,btn){
   });
   btn.classList.add('active');
   
-  ['today','bp','payment','calendar','questions','stats','settings'].forEach(function(t){
+  ['today','payment','questions','stats','settings'].forEach(function(t){
     var el=document.getElementById('tab-'+t);
     if(el) el.className=t===tab?'':'hidden';
   });
