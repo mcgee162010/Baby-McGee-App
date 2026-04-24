@@ -107,7 +107,6 @@
       <div class="save-badge" id="save-badge">✓ Saved</div>
     </div>
   </div>
-  <!-- iOS Health Stat Tiles -->
   <div class="stat-tiles-row">
     <div class="stat-tile stat-tile--green">
       <div class="stat-tile-icon">🤰</div>
@@ -146,17 +145,12 @@
     </div>
   </div>
 
-  <!-- Week Strip -->
   <div class="week-strip-bar">
     <div class="week-strip-header">
       <span class="week-strip-month" id="week-strip-month">April 2026</span>
-      <button class="week-strip-cal-btn" onclick="showDatePicker()" aria-label="Open calendar">
-        📅
-      </button>
+      <button class="week-strip-cal-btn" onclick="showDatePicker()" aria-label="Open calendar">📅</button>
     </div>
-    <div class="week-strip-days" id="week-strip-days">
-      <!-- Rendered by JS -->
-    </div>
+    <div class="week-strip-days" id="week-strip-days"></div>
     <input type="date" class="date-picker-hidden" id="date-picker-today" oninput="jumpToDate(this.value)" style="position:absolute;left:-9999px;opacity:0;">
   </div>
 
@@ -219,15 +213,14 @@
     <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(175,152,132,0.5)"></div>Not logged</div>
   </div>
 
-
-  <!-- ── BP Quick-Log Card (Daily) ── -->
+  <!-- BP Quick-Log Card -->
   <div class="section-title">Blood Pressure</div>
   <div class="bp-daily-card" id="bp-daily-card" onclick="switchTab('bp', document.querySelector('[data-tab=bp]'))">
     <div class="bp-daily-left">
       <div class="bp-daily-icon">💗</div>
       <div class="bp-daily-info">
         <div class="bp-daily-reading" id="bp-daily-reading">— / — <span class="bp-daily-unit">mmHg</span></div>
-        <div class="bp-daily-time" id="bp-daily-time">No reading today</div>
+        <div class="bp-daily-time" id="bp-daily-time">No reading today — tap to log</div>
       </div>
     </div>
     <div class="bp-daily-right">
