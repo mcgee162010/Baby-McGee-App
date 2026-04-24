@@ -1,3 +1,104 @@
+
+/* ── BP DAILY CARD UPDATER ── */
+function renderBPDailyCard() {
+  var readingEl = document.getElementById('bp-daily-reading');
+  var timeEl    = document.getElementById('bp-daily-time');
+  var statusEl  = document.getElementById('bp-daily-status');
+  if (!readingEl) return;
+
+  var bps = (dayData && dayData.bp) ? dayData.bp : [];
+
+  if (bps.length === 0) {
+    readingEl.innerHTML = '— / — <span class="bp-daily-unit">mmHg</span>';
+    timeEl.textContent  = 'No reading today — tap to log';
+    statusEl.className  = 'bp-daily-status';
+    statusEl.textContent = '';
+    return;
+  }
+
+  // Show most recent reading of the day
+  var last = bps[bps.length - 1];
+  readingEl.innerHTML = last.sys + ' <span style="font-size:14px;font-weight:400;color:#c06070">/</span> ' + last.dia + ' <span class="bp-daily-unit">mmHg</span>';
+  timeEl.textContent  = last.time || 'Today';
+
+  // Status classification
+  var sys = last.sys, dia = last.dia;
+  var label = '', cls = '';
+  if (sys >= 140 || dia >= 90) {
+    label = '⚠ High'; cls = 'high';
+  } else if (sys >= 130 || dia >= 80) {
+    label = 'Elevated'; cls = 'elevated';
+  } else {
+    label = '✓ Normal'; cls = 'normal';
+  }
+  statusEl.className   = 'bp-daily-status ' + cls;
+  statusEl.textContent = label;
+}
+/* ── END BP DAILY CARD UPDATER ── */
+
+
+/* ── WEEK STRIP RENDERER ── */
+function renderWeekStrip() {
+  var container = document.getElementById('week-strip-days');
+  var monthLabel = document.getElementById('week-strip-month');
+  if (!container) return;
+
+  var today = new Date();
+  today.setHours(0,0,0,0);
+
+  // currentDate is the globally tracked viewing date in the app
+  var selected = currentDate ? new Date(currentDate) : new Date(today);
+  selected.setHours(0,0,0,0);
+
+  // Find Monday of the week containing 'selected'
+  var dayOfWeek = selected.getDay(); // 0=Sun
+  var diffToMon = (dayOfWeek === 0) ? -6 : 1 - dayOfWeek;
+  var monday = new Date(selected);
+  monday.setDate(selected.getDate() + diffToMon);
+
+  // Update month label (show month of selected day)
+  var months = ['January','February','March','April','May','June',
+                'July','August','September','October','November','December'];
+  monthLabel.textContent = months[selected.getMonth()] + ' ' + selected.getFullYear();
+
+  var dayLetters = ['M','T','W','T','F','S','S'];
+  var html = '';
+
+  for (var i = 0; i < 7; i++) {
+    var d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    d.setHours(0,0,0,0);
+
+    var isToday   = d.getTime() === today.getTime();
+    var isSel     = d.getTime() === selected.getTime();
+    var isFuture  = d.getTime() > today.getTime();
+
+    var cls = 'week-day-cell';
+    if (isToday)  cls += ' is-today';
+    if (isSel)    cls += ' is-selected';
+    if (isFuture) cls += ' is-future';
+
+    // Check if this date has any logged data
+    var dateKey = d.getFullYear() + '-' +
+      String(d.getMonth()+1).padStart(2,'0') + '-' +
+      String(d.getDate()).padStart(2,'0');
+    var hasDot = allData && allData[dateKey] && (
+      Object.keys(allData[dateKey]).length > 0
+    );
+
+    var dot = (!isFuture && hasDot) ? '<div class="week-day-dot"></div>' : '<div style="width:5px;height:5px"></div>';
+
+    html += '<div class="' + cls + '" onclick="jumpToDate('' + dateKey + '')">' +
+      '<span class="week-day-letter">' + dayLetters[i] + '</span>' +
+      '<span class="week-day-num">' + d.getDate() + '</span>' +
+      dot +
+      '</div>';
+  }
+
+  container.innerHTML = html;
+}
+/* ── END WEEK STRIP RENDERER ── */
+
 // ═══════════════════════════════════════════════════════════
 // Baby McGee Journal - Optimized Cloud Version
 // Enhanced with GitHub data storage, performance optimizations, and improved UX
@@ -587,6 +688,8 @@ function showDatePickerBP() {
 function renderAll() {
   if (!dayData) return;
   renderStats();
+  renderWeekStrip();
+  renderBPDailyCard();
 
   // Date labels
   var dl = getDateLabel(offset);
@@ -1837,7 +1940,7 @@ function switchTab(tab,btn){
   });
   btn.classList.add('active');
   
-  ['today','bp','monthly','payment','calendar','questions','stats','settings'].forEach(function(t){
+  ['today','bp','payment','calendar','questions','stats','settings'].forEach(function(t){
     var el=document.getElementById('tab-'+t);
     if(el) el.className=t===tab?'':'hidden';
   });
