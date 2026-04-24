@@ -134,9 +134,7 @@
 
   <!-- Baby Development Card -->
   <div class="baby-card" id="baby-development-card">
-    <div class="baby-emoji-wrap">
-      <span id="baby-card-emoji">🥑</span>
-    </div>
+    <div class="baby-emoji-wrap"><span id="baby-card-emoji">🥑</span></div>
     <div class="baby-info">
       <div class="baby-tri-badge" id="baby-card-tri">2nd Trimester</div>
       <div class="baby-week-num" id="baby-card-week">Week 20</div>
@@ -145,6 +143,7 @@
     </div>
   </div>
 
+  <!-- Week Strip -->
   <div class="week-strip-bar">
     <div class="week-strip-header">
       <span class="week-strip-month" id="week-strip-month">April 2026</span>
@@ -154,384 +153,321 @@
     <input type="date" class="date-picker-hidden" id="date-picker-today" oninput="jumpToDate(this.value)" style="position:absolute;left:-9999px;opacity:0;">
   </div>
 
-  <!-- Week progress summary -->
-  <div class="week-card" id="week-summary-card">
-    <div class="week-card-title">This week's progress <span style="font-weight:400;font-size:10px;color:#90a898;text-transform:none;letter-spacing:0">(Mon → today)</span></div>
+  <!-- ══════════════════════════════════════
+       ACCORDION SECTIONS
+  ══════════════════════════════════════ -->
 
-    <div style="font-size:10px;font-family:sans-serif;color:#90a898;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Medications taken this week</div>
-    <div class="week-row">
-      <div class="week-row-label"><span>Baby Aspirin</span><span class="week-row-pct" id="wk-med-aspirin-pct">--</span></div>
-      <div class="prog-wrap" style="height:5px;margin-bottom:4px"><div class="prog-fill green" id="wk-med-aspirin-bar" style="width:0%"></div></div>
-    </div>
-    <div class="week-row">
-      <div class="week-row-label"><span>Thorne Prenatal</span><span class="week-row-pct" id="wk-med-prenatal-pct">--</span></div>
-      <div class="prog-wrap" style="height:5px;margin-bottom:4px"><div class="prog-fill green" id="wk-med-prenatal-bar" style="width:0%"></div></div>
-    </div>
-    <div class="week-row">
-      <div class="week-row-label"><span>Vitamin D3</span><span class="week-row-pct" id="wk-med-vitd-pct">--</span></div>
-      <div class="prog-wrap" style="height:5px;margin-bottom:4px"><div class="prog-fill green" id="wk-med-vitd-bar" style="width:0%"></div></div>
-    </div>
-    <div class="week-row">
-      <div class="week-row-label"><span>Fish Oil</span><span class="week-row-pct" id="wk-med-fishoil-pct">--</span></div>
-      <div class="prog-wrap" style="height:5px;margin-bottom:4px"><div class="prog-fill green" id="wk-med-fishoil-bar" style="width:0%"></div></div>
-    </div>
-    <div class="week-row">
-      <div class="week-row-label"><span>Lemon Balm</span><span class="week-row-pct" id="wk-med-lemonbalm-pct">--</span></div>
-      <div class="prog-wrap" style="height:5px;margin-bottom:4px"><div class="prog-fill green" id="wk-med-lemonbalm-bar" style="width:0%"></div></div>
-    </div>
-    <div class="week-row">
-      <div class="week-row-label"><span>Calm Powder</span><span class="week-row-pct" id="wk-med-magnesium-pct">--</span></div>
-      <div class="prog-wrap" style="height:5px;margin-bottom:10px"><div class="prog-fill green" id="wk-med-magnesium-bar" style="width:0%"></div></div>
-    </div>
-
-    <div style="font-size:10px;font-family:sans-serif;color:#90a898;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Other goals</div>
-    <div class="week-row">
-      <div class="week-row-label"><span>Exercise sessions</span><span class="week-row-pct" id="wk-ex-pct">--</span></div>
-      <div class="prog-wrap" style="height:5px;margin-bottom:4px"><div class="prog-fill teal" id="wk-ex-bar" style="width:0%"></div></div>
-    </div>
-    <div class="week-row">
-      <div class="week-row-label"><span>Protein goal (60g+)</span><span class="week-row-pct" id="wk-prot-pct">--</span></div>
-      <div class="prog-wrap" style="height:5px;margin-bottom:4px"><div class="prog-fill amber" id="wk-prot-bar" style="width:0%"></div></div>
-    </div>
-    <div class="week-row">
-      <div class="week-row-label"><span>Hydration (Buoy taken)</span><span class="week-row-pct" id="wk-buoy-pct">--</span></div>
-      <div class="prog-wrap" style="height:5px;margin-bottom:0"><div class="prog-fill blue" id="wk-buoy-bar" style="width:0%"></div></div>
-    </div>
-  </div>
-
-  <!-- Clear All Button -->
-  <div style="text-align:center;margin-bottom:12px">
-    <button class="log-btn" onclick="clearAllMedications()" style="background:#b84858;border-color:#b84858;color:white;font-size:12px;padding:7px 14px;width:auto">Clear All Medications</button>
-  </div>
-
-  <!-- Daily medication progress -->
-  <div class="prog-label" id="prog-label">0 of 6 medications taken</div>
-  <div class="prog-wrap"><div class="prog-fill green" id="prog-fill" style="width:0%"></div></div>
-  <div style="display:flex;gap:12px;font-size:10px;font-family:sans-serif;color:#90a898;margin-bottom:0.75rem;flex-wrap:wrap">
-    <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:50%;background:#4d8c44"></div>Taken</div>
-    <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:50%;background:#b84858"></div>Did not take — tap ✕</div>
-    <div style="display:flex;align-items:center;gap:4px"><div style="width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(175,152,132,0.5)"></div>Not logged</div>
-  </div>
-
-  <!-- BP Quick-Log Card -->
-  <div class="section-title">Blood Pressure</div>
-  <div class="bp-daily-card" id="bp-daily-card" onclick="switchTab('bp', document.querySelector('[data-tab=bp]'))">
-    <div class="bp-daily-left">
-      <div class="bp-daily-icon">💗</div>
-      <div class="bp-daily-info">
-        <div class="bp-daily-reading" id="bp-daily-reading">— / — <span class="bp-daily-unit">mmHg</span></div>
-        <div class="bp-daily-time" id="bp-daily-time">No reading today — tap to log</div>
-      </div>
-    </div>
-    <div class="bp-daily-right">
-      <div class="bp-daily-status" id="bp-daily-status"></div>
-      <div class="bp-daily-cta">Log BP →</div>
-    </div>
-  </div>
-
-  <!-- Star rating -->
-  <div class="section-title">How is Brittney feeling today?</div>
-  <div class="card">
-    <div class="star-row" id="star-row">
-      <button class="star" onclick="setRating(1)" id="star-1">★</button>
-      <button class="star" onclick="setRating(2)" id="star-2">★</button>
-      <button class="star" onclick="setRating(3)" id="star-3">★</button>
-      <button class="star" onclick="setRating(4)" id="star-4">★</button>
-      <button class="star" onclick="setRating(5)" id="star-5">★</button>
-    </div>
-    <div class="star-label" id="star-label">Tap to rate your day</div>
-  </div>
-
-  <!-- Medications — Morning -->
-  <div class="section-title">Morning — with food</div>
-  <div class="med-row" id="row-aspirin" onclick="toggleMed('aspirin')">
-    <div class="circle">
-      <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
-    </div>
-    <div style="flex:1"><div class="med-name">Baby Aspirin <span class="tag t-green">Preeclampsia</span></div><div class="med-dose">81mg enteric-coated</div><div class="med-note">Take with food. Started week 13. Do not crush.</div></div>
-    <button class="med-skip-btn" onclick="skipMed(event,'aspirin')" title="Mark as not taken">✕</button>
-  </div>
-  <div class="med-row" id="row-prenatal" onclick="toggleMed('prenatal')">
-    <div class="circle">
-      <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
-    </div>
-    <div style="flex:1"><div class="med-name">Thorne Basic Prenatal <span class="tag t-blue">Prenatal</span></div><div class="med-dose">3 capsules — full serving</div><div class="med-note">Methylfolate, choline, iron, Vitamin D, B vitamins.</div></div>
-    <button class="med-skip-btn" onclick="skipMed(event,'prenatal')" title="Mark as not taken">✕</button>
-  </div>
-
-  <!-- Medications — Anytime -->
-  <div class="section-title">Anytime</div>
-  <div class="med-row" id="row-vitd" onclick="toggleMed('vitd')">
-    <div class="circle">
-      <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
-    </div>
-    <div style="flex:1"><div class="med-name">Vitamin D3 <span class="tag t-amber">Immune Support</span></div><div class="med-dose">5,000 IU daily</div><div class="med-note">Midwife approved dose. Goal vitamin D labs: 50-75. Monitoring levels regularly.</div></div>
-    <button class="med-skip-btn" onclick="skipMed(event,'vitd')" title="Mark as not taken">✕</button>
-  </div>
-  <div class="med-row" id="row-fishoil" onclick="toggleMed('fishoil')">
-    <div class="circle">
-      <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
-    </div>
-    <div style="flex:1"><div class="med-name">Fish Oil <span class="tag t-blue">Brain Development</span></div><div class="med-dose">1000mg EPA/DHA daily</div><div class="med-note">Omega-3 fatty acids for baby's brain and eye development.</div></div>
-    <button class="med-skip-btn" onclick="skipMed(event,'fishoil')" title="Mark as not taken">✕</button>
-  </div>
-
-  <!-- Medications — Bedtime -->
-  <div class="section-title">Bedtime</div>
-  <div class="med-row" id="row-lemonbalm" onclick="toggleMed('lemonbalm')">
-    <div class="circle">
-      <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
-    </div>
-    <div style="flex:1"><div class="med-name">Lemon Balm <span class="tag t-rose">Relaxation</span></div><div class="med-dose">300-500mg as needed</div><div class="med-note">Natural herb for relaxation and sleep support. Safe during pregnancy.</div></div>
-    <button class="med-skip-btn" onclick="skipMed(event,'lemonbalm')" title="Mark as not taken">✕</button>
-  </div>
-  <div class="med-row" id="row-magnesium" onclick="toggleMed('magnesium')">
-    <div class="circle">
-      <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
-    </div>
-    <div style="flex:1"><div class="med-name">Magnesium <span class="tag t-green">Sleep & Muscle Support</span></div><div class="med-dose">400-600mg at night</div><div class="med-note">Midwife approved dose for sleep, muscle support, and nervous system health.</div></div>
-    <button class="med-skip-btn" onclick="skipMed(event,'magnesium')" title="Mark as not taken">✕</button>
-  </div>
-
-  <!-- Additional Supplements Section -->
-  <div class="section-title">Additional Supplements — As Needed</div>
-  <div class="med-row" id="row-passionflower" onclick="toggleMed('passionflower')">
-    <div class="circle">
-      <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
-    </div>
-    <div style="flex:1"><div class="med-name">Passion Flower <span class="tag t-rose">Relaxation</span></div><div class="med-dose">As needed</div><div class="med-note">Midwife approved - safe for pregnancy. Use as much as wanted for relaxation.</div></div>
-    <button class="med-skip-btn" onclick="skipMed(event,'passionflower')" title="Mark as not taken">✕</button>
-  </div>
-  <div class="med-row" id="row-lavender" onclick="toggleMed('lavender')">
-    <div class="circle">
-      <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
-    </div>
-    <div style="flex:1"><div class="med-name">Lavender <span class="tag t-rose">Calming</span></div><div class="med-dose">As needed</div><div class="med-note">Midwife approved - safe for pregnancy. Use as much as wanted for calming.</div></div>
-    <button class="med-skip-btn" onclick="skipMed(event,'lavender')" title="Mark as not taken">✕</button>
-  </div>
-
-  <!-- Limited Research Supplements -->
-  <div class="section-title">Limited Research — Use with Caution</div>
-  <div class="med-row" id="row-ashwagandha" onclick="toggleMed('ashwagandha')">
-    <div class="circle">
-      <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
-    </div>
-    <div style="flex:1"><div class="med-name">Ashwagandha <span class="tag t-amber">Limited Research</span></div><div class="med-dose">Within limitations</div><div class="med-note">Not enough research but okay within limitation - use sparingly.</div></div>
-    <button class="med-skip-btn" onclick="skipMed(event,'ashwagandha')" title="Mark as not taken">✕</button>
-  </div>
-  <div class="med-row" id="row-holybasil" onclick="toggleMed('holybasil')">
-    <div class="circle">
-      <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
-    </div>
-    <div style="flex:1"><div class="med-name">Holy Basil <span class="tag t-amber">Limited Research</span></div><div class="med-dose">Within limitations</div><div class="med-note">Not enough research but okay within limitation - use sparingly.</div></div>
-    <button class="med-skip-btn" onclick="skipMed(event,'holybasil')" title="Mark as not taken">✕</button>
-  </div>
-  <div class="med-row" id="row-motherwort" onclick="toggleMed('motherwort')">
-    <div class="circle">
-      <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
-    </div>
-    <div style="flex:1"><div class="med-name">Mother Wort <span class="tag t-amber">Limited Research</span></div><div class="med-dose">Within limitations</div><div class="med-note">Not enough research but okay within limitation - use sparingly.</div></div>
-    <button class="med-skip-btn" onclick="skipMed(event,'motherwort')" title="Mark as not taken">✕</button>
-  </div>
-
-  <!-- Topical Treatments -->
-  <div class="section-title">Topical Treatments</div>
-  <div class="med-row" id="row-moringa" onclick="toggleMed('moringa')">
-    <div class="circle">
-      <svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
-    </div>
-    <div style="flex:1"><div class="med-name">Moringa (Foot Rash) <span class="tag t-blue">Topical</span></div><div class="med-dose">As needed</div><div class="med-note">Generally well tolerated. Monitor skin response and report if worsens.</div></div>
-    <button class="med-skip-btn" onclick="skipMed(event,'moringa')" title="Mark as not taken">✕</button>
-  </div>
-
-  <!-- Hypnobabies -->
-  <div class="section-title">Hypnobabies Coursework</div>
-  <div class="card">
-    <div class="card-title">Completed Hypnobabies today?</div>
-    <div class="hyp-row">
-      <button class="hyp-btn" id="hyp-yes" onclick="setHypno('yes')">✓ Yes</button>
-      <button class="hyp-btn" id="hyp-no" onclick="setHypno('no')">✕ Not today</button>
-      <button class="hyp-btn" id="hyp-ns" onclick="setHypno('notstarted')">● Not started</button>
-    </div>
-  </div>
-
-  <!-- Steps -->
-  <div class="section-title">Movement — Daily Steps</div>
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-      <div style="font-size:22px;color:#2a8a70;font-family:'Georgia',serif" id="steps-display">0</div>
-      <input class="field-input" type="number" id="steps-input" placeholder="Enter steps" style="width:130px;font-size:15px;text-align:right" oninput="debouncedSave('steps')">
-    </div>
-    <div class="steps-bar-wrap"><div class="steps-bar-fill" id="steps-bar" style="width:0%"></div></div>
-    <div style="display:flex;justify-content:space-between;font-size:10px;color:#90a898;font-family:sans-serif">
-      <span id="steps-pct-label">0% of 10,000 goal</span>
-      <span>Check iPhone Health app</span>
-    </div>
-  </div>
-
-  <!-- Exercise Sessions -->
-  <div class="section-title">Exercise Sessions</div>
-  <div class="card">
-    <div class="row2">
-      <div>
-        <label class="field-label">Min</label>
-        <input class="field-input" type="number" id="exercise-minutes" placeholder="30" style="width:100%">
-      </div>
-      <div>
-        <label class="field-label">Type</label>
-        <select class="field-input" id="exercise-type" style="font-size:13px">
-          <option value="">Select...</option>
-          <option value="Outdoor Walk">Outdoor Walk</option>
-          <option value="Treadmill">Treadmill</option>
-          <option value="Swimming">Swimming</option>
-          <option value="Prenatal Yoga">Prenatal Yoga</option>
-          <option value="Strength Training">Strength Training</option>
-          <option value="Stretching">Stretching</option>
-          <option value="Other">Other</option>
-        </select>
-      </div>
-    </div>
-    <button class="log-btn" onclick="addExerciseSession()" style="margin-top:8px">+ Add Session</button>
-  </div>
-
-  <div class="card" id="exercise-sessions-card" style="display:none">
-    <div class="card-title">Today's Sessions</div>
-    <div id="exercise-sessions-list"></div>
-  </div>
-
-  <!-- Protein Goal -->
-  <div class="section-title">Protein Goal — 60g / day</div>
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <div style="font-size:12px;color:#506058;font-weight:600;font-family:sans-serif">Daily Total</div>
-      <div style="font-size:20px;color:#4d8c44;font-weight:600;font-family:'Georgia',serif" id="protein-goal-display">0g / 60g</div>
-    </div>
-    <div class="prog-wrap" style="height:8px;margin-bottom:4px">
-      <div class="prog-fill green" id="protein-goal-bar" style="width:0%"></div>
-    </div>
-    <div style="font-size:10px;color:#90a898;font-family:sans-serif" id="protein-goal-pct">0% of goal</div>
-  </div>
-
-  <!-- Hydration -->
-  <div class="section-title">Hydration — POTS + Pregnancy Goal: 90 oz / day</div>
-  <div class="card">
-    <div class="row2" style="margin-bottom:8px">
-      <div>
-        <label class="field-label">Water (oz)</label>
-        <input class="field-input" type="number" id="water-input" placeholder="0" oninput="debouncedSave('hydration')">
-      </div>
-      <div>
-        <label class="field-label">Buoy Electrolytes</label>
-        <div class="hyp-row" style="margin-top:4px">
-          <button class="hyp-btn" id="buoy-yes" onclick="setBuoy('yes')" style="flex:1">✓ Yes</button>
-          <button class="hyp-btn" id="buoy-no" onclick="setBuoy('no')" style="flex:1">Not yet</button>
+  <!-- ① HOW ARE YOU FEELING -->
+  <div class="acc-section" id="acc-feeling">
+    <button class="acc-header" onclick="toggleAcc('feeling')">
+      <span class="acc-icon">🌸</span>
+      <span class="acc-title">How's Brittney Feeling?</span>
+      <span class="acc-badge" id="acc-badge-feeling"></span>
+      <span class="acc-check" id="acc-check-feeling"></span>
+      <span class="acc-chevron" id="acc-chevron-feeling">›</span>
+    </button>
+    <div class="acc-body" id="acc-body-feeling">
+      <div class="acc-inner">
+        <!-- BP card -->
+        <div class="bp-daily-card" id="bp-daily-card" onclick="switchTab('bp', document.querySelector('[data-tab=bp]'))">
+          <div class="bp-daily-left">
+            <div class="bp-daily-icon">💗</div>
+            <div class="bp-daily-info">
+              <div class="bp-daily-reading" id="bp-daily-reading">— / — <span class="bp-daily-unit">mmHg</span></div>
+              <div class="bp-daily-time" id="bp-daily-time">No reading today — tap to log</div>
+            </div>
+          </div>
+          <div class="bp-daily-right">
+            <div class="bp-daily-status" id="bp-daily-status"></div>
+            <div class="bp-daily-cta">Log BP →</div>
+          </div>
+        </div>
+        <!-- Mood rating -->
+        <div class="card" style="margin-bottom:0">
+          <div class="star-row" id="star-row">
+            <button class="star" onclick="setRating(1)" id="star-1">★</button>
+            <button class="star" onclick="setRating(2)" id="star-2">★</button>
+            <button class="star" onclick="setRating(3)" id="star-3">★</button>
+            <button class="star" onclick="setRating(4)" id="star-4">★</button>
+            <button class="star" onclick="setRating(5)" id="star-5">★</button>
+          </div>
+          <div class="star-label" id="star-label">Tap to rate your day</div>
         </div>
       </div>
     </div>
-    <div style="font-size:12px;color:#506058;margin-bottom:4px;font-family:sans-serif" id="hydration-summary">0 oz of 90 oz goal (0%)</div>
-    <div class="prog-wrap" style="height:8px">
-      <div class="prog-fill blue" id="hydration-bar" style="width:0%"></div>
-    </div>
   </div>
 
-  <!-- Meals & Protein Tracking -->
-  <div class="section-title">Meals & Protein Tracking</div>
+  <!-- ② MEDICATIONS & SUPPLEMENTS -->
+  <div class="acc-section" id="acc-meds">
+    <button class="acc-header" onclick="toggleAcc('meds')">
+      <span class="acc-icon">💊</span>
+      <span class="acc-title">Medications & Supplements</span>
+      <span class="acc-badge" id="acc-badge-meds"></span>
+      <span class="acc-check" id="acc-check-meds"></span>
+      <span class="acc-chevron" id="acc-chevron-meds">›</span>
+    </button>
+    <div class="acc-body" id="acc-body-meds">
+      <div class="acc-inner">
+        <!-- Med progress bar -->
+        <div class="prog-label" id="prog-label">0 of 6 medications taken</div>
+        <div class="prog-wrap" style="margin-bottom:8px"><div class="prog-fill green" id="prog-fill" style="width:0%"></div></div>
+        <div style="display:flex;gap:10px;font-size:10px;font-family:sans-serif;color:#90a898;margin-bottom:12px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:4px"><div style="width:9px;height:9px;border-radius:50%;background:#4d8c44"></div>Taken</div>
+          <div style="display:flex;align-items:center;gap:4px"><div style="width:9px;height:9px;border-radius:50%;background:#b84858"></div>Did not take</div>
+          <div style="display:flex;align-items:center;gap:4px"><div style="width:9px;height:9px;border-radius:50%;border:1.5px solid rgba(175,152,132,0.5)"></div>Not logged</div>
+        </div>
 
-  <div class="card">
-    <div class="card-title">🌅 Breakfast</div>
-    <div style="margin-bottom:8px">
-      <label class="field-label">Foods</label>
-      <input class="field-input" type="text" id="breakfast-foods" placeholder="What did you eat for breakfast?" oninput="debouncedSave('meals')">
-    </div>
-    <div style="display:flex;align-items:end;gap:8px">
-      <div>
-        <label class="field-label">Protein (grams)</label>
-        <input class="field-input" type="number" id="breakfast-protein" placeholder="0" style="width:90px" oninput="updateProteinFromInput(); debouncedSave('meals')">
+        <div class="acc-sub-label">🌅 Morning — with food</div>
+        <div class="med-row" id="row-aspirin" onclick="toggleMed('aspirin')">
+          <div class="circle"><svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <div style="flex:1"><div class="med-name">Baby Aspirin <span class="tag t-green">Preeclampsia</span></div><div class="med-dose">81mg enteric-coated</div><div class="med-note">Take with food. Started week 13. Do not crush.</div></div>
+        </div>
+        <div class="med-row" id="row-prenatal" onclick="toggleMed('prenatal')">
+          <div class="circle"><svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <div style="flex:1"><div class="med-name">Thorne Basic Prenatal <span class="tag t-blue">Prenatal</span></div><div class="med-dose">3 capsules — full serving</div><div class="med-note">Methylfolate, choline, iron, Vitamin D, B vitamins.</div></div>
+        </div>
+
+        <div class="acc-sub-label">☀️ Anytime</div>
+        <div class="med-row" id="row-vitd" onclick="toggleMed('vitd')">
+          <div class="circle"><svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <div style="flex:1"><div class="med-name">Vitamin D3 <span class="tag t-amber">Immune Support</span></div><div class="med-dose">5,000 IU daily</div><div class="med-note">Midwife approved dose. Goal vitamin D labs: 50-75.</div></div>
+        </div>
+        <div class="med-row" id="row-fishoil" onclick="toggleMed('fishoil')">
+          <div class="circle"><svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <div style="flex:1"><div class="med-name">Fish Oil <span class="tag t-blue">Brain Development</span></div><div class="med-dose">1000mg EPA/DHA daily</div><div class="med-note">Omega-3 fatty acids for baby's brain and eye development.</div></div>
+        </div>
+
+        <div class="acc-sub-label">🌙 Bedtime</div>
+        <div class="med-row" id="row-lemonbalm" onclick="toggleMed('lemonbalm')">
+          <div class="circle"><svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <div style="flex:1"><div class="med-name">Lemon Balm <span class="tag t-rose">Relaxation</span></div><div class="med-dose">300-500mg as needed</div><div class="med-note">Natural herb for relaxation and sleep support. Safe during pregnancy.</div></div>
+        </div>
+        <div class="med-row" id="row-magnesium" onclick="toggleMed('magnesium')">
+          <div class="circle"><svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <div style="flex:1"><div class="med-name">Magnesium <span class="tag t-green">Sleep &amp; Muscle</span></div><div class="med-dose">400-600mg at night</div><div class="med-note">Midwife approved dose for sleep, muscle support, and nervous system health.</div></div>
+        </div>
+
+        <div class="acc-sub-label">🌿 Additional — As Needed</div>
+        <div class="med-row" id="row-passionflower" onclick="toggleMed('passionflower')">
+          <div class="circle"><svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <div style="flex:1"><div class="med-name">Passion Flower <span class="tag t-rose">Relaxation</span></div><div class="med-dose">As needed</div><div class="med-note">Midwife approved - safe for pregnancy.</div></div>
+        </div>
+        <div class="med-row" id="row-lavender" onclick="toggleMed('lavender')">
+          <div class="circle"><svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <div style="flex:1"><div class="med-name">Lavender <span class="tag t-rose">Calming</span></div><div class="med-dose">As needed</div><div class="med-note">Midwife approved - safe for pregnancy.</div></div>
+        </div>
+        <div class="med-row" id="row-ashwagandha" onclick="toggleMed('ashwagandha')">
+          <div class="circle"><svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <div style="flex:1"><div class="med-name">Ashwagandha <span class="tag t-amber">⚠ Limited Research</span></div><div class="med-dose">Within limitations</div><div class="med-note">Use sparingly.</div></div>
+        </div>
+        <div class="med-row" id="row-holybasil" onclick="toggleMed('holybasil')">
+          <div class="circle"><svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <div style="flex:1"><div class="med-name">Holy Basil <span class="tag t-amber">⚠ Limited Research</span></div><div class="med-dose">Within limitations</div><div class="med-note">Use sparingly.</div></div>
+        </div>
+        <div class="med-row" id="row-motherwort" onclick="toggleMed('motherwort')">
+          <div class="circle"><svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <div style="flex:1"><div class="med-name">Mother Wort <span class="tag t-amber">⚠ Limited Research</span></div><div class="med-dose">Within limitations</div><div class="med-note">Use sparingly.</div></div>
+        </div>
+        <div class="med-row" id="row-moringa" onclick="toggleMed('moringa')">
+          <div class="circle"><svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <div style="flex:1"><div class="med-name">Moringa (Foot Rash) <span class="tag t-blue">Topical</span></div><div class="med-dose">As needed</div><div class="med-note">Monitor skin response and report if worsens.</div></div>
+        </div>
+        <div style="text-align:center;padding-top:8px">
+          <button class="log-btn" onclick="clearAllMedications()" style="background:#b84858;border-color:#b84858;color:white;font-size:12px;padding:7px 14px;width:auto">Clear All Medications</button>
+        </div>
       </div>
-      <button class="calc-btn" onclick="openProteinCalculator('breakfast')" title="Use protein calculator">🧮</button>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-title">🌞 Lunch</div>
-    <div style="margin-bottom:8px">
-      <label class="field-label">Foods</label>
-      <input class="field-input" type="text" id="lunch-foods" placeholder="What did you eat for lunch?" oninput="debouncedSave('meals')">
-    </div>
-    <div style="display:flex;align-items:end;gap:8px">
-      <div>
-        <label class="field-label">Protein (grams)</label>
-        <input class="field-input" type="number" id="lunch-protein" placeholder="0" style="width:90px" oninput="updateProteinFromInput(); debouncedSave('meals')">
+  <!-- ③ MOVEMENT & EXERCISE -->
+  <div class="acc-section" id="acc-movement">
+    <button class="acc-header" onclick="toggleAcc('movement')">
+      <span class="acc-icon">🏃‍♀️</span>
+      <span class="acc-title">Movement & Exercise</span>
+      <span class="acc-badge" id="acc-badge-movement"></span>
+      <span class="acc-check" id="acc-check-movement"></span>
+      <span class="acc-chevron" id="acc-chevron-movement">›</span>
+    </button>
+    <div class="acc-body" id="acc-body-movement">
+      <div class="acc-inner">
+        <!-- Hypnobabies -->
+        <div class="acc-sub-label">🎧 Hypnobabies Coursework</div>
+        <div class="card" style="margin-bottom:12px">
+          <div class="card-title">Completed Hypnobabies today?</div>
+          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+            <button class="hyp-btn" id="hyp-yes" onclick="setHypno('yes')">✓ Yes</button>
+            <button class="hyp-btn" id="hyp-no" onclick="setHypno('no')">✕ Not today</button>
+            <button class="hyp-btn" id="hyp-ns" onclick="setHypno('notstarted')">● Not started</button>
+          </div>
+        </div>
+        <!-- Steps -->
+        <div class="acc-sub-label">👟 Daily Steps</div>
+        <div class="card" style="margin-bottom:12px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <input class="field-input" type="number" id="steps-input" placeholder="0" style="width:90px" oninput="updateSteps(this.value)">
+            <span style="font-size:12px;color:#90a898;font-family:sans-serif">steps today</span>
+          </div>
+          <div class="prog-label" id="steps-label">0% of 10,000 goal</div>
+          <div class="prog-wrap"><div class="prog-fill teal" id="steps-bar" style="width:0%"></div></div>
+          <div style="font-size:11px;color:#90a898;font-family:sans-serif;margin-top:4px">Check iPhone Health app</div>
+        </div>
+        <!-- Exercise -->
+        <div class="acc-sub-label">💪 Exercise Sessions</div>
+        <div class="card" style="margin-bottom:0">
+          <div style="display:flex;gap:10px;margin-bottom:8px;flex-wrap:wrap">
+            <div>
+              <label class="field-label">Min</label>
+              <input class="field-input" type="number" id="exercise-duration" placeholder="30" style="width:70px" oninput="debouncedSave('exercise')">
+            </div>
+            <div>
+              <label class="field-label">Type</label>
+              <select class="field-input" id="exercise-type" style="width:130px" onchange="debouncedSave('exercise')">
+                <option value="">Select...</option>
+                <option value="walk">Walk</option>
+                <option value="swim">Swim</option>
+                <option value="yoga">Prenatal Yoga</option>
+                <option value="pilates">Pilates</option>
+                <option value="stretch">Stretching</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          <button class="log-btn" onclick="addExerciseSession()" style="margin-top:4px">+ Add Session</button>
+          <div id="exercise-log" style="margin-top:8px"></div>
+        </div>
       </div>
-      <button class="calc-btn" onclick="openProteinCalculator('lunch')" title="Use protein calculator">🧮</button>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-title">🌙 Dinner</div>
-    <div style="margin-bottom:8px">
-      <label class="field-label">Foods</label>
-      <input class="field-input" type="text" id="dinner-foods" placeholder="What did you eat for dinner?" oninput="debouncedSave('meals')">
-    </div>
-    <div style="display:flex;align-items:end;gap:8px">
-      <div>
-        <label class="field-label">Protein (grams)</label>
-        <input class="field-input" type="number" id="dinner-protein" placeholder="0" style="width:90px" oninput="updateProteinFromInput(); debouncedSave('meals')">
+  <!-- ④ NUTRITION & HYDRATION -->
+  <div class="acc-section" id="acc-nutrition">
+    <button class="acc-header" onclick="toggleAcc('nutrition')">
+      <span class="acc-icon">🥗</span>
+      <span class="acc-title">Nutrition & Hydration</span>
+      <span class="acc-badge" id="acc-badge-nutrition"></span>
+      <span class="acc-check" id="acc-check-nutrition"></span>
+      <span class="acc-chevron" id="acc-chevron-nutrition">›</span>
+    </button>
+    <div class="acc-body" id="acc-body-nutrition">
+      <div class="acc-inner">
+        <!-- Protein goal -->
+        <div class="acc-sub-label">🥩 Protein Goal — 60g / day</div>
+        <div class="card" style="margin-bottom:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <span id="protein-display" style="font-size:22px;font-weight:700;font-family:sans-serif;color:#c07808">0g</span>
+            <span style="font-size:12px;color:#90a898;font-family:sans-serif">/ 60g goal</span>
+          </div>
+          <div class="prog-wrap"><div class="prog-fill amber" id="protein-bar" style="width:0%"></div></div>
+          <div style="font-size:11px;color:#90a898;font-family:sans-serif;margin-top:4px" id="protein-pct-label">0% of goal</div>
+        </div>
+        <!-- Hydration -->
+        <div class="acc-sub-label">💧 Hydration — Goal: 90 oz / day</div>
+        <div class="card" style="margin-bottom:12px">
+          <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
+            <div>
+              <label class="field-label">Water (oz)</label>
+              <input class="field-input" type="number" id="water-input" placeholder="0" style="width:80px" oninput="updateWater(this.value)">
+            </div>
+          </div>
+          <div class="prog-label" id="water-label">0 oz of 90 oz goal (0%)</div>
+          <div class="prog-wrap" style="margin-bottom:8px"><div class="prog-fill blue" id="water-bar" style="width:0%"></div></div>
+          <div style="font-size:12px;font-weight:600;font-family:sans-serif;color:#1c2820;margin-bottom:6px">Buoy Electrolytes</div>
+          <div style="display:flex;gap:8px">
+            <button class="hyp-btn" id="buoy-yes" onclick="setBuoy('yes')">✓ Yes</button>
+            <button class="hyp-btn" id="buoy-no" onclick="setBuoy('no')">Not yet</button>
+          </div>
+        </div>
+        <!-- Meals -->
+        <div class="acc-sub-label">🍽 Meals & Protein Tracking</div>
+        <div class="card" style="margin-bottom:0">
+          <div class="card-title">🌅 Breakfast</div>
+          <div style="margin-bottom:10px">
+            <label class="field-label">Foods</label>
+            <input class="field-input" type="text" id="breakfast-foods" placeholder="What did you eat?" style="width:100%" oninput="debouncedSave('meals')">
+            <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+              <div><label class="field-label">Protein (g)</label><input class="field-input" type="number" id="breakfast-protein" placeholder="0" style="width:80px" oninput="updateProteinFromInput(); debouncedSave('meals')"></div>
+              <button class="calc-btn" onclick="openProteinCalculator('breakfast')" title="Protein calculator" style="margin-top:14px">🧮</button>
+            </div>
+          </div>
+          <div class="card-title">☀️ Lunch</div>
+          <div style="margin-bottom:10px">
+            <label class="field-label">Foods</label>
+            <input class="field-input" type="text" id="lunch-foods" placeholder="What did you eat?" style="width:100%" oninput="debouncedSave('meals')">
+            <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+              <div><label class="field-label">Protein (g)</label><input class="field-input" type="number" id="lunch-protein" placeholder="0" style="width:80px" oninput="updateProteinFromInput(); debouncedSave('meals')"></div>
+              <button class="calc-btn" onclick="openProteinCalculator('lunch')" title="Protein calculator" style="margin-top:14px">🧮</button>
+            </div>
+          </div>
+          <div class="card-title">🌆 Dinner</div>
+          <div style="margin-bottom:10px">
+            <label class="field-label">Foods</label>
+            <input class="field-input" type="text" id="dinner-foods" placeholder="What did you eat?" style="width:100%" oninput="debouncedSave('meals')">
+            <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+              <div><label class="field-label">Protein (g)</label><input class="field-input" type="number" id="dinner-protein" placeholder="0" style="width:80px" oninput="updateProteinFromInput(); debouncedSave('meals')"></div>
+              <button class="calc-btn" onclick="openProteinCalculator('dinner')" title="Protein calculator" style="margin-top:14px">🧮</button>
+            </div>
+          </div>
+          <div class="card-title">🍎 Snacks</div>
+          <div>
+            <label class="field-label">Foods</label>
+            <input class="field-input" type="text" id="snack-foods" placeholder="Any snacks?" style="width:100%" oninput="debouncedSave('meals')">
+            <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+              <div><label class="field-label">Protein (g)</label><input class="field-input" type="number" id="snack-protein" placeholder="0" style="width:80px" oninput="updateProteinFromInput(); debouncedSave('meals')"></div>
+              <button class="calc-btn" onclick="openProteinCalculator('snack')" title="Protein calculator" style="margin-top:14px">🧮</button>
+            </div>
+          </div>
+          <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(175,152,132,0.15)">
+            <span style="font-family:sans-serif;font-size:13px;font-weight:600;color:#1c2820">Total Protein: </span>
+            <span id="total-protein-display" style="font-family:sans-serif;font-size:16px;font-weight:700;color:#c07808">0g</span>
+            <span style="font-family:sans-serif;font-size:12px;color:#90a898"> / 60g goal</span>
+          </div>
+        </div>
       </div>
-      <button class="calc-btn" onclick="openProteinCalculator('dinner')" title="Use protein calculator">🧮</button>
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-title">🍎 Snacks</div>
-    <div style="margin-bottom:8px">
-      <label class="field-label">Foods</label>
-      <input class="field-input" type="text" id="snacks-foods" placeholder="Any snacks throughout the day?" oninput="debouncedSave('meals')">
-    </div>
-    <div style="display:flex;align-items:end;gap:8px">
-      <div>
-        <label class="field-label">Protein (grams)</label>
-        <input class="field-input" type="number" id="snacks-protein" placeholder="0" style="width:90px" oninput="updateProteinFromInput(); debouncedSave('meals')">
+  <!-- ⑤ SYMPTOMS & NOTES -->
+  <div class="acc-section" id="acc-notes">
+    <button class="acc-header" onclick="toggleAcc('notes')">
+      <span class="acc-icon">📝</span>
+      <span class="acc-title">Symptoms & Notes</span>
+      <span class="acc-badge" id="acc-badge-notes"></span>
+      <span class="acc-check" id="acc-check-notes"></span>
+      <span class="acc-chevron" id="acc-chevron-notes">›</span>
+    </button>
+    <div class="acc-body" id="acc-body-notes">
+      <div class="acc-inner">
+        <div class="card" style="margin-bottom:12px">
+          <textarea class="textarea" id="symptoms-notes" rows="4"
+            placeholder="Headaches · Swelling · Dizziness · Energy · Fetal movement · POTS symptoms · Mood · Anything notable..."
+            oninput="debouncedSave('symptoms')"></textarea>
+        </div>
+        <div class="acc-sub-label">📋 Activity Log</div>
+        <div class="card" style="margin-bottom:0">
+          <div id="activity-log-list" style="font-size:12px;font-family:sans-serif;color:#506058;line-height:1.6">
+            No activity logged yet for this date.
+          </div>
+        </div>
       </div>
-      <button class="calc-btn" onclick="openProteinCalculator('snacks')" title="Use protein calculator">🧮</button>
     </div>
   </div>
 
-  <!-- Total Protein -->
-  <div class="card" style="background:rgba(230,248,225,0.9);border-color:rgba(77,140,68,0.25)">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <div style="font-size:12px;color:#4d8c44;font-weight:600;font-family:sans-serif">Total Protein Today</div>
-      <div style="font-size:22px;color:#4d8c44;font-weight:600;font-family:'Georgia',serif" id="total-protein-display">0g</div>
-    </div>
-    <div style="font-size:10px;color:#506058;margin-top:2px;font-family:sans-serif">Goal: 60g+ daily for healthy pregnancy</div>
+  <!-- Week progress summary (collapsed inside, referenced from week strip) -->
+  <div class="week-card" id="week-summary-card" style="display:none">
+    <div class="week-card-title">This week's progress <span style="font-weight:400;font-size:10px;color:#90a898;text-transform:none;letter-spacing:0">(Mon → today)</span></div>
+    <div style="font-size:10px;font-family:sans-serif;color:#90a898;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Medications taken this week</div>
+    <div class="week-row"><div class="week-row-label"><span>Baby Aspirin</span><span class="week-row-pct" id="wk-med-aspirin-pct">--</span></div><div class="prog-wrap" style="height:5px;margin-bottom:4px"><div class="prog-fill green" id="wk-med-aspirin-bar" style="width:0%"></div></div></div>
+    <div class="week-row"><div class="week-row-label"><span>Thorne Prenatal</span><span class="week-row-pct" id="wk-med-prenatal-pct">--</span></div><div class="prog-wrap" style="height:5px;margin-bottom:4px"><div class="prog-fill green" id="wk-med-prenatal-bar" style="width:0%"></div></div></div>
+    <div class="week-row"><div class="week-row-label"><span>Vitamin D3</span><span class="week-row-pct" id="wk-med-vitd-pct">--</span></div><div class="prog-wrap" style="height:5px;margin-bottom:4px"><div class="prog-fill green" id="wk-med-vitd-bar" style="width:0%"></div></div></div>
+    <div class="week-row"><div class="week-row-label"><span>Fish Oil</span><span class="week-row-pct" id="wk-med-fishoil-pct">--</span></div><div class="prog-wrap" style="height:5px;margin-bottom:4px"><div class="prog-fill green" id="wk-med-fishoil-bar" style="width:0%"></div></div></div>
+    <div class="week-row"><div class="week-row-label"><span>Lemon Balm</span><span class="week-row-pct" id="wk-med-lemonbalm-pct">--</span></div><div class="prog-wrap" style="height:5px;margin-bottom:4px"><div class="prog-fill green" id="wk-med-lemonbalm-bar" style="width:0%"></div></div></div>
+    <div class="week-row"><div class="week-row-label"><span>Calm Powder</span><span class="week-row-pct" id="wk-med-magnesium-pct">--</span></div><div class="prog-wrap" style="height:5px;margin-bottom:10px"><div class="prog-fill green" id="wk-med-magnesium-bar" style="width:0%"></div></div></div>
+    <div style="font-size:10px;font-family:sans-serif;color:#90a898;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:6px">Other goals</div>
+    <div class="week-row"><div class="week-row-label"><span>Exercise sessions</span><span class="week-row-pct" id="wk-ex-pct">--</span></div><div class="prog-wrap" style="height:5px;margin-bottom:4px"><div class="prog-fill teal" id="wk-ex-bar" style="width:0%"></div></div></div>
+    <div class="week-row"><div class="week-row-label"><span>Protein goal (60g+)</span><span class="week-row-pct" id="wk-prot-pct">--</span></div><div class="prog-wrap" style="height:5px;margin-bottom:4px"><div class="prog-fill amber" id="wk-prot-bar" style="width:0%"></div></div></div>
+    <div class="week-row"><div class="week-row-label"><span>Hydration (Buoy taken)</span><span class="week-row-pct" id="wk-buoy-pct">--</span></div><div class="prog-wrap" style="height:5px;margin-bottom:0"><div class="prog-fill blue" id="wk-buoy-bar" style="width:0%"></div></div></div>
   </div>
 
-  <!-- Symptoms -->
-  <div class="section-title">Symptoms & Notes</div>
-  <div class="card">
-    <textarea class="textarea" id="notes-input" rows="4" placeholder="Headaches · Swelling · Dizziness · Energy · Fetal movement · POTS symptoms · Mood · Anything notable..." oninput="debouncedSave('notes')"></textarea>
-  </div>
-
-  <!-- Activity Log -->
-  <div class="section-title">Activity Log</div>
-  <div class="card">
-    <div class="card-title">📝 Change History — <span id="activity-log-date">Today</span></div>
-    <div id="activity-log-content" style="font-size:11px;color:#90a898;font-family:sans-serif;font-style:italic;text-align:center;padding:12px">
-      No activity logged yet for this date.
-    </div>
-  </div>
 </div>
 
 <!-- ═══ BLOOD PRESSURE ═══ -->
