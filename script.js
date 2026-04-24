@@ -1,42 +1,4 @@
 
-/* ── BP DAILY CARD UPDATER ── */
-function renderBPDailyCard() {
-  var readingEl = document.getElementById('bp-daily-reading');
-  var timeEl    = document.getElementById('bp-daily-time');
-  var statusEl  = document.getElementById('bp-daily-status');
-  if (!readingEl) return;
-
-  var bps = (dayData && dayData.bp) ? dayData.bp : [];
-
-  if (bps.length === 0) {
-    readingEl.innerHTML = '— / — <span class="bp-daily-unit">mmHg</span>';
-    timeEl.textContent  = 'No reading today — tap to log';
-    statusEl.className  = 'bp-daily-status';
-    statusEl.textContent = '';
-    return;
-  }
-
-  // Show most recent reading of the day
-  var last = bps[bps.length - 1];
-  readingEl.innerHTML = last.sys + ' <span style="font-size:14px;font-weight:400;color:#c06070">/</span> ' + last.dia + ' <span class="bp-daily-unit">mmHg</span>';
-  timeEl.textContent  = last.time || 'Today';
-
-  // Status classification
-  var sys = last.sys, dia = last.dia;
-  var label = '', cls = '';
-  if (sys >= 140 || dia >= 90) {
-    label = '⚠ High'; cls = 'high';
-  } else if (sys >= 130 || dia >= 80) {
-    label = 'Elevated'; cls = 'elevated';
-  } else {
-    label = '✓ Normal'; cls = 'normal';
-  }
-  statusEl.className   = 'bp-daily-status ' + cls;
-  statusEl.textContent = label;
-}
-/* ── END BP DAILY CARD UPDATER ── */
-
-
 /* ── WEEK STRIP RENDERER ── */
 function renderWeekStrip() {
   var container = document.getElementById('week-strip-days');
@@ -46,20 +8,17 @@ function renderWeekStrip() {
   var today = new Date();
   today.setHours(0,0,0,0);
 
-  // currentDate is the globally tracked viewing date in the app
   var selected = currentDate ? new Date(currentDate) : new Date(today);
   selected.setHours(0,0,0,0);
 
-  // Find Monday of the week containing 'selected'
-  var dayOfWeek = selected.getDay(); // 0=Sun
+  var dayOfWeek = selected.getDay();
   var diffToMon = (dayOfWeek === 0) ? -6 : 1 - dayOfWeek;
   var monday = new Date(selected);
   monday.setDate(selected.getDate() + diffToMon);
 
-  // Update month label (show month of selected day)
   var months = ['January','February','March','April','May','June',
                 'July','August','September','October','November','December'];
-  monthLabel.textContent = months[selected.getMonth()] + ' ' + selected.getFullYear();
+  if (monthLabel) monthLabel.textContent = months[selected.getMonth()] + ' ' + selected.getFullYear();
 
   var dayLetters = ['M','T','W','T','F','S','S'];
   var html = '';
@@ -69,35 +28,67 @@ function renderWeekStrip() {
     d.setDate(monday.getDate() + i);
     d.setHours(0,0,0,0);
 
-    var isToday   = d.getTime() === today.getTime();
-    var isSel     = d.getTime() === selected.getTime();
-    var isFuture  = d.getTime() > today.getTime();
+    var isToday  = d.getTime() === today.getTime();
+    var isSel    = d.getTime() === selected.getTime();
+    var isFuture = d.getTime() > today.getTime();
 
     var cls = 'week-day-cell';
     if (isToday)  cls += ' is-today';
     if (isSel)    cls += ' is-selected';
     if (isFuture) cls += ' is-future';
 
-    // Check if this date has any logged data
-    var dateKey = d.getFullYear() + '-' +
-      String(d.getMonth()+1).padStart(2,'0') + '-' +
-      String(d.getDate()).padStart(2,'0');
-    var hasDot = allData && allData[dateKey] && (
-      Object.keys(allData[dateKey]).length > 0
-    );
+    var yr  = d.getFullYear();
+    var mo  = String(d.getMonth()+1).padStart(2,'0');
+    var dy  = String(d.getDate()).padStart(2,'0');
+    var dateKey = yr + '-' + mo + '-' + dy;
 
-    var dot = (!isFuture && hasDot) ? '<div class="week-day-dot"></div>' : '<div style="width:5px;height:5px"></div>';
+    var hasDot = window.allData && window.allData[dateKey] &&
+                 Object.keys(window.allData[dateKey]).length > 0;
+    var dot = (!isFuture && hasDot)
+      ? '<div class="week-day-dot"></div>'
+      : '<div style="width:5px;height:5px"></div>';
 
-    html += '<div class="' + cls + '" onclick="jumpToDate('' + dateKey + '')">' +
-      '<span class="week-day-letter">' + dayLetters[i] + '</span>' +
-      '<span class="week-day-num">' + d.getDate() + '</span>' +
-      dot +
-      '</div>';
+    html += '<div class="' + cls + '" onclick="jumpToDate(\'' + dateKey + '\')">'
+          + '<span class="week-day-letter">' + dayLetters[i] + '</span>'
+          + '<span class="week-day-num">' + d.getDate() + '</span>'
+          + dot
+          + '</div>';
   }
 
   container.innerHTML = html;
 }
-/* ── END WEEK STRIP RENDERER ── */
+
+/* ── BP DAILY CARD UPDATER ── */
+function renderBPDailyCard() {
+  var readingEl = document.getElementById('bp-daily-reading');
+  var timeEl    = document.getElementById('bp-daily-time');
+  var statusEl  = document.getElementById('bp-daily-status');
+  if (!readingEl) return;
+
+  var bps = (window.dayData && window.dayData.bp) ? window.dayData.bp : [];
+
+  if (bps.length === 0) {
+    readingEl.innerHTML = '&#8212; / &#8212; <span class="bp-daily-unit">mmHg</span>';
+    timeEl.textContent  = 'No reading today \u2014 tap to log';
+    if (statusEl) { statusEl.className = 'bp-daily-status'; statusEl.textContent = ''; }
+    return;
+  }
+
+  var last = bps[bps.length - 1];
+  readingEl.innerHTML = last.sys + ' / ' + last.dia + ' <span class="bp-daily-unit">mmHg</span>';
+  timeEl.textContent  = last.time || 'Today';
+
+  var sys = last.sys, dia = last.dia;
+  var label = '', cls = '';
+  if (sys >= 140 || dia >= 90)      { label = '\u26a0 High';    cls = 'high'; }
+  else if (sys >= 130 || dia >= 80) { label = 'Elevated';      cls = 'elevated'; }
+  else                               { label = '\u2713 Normal'; cls = 'normal'; }
+
+  if (statusEl) {
+    statusEl.className   = 'bp-daily-status ' + cls;
+    statusEl.textContent = label;
+  }
+}
 
 // ═══════════════════════════════════════════════════════════
 // Baby McGee Journal - Optimized Cloud Version
@@ -248,9 +239,7 @@ let appState = {
   activityLog: [],
   isOnline: navigator.onLine,
   lastSync: null,
-  pendingChanges: new Set(),
-  autoSyncTimer: null,
-  syncTimer: null
+  pendingChanges: new Set()
 };
 
 // Global variables for backward compatibility
@@ -1886,9 +1875,6 @@ function commitSave() {
   var dk = toKey(offset);
   lsPut(dk, dayData);
   flashSave();
-  
-  // Trigger auto-sync when data changes
-  triggerAutoSync();
 }
 
 function debouncedSave(field) {
@@ -2028,98 +2014,11 @@ function refreshBnBEvents() {
 }
 
 // ═══════════════════════════════════════════════════════════
-// ENHANCED SYNC FUNCTIONS
+// PLACEHOLDER FUNCTIONS (for future implementation)
 // ═══════════════════════════════════════════════════════════
-async function manualSync() {
-  if (!CONFIG.GITHUB_TOKEN) {
-    showNotification('Please connect to GitHub first in Settings', 'error');
-    return;
-  }
-  
-  try {
-    updateSyncButton('syncing');
-    showNotification('Starting sync...', 'info', 2000);
-    
-    await syncAllData();
-    
-    updateSyncButton('success');
-    setTimeout(() => updateSyncButton('idle'), 2000);
-  } catch (error) {
-    console.error('Manual sync error:', error);
-    updateSyncButton('error');
-    setTimeout(() => updateSyncButton('idle'), 3000);
-  }
-}
-
-async function saveAndSync() {
-  // Save current data first
-  if (dayData) {
-    collectDayData();
-    commitSave();
-  }
-  
-  // Then sync if GitHub is connected
-  if (CONFIG.GITHUB_TOKEN) {
-    await manualSync();
-  } else {
-    showNotification('Data saved locally. Connect to GitHub in Settings to sync across devices.', 'info', 4000);
-    flashSave();
-  }
-}
-
-function updateSyncButton(state) {
-  const syncBtn = getElement('header-sync-btn');
-  const syncIcon = getElement('sync-icon');
-  
-  if (!syncBtn || !syncIcon) return;
-  
-  // Reset classes
-  syncBtn.className = 'header-sync-btn';
-  
-  switch (state) {
-    case 'syncing':
-      syncBtn.classList.add('syncing');
-      syncIcon.textContent = '⟳';
-      syncBtn.title = 'Syncing data...';
-      break;
-    case 'success':
-      syncBtn.classList.add('success');
-      syncIcon.textContent = '✓';
-      syncBtn.title = 'Sync successful';
-      break;
-    case 'error':
-      syncBtn.classList.add('error');
-      syncIcon.textContent = '⚠';
-      syncBtn.title = 'Sync failed - click to retry';
-      break;
-    default: // idle
-      syncBtn.classList.add('idle');
-      syncIcon.textContent = '↻';
-      syncBtn.title = 'Sync data to cloud';
-  }
-}
-
-// Auto-sync when changes are made
-function triggerAutoSync() {
-  if (!CONFIG.GITHUB_TOKEN || CONFIG.OFFLINE_MODE) return;
-  
-  // Add current change to pending changes
-  appState.pendingChanges.add(Date.now());
-  updateSyncStatus();
-  
-  // Debounced auto-sync
-  clearTimeout(appState.autoSyncTimer);
-  appState.autoSyncTimer = setTimeout(async () => {
-    if (appState.pendingChanges.size > 0) {
-      try {
-        await syncAllData();
-        appState.pendingChanges.clear();
-        updateSyncStatus();
-      } catch (error) {
-        console.error('Auto-sync failed:', error);
-      }
-    }
-  }, 30000); // Auto-sync after 30 seconds of inactivity
+function manualSync() {
+  console.log('Sync functionality - placeholder');
+  flashSave();
 }
 
 function toggleMonthTask(id) {
@@ -2942,9 +2841,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize settings and GitHub connection
     initializeSettings();
-    
-    // Initialize sync button state
-    updateSyncButton('idle');
     
     // Load historical data on first run
     var hasHistoricalData = localStorage.getItem('bmj_historical_loaded');
