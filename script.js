@@ -1,7 +1,6 @@
 
 /* ── SOFTWARE UPDATE ── */
 var APP_VERSION = '3.0';
-var APP_REPO_API = 'https://api.github.com/repos/mcgee162010/Baby-McGee-App/commits/main';
 
 function checkForAppUpdate() {
   var btn     = document.getElementById('check-update-btn');
@@ -11,97 +10,90 @@ function checkForAppUpdate() {
   var dotEl   = document.getElementById('update-status-dot');
   var checkedEl = document.getElementById('last-checked-label');
 
-  // Spinner state
   btnIcon.textContent = '⏳';
   btnText.textContent = 'Checking...';
   if (btn) btn.disabled = true;
 
-  // Check the latest commit date on GitHub
-  fetch(APP_REPO_API)
+  fetch('https://api.github.com/repos/mcgee162010/Baby-McGee-App/commits/main')
     .then(function(r) { return r.json(); })
     .then(function(data) {
-      var lastCommit = data && data.commit && data.commit.author && data.commit.author.date;
-      var sha        = data && data.sha ? data.sha.slice(0,7) : '?';
-      var msg        = data && data.commit && data.commit.message ? data.commit.message.split('\n')[0] : '';
+      var sha = data && data.sha ? data.sha.slice(0,7) : '?';
+      var msg = data && data.commit && data.commit.message
+                ? data.commit.message.split('\n')[0] : '';
+      var commitDate = data && data.commit && data.commit.author
+                       ? new Date(data.commit.author.date) : null;
 
       var now = new Date();
-      checkedEl.textContent = 'Last checked: ' + now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+      if (checkedEl) checkedEl.textContent = 'Last checked: ' + now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 
-      // Compare commit date to when the SW was installed
-      if (lastCommit) {
-        var commitTime = new Date(lastCommit);
-        var swTime = null;
-        try {
-          var stored = localStorage.getItem('bmj_sw_install_time');
-          if (stored) swTime = new Date(stored);
-        } catch(e) {}
+      // Check if we have a newer version than what's cached
+      var swTime = null;
+      try { var s = localStorage.getItem('bmj_sw_install_time'); if (s) swTime = new Date(s); } catch(e){}
+      var hasUpdate = !swTime || (commitDate && commitDate > swTime);
 
-        var hasUpdate = !swTime || commitTime > swTime;
-
-        if (hasUpdate) {
-          // Update available
-          dotEl.style.background    = '#e07830';
-          msgEl.style.display       = 'block';
-          msgEl.innerHTML           = '<strong style="color:#7a4800">✨ Update available!</strong><br>'
-                                    + 'Latest: <code style="font-size:10px;background:#f4f1eb;padding:1px 4px;border-radius:4px">' + sha + '</code> · '
-                                    + commitTime.toLocaleDateString([], {month:'short',day:'numeric'}) + '<br>'
-                                    + '<span style="color:#90a898">' + msg.slice(0,60) + '</span>';
-          btnIcon.textContent       = '⬆️';
-          btnText.textContent       = 'Update Now';
-          btn.onclick               = function() { forceAppReload(); };
-          btn.style.background      = '#e07830';
-          btn.style.borderColor     = '#e07830';
-        } else {
-          // Up to date
-          dotEl.style.background    = '#4d8c44';
-          msgEl.style.display       = 'block';
-          msgEl.innerHTML           = '✅ <strong style="color:#2d6a26">You\'re up to date!</strong><br>'
-                                    + '<span style="color:#90a898">Commit: ' + sha + ' · ' + msg.slice(0,60) + '</span>';
-          msgEl.style.color         = '#506058';
-          btnIcon.textContent       = '✓';
-          btnText.textContent       = 'Up to Date';
+      if (hasUpdate) {
+        // Show updating state then clear cache + reload
+        btnIcon.textContent = '⬆️';
+        btnText.textContent = 'Updating...';
+        if (dotEl) dotEl.style.background = '#e07830';
+        if (msgEl) {
+          msgEl.style.display = 'block';
+          msgEl.innerHTML = '✨ <strong style="color:#7a4800">New update found — installing now…</strong>';
         }
+
+        // Clear SW + caches in background, then reload
+        var clearAndReload = function() {
+          localStorage.setItem('bmj_sw_install_time', new Date().toISOString());
+          window.location.reload(true);
+        };
+
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations()
+            .then(function(regs) { return Promise.all(regs.map(function(r){ return r.unregister(); })); })
+            .then(function() {
+              if ('caches' in window) {
+                return caches.keys().then(function(keys) {
+                  return Promise.all(keys.map(function(k){ return caches.delete(k); }));
+                });
+              }
+            })
+            .then(clearAndReload)
+            .catch(clearAndReload);
+        } else {
+          clearAndReload();
+        }
+
+      } else {
+        // Already up to date
+        btnIcon.textContent = '✅';
+        btnText.textContent = 'You\'re up to date!';
+        if (dotEl) dotEl.style.background = '#4d8c44';
+        if (msgEl) {
+          msgEl.style.display = 'block';
+          msgEl.innerHTML = '<span style="color:#2d6a26">Version ' + sha + ' · ' + msg.slice(0,55) + '</span>';
+        }
+        // Reset button after 3 seconds
+        setTimeout(function() {
+          if (btnIcon) btnIcon.textContent = '🔄';
+          if (btnText) btnText.textContent = 'Check for Updates';
+          if (btn) btn.disabled = false;
+        }, 3000);
       }
     })
-    .catch(function(err) {
-      dotEl.style.background  = '#b84858';
-      msgEl.style.display     = 'block';
-      msgEl.textContent       = '⚠️ Could not check for updates. Are you online?';
-      btnIcon.textContent     = '⚠️';
-      btnText.textContent     = 'Check Failed';
-    })
-    .finally(function() {
-      if (btn) btn.disabled = false;
-    });
-}
-
-function forceAppReload() {
-  var btn = document.getElementById('force-reload-btn');
-  if (btn) { btn.textContent = '⏳ Clearing...'; btn.disabled = true; }
-
-  // 1. Unregister service worker
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(function(regs) {
-      var promises = regs.map(function(r) { return r.unregister(); });
-      return Promise.all(promises);
-    }).then(function() {
-      // 2. Clear all caches
-      if ('caches' in window) {
-        return caches.keys().then(function(keys) {
-          return Promise.all(keys.map(function(k) { return caches.delete(k); }));
-        });
-      }
-    }).then(function() {
-      // 3. Store install time
+    .catch(function() {
+      // Offline or error — just force a reload anyway
+      btnIcon.textContent = '🔄';
+      btnText.textContent = 'Reloading...';
       localStorage.setItem('bmj_sw_install_time', new Date().toISOString());
-      // 4. Hard reload
-      window.location.reload(true);
-    }).catch(function() {
-      window.location.reload(true);
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations()
+          .then(function(regs) { return Promise.all(regs.map(function(r){ return r.unregister(); })); })
+          .then(function() { window.location.reload(true); })
+          .catch(function() { window.location.reload(true); });
+      } else {
+        window.location.reload(true);
+      }
     });
-  } else {
-    window.location.reload(true);
-  }
 }
 /* ── END SOFTWARE UPDATE ── */
 
