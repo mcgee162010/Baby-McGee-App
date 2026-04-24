@@ -34,40 +34,6 @@
   --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
 }
 
-
-/* ── iOS SAFE AREA & PHONE FRAME ── */
-html {
-  /* Prevent overscroll bounce from showing white */
-  background: #1a3824;
-}
-
-body {
-  /* Respect notch on all sides */
-  padding-top: env(safe-area-inset-top, 0px);
-  max-width: 430px;       /* iPhone Pro Max width */
-  margin: 0 auto;
-  min-height: 100dvh;     /* dynamic viewport height respects browser chrome */
-}
-
-/* Top header respects status bar */
-.header {
-  padding-top: calc(1rem + env(safe-area-inset-top, 0px));
-}
-
-/* Bottom nav respects home indicator */
-.bottom-nav {
-  padding-bottom: max(env(safe-area-inset-bottom, 0px), 10px);
-  height: calc(64px + max(env(safe-area-inset-bottom, 0px), 10px));
-}
-
-/* Content scrollable area above nav */
-.content-wrap {
-  padding-bottom: calc(64px + max(env(safe-area-inset-bottom, 0px), 10px) + 12px);
-  padding-left: env(safe-area-inset-left, 0px);
-  padding-right: env(safe-area-inset-right, 0px);
-}
-/* ── END iOS SAFE AREA ── */
-
 /* RESET */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -192,40 +158,8 @@ body {
 }
 
 .header-sync-btn:active { background: rgba(255, 255, 255, 0.22); }
-
-/* Sync button states */
-.header-sync-btn.syncing {
-  background: rgba(255, 193, 7, 0.15);
-  border-color: rgba(255, 193, 7, 0.3);
-  color: #ffc107;
-}
-
-.header-sync-btn.syncing .sync-icon {
-  animation: spin 0.8s linear infinite;
-}
-
-.header-sync-btn.success {
-  background: rgba(40, 167, 69, 0.15);
-  border-color: rgba(40, 167, 69, 0.3);
-  color: #28a745;
-}
-
-.header-sync-btn.error {
-  background: rgba(220, 53, 69, 0.15);
-  border-color: rgba(220, 53, 69, 0.3);
-  color: #dc3545;
-}
-
-.header-sync-btn.idle {
-  background: rgba(255, 255, 255, 0.11);
-  border-color: rgba(255, 255, 255, 0.18);
-  color: #ddd4c0;
-}
-
-.sync-icon {
-  display: inline-block;
-  transition: transform 0.15s ease;
-}
+.header-sync-btn.syncing .sync-icon { animation: spin 0.8s linear infinite; }
+.sync-icon { display: inline-block; }
 
 /* ── BOTTOM NAVIGATION ── */
 .bottom-nav {
@@ -1594,423 +1528,146 @@ input:checked + .toggle-slider:before {
   to { transform: translateY(0); opacity: 1; }
 }
 
-/* ── WEEK STRIP DATE BAR ── */
+
+/* ══════════════════════════════════════════
+   iOS REDESIGN ADDITIONS
+   ══════════════════════════════════════════ */
+
+/* iOS Safe Area */
+html { background: #1a3824; }
+body {
+  padding-top: env(safe-area-inset-top, 0px);
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100dvh;
+}
+.header { padding-top: calc(1rem + env(safe-area-inset-top, 0px)); }
+.bottom-nav {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 10px);
+  height: calc(64px + max(env(safe-area-inset-bottom, 0px), 10px));
+}
+.content-wrap {
+  padding-bottom: calc(64px + max(env(safe-area-inset-bottom, 0px), 10px) + 12px);
+}
+
+/* Stat Tiles */
+.stat-tiles-row {
+  display: flex; gap: 8px; padding: 0 1rem 1rem;
+}
+.stat-tile {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  border-radius: 14px; padding: 12px 6px; gap: 3px; min-height: 80px;
+}
+.stat-tile-icon { font-size: 18px; line-height: 1; margin-bottom: 2px; }
+.stat-tile-num {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 22px; font-weight: 700; letter-spacing: -0.03em; line-height: 1;
+}
+.stat-tile-sub {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 10px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.75;
+}
+.stat-tile--green { background: rgba(77,140,68,0.13); color: #2d6a26; }
+.stat-tile--rose  { background: rgba(184,72,88,0.10); color: #9c2f3e; }
+.stat-tile--amber { background: rgba(192,120,8,0.11); color: #7a4800; }
+
+/* Week Strip */
 .week-strip-bar {
-  background: var(--surface);
-  border-radius: var(--radius-lg);
-  margin: 0 0.85rem 0.75rem;
-  padding: 10px 14px 12px;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--border);
+  background: #fff; border-radius: 18px;
+  margin: 0 0.85rem 0.75rem; padding: 10px 14px 12px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+  border: 1px solid rgba(175,152,132,0.2);
 }
-
 .week-strip-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  display: flex; align-items: center;
+  justify-content: space-between; margin-bottom: 10px;
 }
-
 .week-strip-month {
-  font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-1);
-  letter-spacing: -0.01em;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 13px; font-weight: 600; color: #1c2820;
 }
-
 .week-strip-cal-btn {
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  padding: 4px;
+  background: none; border: none; font-size: 20px; cursor: pointer;
+  min-width: 44px; min-height: 44px;
+  display: flex; align-items: center; justify-content: center;
   border-radius: 8px;
-  min-width: 44px;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s;
 }
-.week-strip-cal-btn:active { background: var(--border); }
-
 .week-strip-days {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
 }
-
 .week-day-cell {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 2px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background 0.15s;
-  min-height: 52px;
-  justify-content: center;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 4px; padding: 6px 2px; border-radius: 10px;
+  cursor: pointer; min-height: 52px; justify-content: center;
 }
-
-.week-day-cell:active { opacity: 0.7; }
-
 .week-day-letter {
-  font-family: var(--font-sans);
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--text-3);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 10px; font-weight: 500; color: #90a898;
+  text-transform: uppercase; letter-spacing: 0.04em;
 }
-
 .week-day-num {
-  font-family: var(--font-sans);
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--text-2);
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  transition: all 0.15s;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 15px; font-weight: 500; color: #506058;
+  width: 30px; height: 30px; display: flex;
+  align-items: center; justify-content: center; border-radius: 50%;
 }
-
-/* Today highlight */
-.week-day-cell.is-today .week-day-letter {
-  color: var(--green);
-  font-weight: 700;
-}
+.week-day-cell.is-today .week-day-letter { color: #4d8c44; font-weight: 700; }
 .week-day-cell.is-today .week-day-num {
-  background: var(--green);
-  color: #fff;
-  font-weight: 700;
+  background: #4d8c44; color: #fff; font-weight: 700;
   box-shadow: 0 2px 8px rgba(77,140,68,0.35);
 }
-
-/* Selected (not today) */
 .week-day-cell.is-selected:not(.is-today) .week-day-num {
-  background: var(--surface-2);
-  color: var(--text-1);
-  font-weight: 600;
-  border: 2px solid var(--green-border);
+  background: #f4f1eb; color: #1c2820; font-weight: 600;
+  border: 2px solid rgba(77,140,68,0.3);
 }
-
-/* Has data dot */
+.week-day-cell.is-future .week-day-num { color: #c0ccc0; }
+.week-day-cell.is-future .week-day-letter { color: rgba(144,168,152,0.4); }
 .week-day-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--green);
-  opacity: 0.6;
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #4d8c44; opacity: 0.6;
 }
 
-/* Future days dimmed */
-.week-day-cell.is-future .week-day-num {
-  color: var(--text-3);
-}
-.week-day-cell.is-future .week-day-letter {
-  color: rgba(144,168,152,0.5);
-}
-/* ── END WEEK STRIP ── */
-
-/* ── BP DAILY CARD ── */
+/* BP Daily Card */
 .bp-daily-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #fff0f2;
-  border: 1px solid rgba(184,72,88,0.18);
-  border-radius: var(--radius);
-  padding: 14px 16px;
-  margin: 0 0 0.75rem;
-  cursor: pointer;
-  transition: transform 0.12s, box-shadow 0.12s;
-  min-height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: #fff0f2; border: 1px solid rgba(184,72,88,0.18);
+  border-radius: 14px; padding: 14px 16px; margin: 0 0 0.75rem;
+  cursor: pointer; min-height: 64px;
+  transition: transform 0.12s;
 }
-.bp-daily-card:active {
-  transform: scale(0.98);
-  box-shadow: none;
-}
-
-.bp-daily-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.bp-daily-icon {
-  font-size: 26px;
-  line-height: 1;
-}
-
+.bp-daily-card:active { transform: scale(0.98); }
+.bp-daily-left { display: flex; align-items: center; gap: 12px; }
+.bp-daily-icon { font-size: 26px; line-height: 1; }
 .bp-daily-reading {
-  font-family: var(--font-sans);
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--rose);
-  letter-spacing: -0.02em;
-  line-height: 1.1;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 20px; font-weight: 700; color: #b84858;
+  letter-spacing: -0.02em; line-height: 1.1;
 }
-
-.bp-daily-unit {
-  font-size: 11px;
-  font-weight: 500;
-  color: #c06070;
-  letter-spacing: 0;
-}
-
+.bp-daily-unit { font-size: 11px; font-weight: 500; color: #c06070; }
 .bp-daily-time {
-  font-family: var(--font-sans);
-  font-size: 11px;
-  color: #c06070;
-  margin-top: 2px;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 11px; color: #c06070; margin-top: 2px;
 }
-
 .bp-daily-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 4px;
 }
-
 .bp-daily-status {
-  font-family: var(--font-sans);
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 20px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 10px; font-weight: 700; padding: 2px 8px;
+  border-radius: 20px; text-transform: uppercase; letter-spacing: 0.05em;
 }
-.bp-daily-status.normal  { background: var(--green-bg); color: var(--green); }
-.bp-daily-status.elevated { background: var(--amber-bg); color: var(--amber); }
-.bp-daily-status.high    { background: var(--rose-bg);  color: var(--rose);  }
-
+.bp-daily-status.normal   { background: rgba(77,140,68,0.09);   color: #4d8c44; }
+.bp-daily-status.elevated { background: rgba(192,120,8,0.10);   color: #c07808; }
+.bp-daily-status.high     { background: rgba(184,72,88,0.10);   color: #b84858; }
 .bp-daily-cta {
-  font-family: var(--font-sans);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--rose);
-}
-/* ── END BP DAILY CARD ── */
-
-/* ── iOS STAT TILES ── */
-.stat-tiles-row {
-  display: flex;
-  gap: 8px;
-  padding: 0 1rem 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 12px; font-weight: 600; color: #b84858;
 }
 
-.stat-tile {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius);
-  padding: 12px 6px;
-  gap: 3px;
-  min-height: 80px;
-}
-
-.stat-tile-icon {
-  font-size: 18px;
-  line-height: 1;
-  margin-bottom: 2px;
-}
-
-.stat-tile-num {
-  font-family: var(--font-sans);
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1;
-}
-
-.stat-tile-sub {
-  font-family: var(--font-sans);
-  font-size: 10px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  opacity: 0.75;
-}
-
-.stat-tile--green {
-  background: rgba(77, 140, 68, 0.13);
-  color: #2d6a26;
-}
-.stat-tile--rose {
-  background: rgba(184, 72, 88, 0.1);
-  color: #9c2f3e;
-}
-.stat-tile--amber {
-  background: rgba(192, 120, 8, 0.11);
-  color: #7a4800;
-}
-/* ── END iOS STAT TILES ── */
-
-/* ── iOS TYPOGRAPHY & SPACING POLISH ── */
-
-/* SF Pro-style font stack already set — reinforce across key elements */
-.section-title {
-  font-family: var(--font-sans);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-3);
-  padding: 0 0 6px;
-  margin-top: 4px;
-}
-
-/* Med rows — ensure 44pt minimum tap targets */
-.med-row {
-  min-height: 52px;
-  border-radius: var(--radius);
-  padding: 11px 12px;
-  transition: background 0.12s;
-}
-.med-row:active { background: var(--surface-2); }
-
-/* Cards — iOS-style elevated surfaces */
-.card {
-  border-radius: var(--radius-lg);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
-  border: 1px solid var(--border);
-  overflow: hidden;
-}
-
-/* Baby card — rounded hero */
-.baby-card {
-  border-radius: var(--radius-lg);
-  margin: 0.85rem 0.85rem 0.6rem;
-  box-shadow: var(--shadow);
-}
-
-/* Week summary card */
-.week-card {
-  border-radius: var(--radius-lg);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05), 0 3px 12px rgba(0,0,0,0.04);
-}
-
-/* Header — tighten app name */
-.app-name {
-  font-family: var(--font-sans);
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.due-tag {
-  font-family: var(--font-sans);
-  font-size: 12px;
-  opacity: 0.75;
-  letter-spacing: -0.01em;
-}
-
-/* Nav buttons — 44pt tap targets */
-.nav-btn {
-  min-height: 44px;
-  min-width: 44px;
-  border-radius: 12px;
-  padding: 4px 2px;
-  transition: background 0.12s;
-}
-.nav-btn:active {
-  background: rgba(255,255,255,0.1);
-}
-
-/* Log / action buttons */
-.log-btn {
-  min-height: 44px;
-  border-radius: var(--radius);
-  font-family: var(--font-sans);
-  font-weight: 600;
-  font-size: 14px;
-  letter-spacing: -0.01em;
-}
-
-/* Star rating — bigger tap areas */
-.star {
-  font-size: 26px;
-  min-width: 44px;
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Progress bars — pill style */
-.prog-wrap {
-  border-radius: 100px;
-  overflow: hidden;
-}
-.prog-fill {
-  border-radius: 100px;
-  transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
-}
-
-/* Inputs — iOS style */
-.field-input,
-.textarea {
-  font-family: var(--font-sans);
-  font-size: 15px;
-  border-radius: var(--radius-sm);
-  border: 1.5px solid var(--border-strong);
-  padding: 10px 12px;
-  background: var(--surface);
-  color: var(--text-1);
-  transition: border-color 0.15s;
-  -webkit-appearance: none;
-}
-.field-input:focus,
-.textarea:focus {
-  outline: none;
-  border-color: var(--green);
-  box-shadow: 0 0 0 3px rgba(77,140,68,0.15);
-}
-
-/* Smooth scroll */
-.body {
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* Tags */
-.tag {
-  font-family: var(--font-sans);
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 7px;
-  border-radius: 20px;
-  letter-spacing: 0.03em;
-  vertical-align: middle;
-}
-
-/* Med name typography */
-.med-name {
-  font-family: var(--font-sans);
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
-.med-dose {
-  font-family: var(--font-sans);
-  font-size: 12px;
-  color: var(--text-2);
-}
-
-.med-note {
-  font-family: var(--font-sans);
-  font-size: 11px;
-  color: var(--text-3);
-  margin-top: 1px;
-  line-height: 1.4;
-}
-/* ── END iOS POLISH ── */
+/* iOS tap targets & polish */
+.nav-btn { min-height: 44px; min-width: 44px; }
+.med-row { min-height: 52px; }
+.star { font-size: 26px; min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+.app-name { font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 17px; font-weight: 700; }
