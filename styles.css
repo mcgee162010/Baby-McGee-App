@@ -1378,9 +1378,8 @@ body {
     min-height: 44px;
   }
 
-  .field-input,
-  .add-q-input {
-    font-size: 16px; /* Prevents zoom on iOS */
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents auto-zoom on iOS for ALL inputs */
   }
 
   .bottom-nav {
