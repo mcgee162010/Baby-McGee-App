@@ -2861,7 +2861,7 @@ function initializeSettings() {
       tokenInput.value = savedToken;
       // Auto-test connection
       setTimeout(() => {
-        testGitHubConnection();
+        try { testGitHubConnection(); } catch(e) { console.warn('GitHub auto-connect skipped:', e); }
       }, 1000);
     }
   }
