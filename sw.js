@@ -1,7 +1,7 @@
-// Enhanced Service Worker for Baby McGee App v4.0 - remove BP+Calendar tabs
-const CACHE_NAME = 'baby-mcgee-v4.0';
-const STATIC_CACHE = 'baby-mcgee-static-v4.0';
-const DYNAMIC_CACHE = 'baby-mcgee-dynamic-v4.0';
+// Enhanced Service Worker for Baby McGee App v5.0 - iOS UX fixes
+const CACHE_NAME = 'baby-mcgee-v5.0';
+const STATIC_CACHE = 'baby-mcgee-static-v5.0';
+const DYNAMIC_CACHE = 'baby-mcgee-dynamic-v5.0';
 
 const STATIC_ASSETS = [
     './',
