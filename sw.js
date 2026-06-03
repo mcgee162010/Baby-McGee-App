@@ -1,7 +1,7 @@
-// Enhanced Service Worker for Baby McGee App v5.3 - remove Apple Watch Health
-const CACHE_NAME = 'baby-mcgee-v5.3';
-const STATIC_CACHE = 'baby-mcgee-static-v5.3';
-const DYNAMIC_CACHE = 'baby-mcgee-dynamic-v5.3';
+// Enhanced Service Worker for Baby McGee App v5.4 - ADHD UX improvements 1-7
+const CACHE_NAME = 'baby-mcgee-v5.4';
+const STATIC_CACHE = 'baby-mcgee-static-v5.4';
+const DYNAMIC_CACHE = 'baby-mcgee-dynamic-v5.4';
 
 const STATIC_ASSETS = [
     './',

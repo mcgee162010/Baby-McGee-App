@@ -101,6 +101,49 @@ function checkForAppUpdate() {
 /* ── ACCORDION SECTIONS ── */
 var ACC_OPEN = {};  // track open state
 
+// #2 — Toggle As Needed meds
+function toggleAsNeeded() {
+  var el  = document.getElementById('as-needed-meds');
+  var btn = document.getElementById('as-needed-toggle');
+  if (!el) return;
+  var open = el.style.display === 'block';
+  el.style.display = open ? 'none' : 'block';
+  if (btn) btn.textContent = open ? 'Show ›' : 'Hide ‹';
+}
+
+// #5 — More menu toggle
+function toggleMoreMenu(btn) {
+  var menu = document.getElementById('more-menu');
+  if (!menu) return;
+  var open = menu.style.display === 'block';
+  menu.style.display = open ? 'none' : 'block';
+  if (!open) {
+    // Close when tapping outside
+    setTimeout(function() {
+      document.addEventListener('click', function closeMenu(e) {
+        if (!menu.contains(e.target) && e.target !== btn) {
+          menu.style.display = 'none';
+        }
+        document.removeEventListener('click', closeMenu);
+      });
+    }, 10);
+  }
+}
+
+function switchTabFromMore(tab) {
+  var menu = document.getElementById('more-menu');
+  if (menu) menu.style.display = 'none';
+  var moreBtn = document.getElementById('nav-more-btn');
+  if (moreBtn) {
+    document.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
+    moreBtn.classList.add('active');
+  }
+  ['today','payment','questions','stats','settings'].forEach(function(t){
+    var el = document.getElementById('tab-'+t);
+    if (el) el.className = t === tab ? '' : 'hidden';
+  });
+}
+
 function toggleAcc(id) {
   var body    = document.getElementById('acc-body-' + id);
   var chevron = document.getElementById('acc-chevron-' + id);
@@ -224,6 +267,76 @@ function renderWeekStrip() {
   }
 
   container.innerHTML = html;
+}
+
+/* ── #6 DAILY SUMMARY CARD ── */
+function renderDailySummary() {
+  var pills = document.getElementById('summary-pills');
+  if (!pills || !dayData) return;
+
+  var medsTaken = 0;
+  var coreMeds = ['aspirin','prenatal','vitd','fishoil','lemonbalm','magnesium'];
+  coreMeds.forEach(function(m){ if (dayData.meds && dayData.meds[m] === true) medsTaken++; });
+
+  var water  = parseInt(dayData.water || 0);
+  var protein = parseInt(dayData.protein || 0);
+  var rated  = dayData.rating > 0;
+
+  function pill(emoji, label, done) {
+    var bg  = done ? 'rgba(77,140,68,0.3)' : 'rgba(255,255,255,0.1)';
+    var col = done ? '#b8f0a8' : 'rgba(255,255,255,0.55)';
+    return '<div style="display:flex;align-items:center;gap:5px;background:'+bg+';border-radius:99px;padding:5px 10px;font-family:-apple-system,sans-serif;font-size:12px;font-weight:600;color:'+col+'">'
+         + emoji + ' ' + label + '</div>';
+  }
+
+  var allDone = medsTaken >= 6 && water >= 90 && protein >= 60;
+  pills.innerHTML =
+    pill('💊', medsTaken + '/6 meds', medsTaken >= 6) +
+    pill('💧', water + ' oz', water >= 90) +
+    pill('🥩', protein + 'g protein', protein >= 60) +
+    (rated ? pill('⭐', 'Mood rated', true) : pill('⭐', 'Rate mood', false)) +
+    (allDone ? '<div style="font-family:-apple-system,sans-serif;font-size:18px;margin-left:4px">🎉</div>' : '');
+}
+
+/* ── QUICK ADD HELPERS (#4 protein, #7 water) ── */
+function quickAddProtein(amount) {
+  if (!dayData) return;
+  var current = parseInt(dayData.protein || 0);
+  var newVal = Math.max(0, current + amount);
+  dayData.protein = String(newVal);
+  var el = document.getElementById('protein-display');
+  if (el) el.textContent = newVal + 'g';
+  updateProteinDisplay(newVal);
+  debouncedSave('protein');
+}
+
+function quickAddWater(amount) {
+  if (!dayData) return;
+  var current = parseInt(dayData.water || 0);
+  var newVal = Math.max(0, current + amount);
+  dayData.water = String(newVal);
+  var inp = document.getElementById('water-input');
+  if (inp) inp.value = newVal;
+  updateWater(newVal);
+}
+
+function toggleMealDetail() {
+  var el  = document.getElementById('meal-detail');
+  var btn = document.getElementById('meal-detail-toggle');
+  if (!el) return;
+  var open = el.style.display === 'block';
+  el.style.display = open ? 'none' : 'block';
+  if (btn) btn.textContent = open ? 'Log meals in detail ›' : 'Hide meal detail ‹';
+}
+
+function updateProteinDisplay(val) {
+  var pct = Math.min(100, Math.round((val / 60) * 100));
+  var bar = document.getElementById('protein-bar');
+  var lbl = document.getElementById('protein-pct-label');
+  var dis = document.getElementById('protein-display');
+  if (bar) bar.style.width = pct + '%';
+  if (lbl) lbl.textContent = pct + '% of goal';
+  if (dis) dis.textContent = val + 'g';
 }
 
 /* ── BP DAILY CARD UPDATER ── */
@@ -848,6 +961,7 @@ function renderAll() {
   updateAccordionBadges();
   renderWeekStrip();
   renderBPDailyCard();
+  renderDailySummary();
 
   // Date labels
   var dl = getDateLabel(offset);
@@ -1000,9 +1114,8 @@ function toggleMed(id) {
   applyMedState(id, dayData.meds[id]);
   updateMedProgress();
   commitSave();
+  renderDailySummary();
 }
-
-function skipMed(evt, id) {
   evt.stopPropagation();
   if (!dayData) return;
   if (!dayData.meds) dayData.meds = {};
@@ -1474,6 +1587,7 @@ function setRating(s) {
   
   updateStarUI(dayData.rating);
   commitSave();
+  renderDailySummary();
 }
 
 function setHypno(val) {
@@ -3086,6 +3200,8 @@ function loadAll() {
   renderQuestions();
   renderMonthlyTasks();
   hideLoading();
+  // #3 — Auto-open Medications on load
+  if (!ACC_OPEN['meds']) toggleAcc('meds');
 }
 
 function hideLoading() {

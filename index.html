@@ -168,6 +168,12 @@
     </div>
   </div>
 
+  <!-- #6 DAILY SUMMARY CARD — at-a-glance status -->
+  <div id="daily-summary-card" style="margin:0 0 10px;background:linear-gradient(135deg,#1b3e28,#2a5640);border-radius:14px;padding:12px 16px">
+    <div style="font-family:-apple-system,sans-serif;font-size:11px;font-weight:700;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">Today's Progress</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap" id="summary-pills"></div>
+  </div>
+
   <!-- ══════════════════════════════════════
        ACCORDION SECTIONS
   ══════════════════════════════════════ -->
@@ -251,7 +257,11 @@
           <div style="flex:1"><div class="med-name">Magnesium <span class="tag t-green">Sleep &amp; Muscle</span></div><div class="med-dose">400-600mg at night</div><div class="med-note">Midwife approved dose for sleep, muscle support, and nervous system health.</div></div>
         </div>
 
-        <div class="acc-sub-label">🌿 Additional — As Needed</div>
+        <div class="acc-sub-label" style="display:flex;align-items:center;justify-content:space-between">
+          <span>🌿 As Needed</span>
+          <button onclick="toggleAsNeeded()" id="as-needed-toggle" style="font-size:11px;font-family:-apple-system,sans-serif;color:#4d8c44;background:none;border:1px solid rgba(77,140,68,0.3);border-radius:99px;padding:2px 10px;cursor:pointer">Show ›</button>
+        </div>
+        <div id="as-needed-meds" style="display:none">
         <div class="med-row" id="row-passionflower" onclick="toggleMed('passionflower')">
           <div class="circle"><svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg></div>
           <div style="flex:1"><div class="med-name">Passion Flower <span class="tag t-rose">Relaxation</span></div><div class="med-dose">As needed</div><div class="med-note">Midwife approved - safe for pregnancy.</div></div>
@@ -275,6 +285,7 @@
         <div class="med-row" id="row-moringa" onclick="toggleMed('moringa')">
           <div class="circle"><svg class="chk" viewBox="0 0 11 11" fill="none"><polyline points="1.5,5.5 4.5,8.5 9.5,2.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="skip-x" viewBox="0 0 11 11" fill="none"><line x1="2" y1="2" x2="9" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="9" y1="2" x2="2" y2="9" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg></div>
           <div style="flex:1"><div class="med-name">Moringa (Foot Rash) <span class="tag t-blue">Topical</span></div><div class="med-dose">As needed</div><div class="med-note">Monitor skin response and report if worsens.</div></div>
+        </div>
         </div>
         <div style="text-align:center;padding-top:8px">
           <button class="log-btn" onclick="clearAllMedications()" style="background:#b84858;border-color:#b84858;color:white;font-size:12px;padding:7px 14px;width:auto">Clear All Medications</button>
@@ -355,75 +366,61 @@
     <div class="acc-body" id="acc-body-nutrition">
       <div class="acc-inner">
         <!-- Protein goal -->
-        <div class="acc-sub-label">🥩 Protein Goal — 60g / day</div>
+        <div class="acc-sub-label">🥩 Protein — Goal: 60g / day</div>
         <div class="card" style="margin-bottom:12px">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-            <span id="protein-display" style="font-size:22px;font-weight:700;font-family:sans-serif;color:#c07808">0g</span>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <span id="protein-display" style="font-size:26px;font-weight:700;font-family:-apple-system,sans-serif;color:#c07808">0g</span>
             <span style="font-size:12px;color:#90a898;font-family:sans-serif">/ 60g goal</span>
           </div>
-          <div class="prog-wrap"><div class="prog-fill amber" id="protein-bar" style="width:0%"></div></div>
-          <div style="font-size:11px;color:#90a898;font-family:sans-serif;margin-top:4px" id="protein-pct-label">0% of goal</div>
+          <div class="prog-wrap" style="margin-bottom:8px"><div class="prog-fill amber" id="protein-bar" style="width:0%"></div></div>
+          <!-- Quick-add buttons #4 -->
+          <div style="display:flex;gap:6px;margin-bottom:10px">
+            <button class="hyp-btn" onclick="quickAddProtein(10)">+10g</button>
+            <button class="hyp-btn" onclick="quickAddProtein(20)">+20g</button>
+            <button class="hyp-btn" onclick="quickAddProtein(30)">+30g</button>
+            <button class="hyp-btn" onclick="quickAddProtein(-10)" style="color:#b84858">-10g</button>
+          </div>
+          <!-- Detail log hidden by default -->
+          <div style="margin-bottom:6px">
+            <button onclick="toggleMealDetail()" id="meal-detail-toggle" style="font-size:11px;font-family:-apple-system,sans-serif;color:#4d8c44;background:none;border:1px solid rgba(77,140,68,0.3);border-radius:99px;padding:3px 12px;cursor:pointer;width:100%">Log meals in detail ›</button>
+          </div>
+          <div id="meal-detail" style="display:none">
+            <div class="card-title" style="margin-top:8px">🌅 Breakfast</div>
+            <input class="field-input" type="text" id="breakfast-foods" placeholder="What did you eat?" style="width:100%;margin-bottom:6px" oninput="debouncedSave('meals')">
+            <input class="field-input" type="number" id="breakfast-protein" placeholder="Protein (g)" style="width:100%;margin-bottom:10px" oninput="updateProteinFromInput(); debouncedSave('meals')">
+            <div class="card-title">☀️ Lunch</div>
+            <input class="field-input" type="text" id="lunch-foods" placeholder="What did you eat?" style="width:100%;margin-bottom:6px" oninput="debouncedSave('meals')">
+            <input class="field-input" type="number" id="lunch-protein" placeholder="Protein (g)" style="width:100%;margin-bottom:10px" oninput="updateProteinFromInput(); debouncedSave('meals')">
+            <div class="card-title">🌆 Dinner</div>
+            <input class="field-input" type="text" id="dinner-foods" placeholder="What did you eat?" style="width:100%;margin-bottom:6px" oninput="debouncedSave('meals')">
+            <input class="field-input" type="number" id="dinner-protein" placeholder="Protein (g)" style="width:100%;margin-bottom:10px" oninput="updateProteinFromInput(); debouncedSave('meals')">
+            <div class="card-title">🍎 Snacks</div>
+            <input class="field-input" type="text" id="snack-foods" placeholder="Any snacks?" style="width:100%;margin-bottom:6px" oninput="debouncedSave('meals')">
+            <input class="field-input" type="number" id="snack-protein" placeholder="Protein (g)" style="width:100%;margin-bottom:6px" oninput="updateProteinFromInput(); debouncedSave('meals')">
+          </div>
+          <div id="protein-pct-label" style="font-size:11px;color:#90a898;font-family:sans-serif">0% of goal</div>
+          <div style="display:none"><span id="total-protein-display">0g</span></div>
         </div>
-        <!-- Hydration -->
+        <!-- Hydration — #7 quick-tap water buttons -->
         <div class="acc-sub-label">💧 Hydration — Goal: 90 oz / day</div>
         <div class="card" style="margin-bottom:12px">
-          <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
-            <div>
-              <label class="field-label">Water (oz)</label>
-              <input class="field-input" type="number" id="water-input" placeholder="0" style="width:80px" oninput="updateWater(this.value)">
-            </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+            <span style="font-size:26px;font-weight:700;font-family:-apple-system,sans-serif;color:#3878b0" id="water-display">0 oz</span>
+            <span style="font-size:12px;color:#90a898;font-family:sans-serif">/ 90 oz goal</span>
           </div>
+          <div class="prog-wrap" style="margin-bottom:10px"><div class="prog-fill blue" id="water-bar" style="width:0%"></div></div>
+          <div style="display:flex;gap:6px;margin-bottom:10px">
+            <button class="hyp-btn" onclick="quickAddWater(8)">+8 oz</button>
+            <button class="hyp-btn" onclick="quickAddWater(16)">+16 oz</button>
+            <button class="hyp-btn" onclick="quickAddWater(32)">+32 oz</button>
+            <button class="hyp-btn" onclick="quickAddWater(-8)" style="color:#b84858">-8 oz</button>
+          </div>
+          <input class="field-input" type="number" id="water-input" placeholder="Or type exact oz" style="width:100%;margin-bottom:8px" oninput="updateWater(this.value)">
           <div class="prog-label" id="water-label">0 oz of 90 oz goal (0%)</div>
-          <div class="prog-wrap" style="margin-bottom:8px"><div class="prog-fill blue" id="water-bar" style="width:0%"></div></div>
           <div style="font-size:12px;font-weight:600;font-family:sans-serif;color:#1c2820;margin-bottom:6px">Buoy Electrolytes</div>
           <div style="display:flex;gap:8px">
             <button class="hyp-btn" id="buoy-yes" onclick="setBuoy('yes')">✓ Yes</button>
             <button class="hyp-btn" id="buoy-no" onclick="setBuoy('no')">Not yet</button>
-          </div>
-        </div>
-        <!-- Meals -->
-        <div class="acc-sub-label">🍽 Meals & Protein Tracking</div>
-        <div class="card" style="margin-bottom:0">
-          <div class="card-title">🌅 Breakfast</div>
-          <div style="margin-bottom:10px">
-            <label class="field-label">Foods</label>
-            <input class="field-input" type="text" id="breakfast-foods" placeholder="What did you eat?" style="width:100%" oninput="debouncedSave('meals')">
-            <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
-              <div><label class="field-label">Protein (g)</label><input class="field-input" type="number" id="breakfast-protein" placeholder="0" style="width:80px" oninput="updateProteinFromInput(); debouncedSave('meals')"></div>
-              <button class="calc-btn" onclick="openProteinCalculator('breakfast')" title="Protein calculator" style="margin-top:14px">🧮</button>
-            </div>
-          </div>
-          <div class="card-title">☀️ Lunch</div>
-          <div style="margin-bottom:10px">
-            <label class="field-label">Foods</label>
-            <input class="field-input" type="text" id="lunch-foods" placeholder="What did you eat?" style="width:100%" oninput="debouncedSave('meals')">
-            <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
-              <div><label class="field-label">Protein (g)</label><input class="field-input" type="number" id="lunch-protein" placeholder="0" style="width:80px" oninput="updateProteinFromInput(); debouncedSave('meals')"></div>
-              <button class="calc-btn" onclick="openProteinCalculator('lunch')" title="Protein calculator" style="margin-top:14px">🧮</button>
-            </div>
-          </div>
-          <div class="card-title">🌆 Dinner</div>
-          <div style="margin-bottom:10px">
-            <label class="field-label">Foods</label>
-            <input class="field-input" type="text" id="dinner-foods" placeholder="What did you eat?" style="width:100%" oninput="debouncedSave('meals')">
-            <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
-              <div><label class="field-label">Protein (g)</label><input class="field-input" type="number" id="dinner-protein" placeholder="0" style="width:80px" oninput="updateProteinFromInput(); debouncedSave('meals')"></div>
-              <button class="calc-btn" onclick="openProteinCalculator('dinner')" title="Protein calculator" style="margin-top:14px">🧮</button>
-            </div>
-          </div>
-          <div class="card-title">🍎 Snacks</div>
-          <div>
-            <label class="field-label">Foods</label>
-            <input class="field-input" type="text" id="snack-foods" placeholder="Any snacks?" style="width:100%" oninput="debouncedSave('meals')">
-            <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
-              <div><label class="field-label">Protein (g)</label><input class="field-input" type="number" id="snack-protein" placeholder="0" style="width:80px" oninput="updateProteinFromInput(); debouncedSave('meals')"></div>
-              <button class="calc-btn" onclick="openProteinCalculator('snack')" title="Protein calculator" style="margin-top:14px">🧮</button>
-            </div>
-          </div>
-          <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(175,152,132,0.15)">
-            <span style="font-family:sans-serif;font-size:13px;font-weight:600;color:#1c2820">Total Protein: </span>
-            <span id="total-protein-display" style="font-family:sans-serif;font-size:16px;font-weight:700;color:#c07808">0g</span>
-            <span style="font-family:sans-serif;font-size:12px;color:#90a898"> / 60g goal</span>
           </div>
         </div>
       </div>
@@ -645,23 +642,26 @@
   <button class="nav-btn active" onclick="switchTab('today',this)" data-tab="today">
     <span class="nav-icon">📋</span>
     <span class="nav-label">Daily</span>
-  </button>  <button class="nav-btn" onclick="switchTab('payment',this)" data-tab="payment">
-    <span class="nav-icon">💳</span>
-    <span class="nav-label">Payments</span>
   </button>
   <button class="nav-btn" onclick="switchTab('questions',this)" data-tab="questions">
     <span class="nav-icon">❓</span>
     <span class="nav-label">Questions</span>
   </button>
-  <button class="nav-btn" onclick="switchTab('stats',this)" data-tab="stats">
-    <span class="nav-icon">📊</span>
-    <span class="nav-label">Stats</span>
+  <button class="nav-btn" onclick="switchTab('payment',this)" data-tab="payment">
+    <span class="nav-icon">💳</span>
+    <span class="nav-label">Payments</span>
   </button>
-  <button class="nav-btn" onclick="switchTab('settings',this)" data-tab="settings">
-    <span class="nav-icon">⚙️</span>
-    <span class="nav-label">Settings</span>
+  <button class="nav-btn" onclick="toggleMoreMenu(this)" data-tab="more" id="nav-more-btn">
+    <span class="nav-icon">⋯</span>
+    <span class="nav-label">More</span>
   </button>
 </nav>
+
+<!-- More menu popup -->
+<div id="more-menu" style="display:none;position:fixed;bottom:calc(var(--nav-h) + max(env(safe-area-inset-bottom,0px),10px) + 8px);right:12px;background:#fff;border-radius:14px;box-shadow:0 4px 24px rgba(0,0,0,0.15);border:1px solid rgba(175,152,132,0.2);z-index:200;min-width:160px;overflow:hidden">
+  <button onclick="switchTabFromMore('stats')" style="display:flex;align-items:center;gap:10px;width:100%;padding:13px 16px;border:none;background:none;font-family:-apple-system,sans-serif;font-size:14px;color:#1c2820;cursor:pointer;border-bottom:1px solid rgba(175,152,132,0.12)">📊 Stats</button>
+  <button onclick="switchTabFromMore('settings')" style="display:flex;align-items:center;gap:10px;width:100%;padding:13px 16px;border:none;background:none;font-family:-apple-system,sans-serif;font-size:14px;color:#1c2820;cursor:pointer">⚙️ Settings</button>
+</div>
 
 <div id="protein-calculator-modal" class="modal hidden"></div>
 
