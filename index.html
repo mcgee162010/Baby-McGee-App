@@ -143,11 +143,27 @@
     </div>
   </div>
 
+  <!-- Daily Affirmation & Bible Verse -->
+  <div id="daily-inspiration-card" style="margin:0 0 10px;background:#fff;border-radius:16px;border:1px solid rgba(175,152,132,0.18);box-shadow:0 1px 6px rgba(0,0,0,0.05);overflow:hidden">
+    <div style="background:linear-gradient(135deg,#f9f0e8,#f0e8f5);padding:14px 16px 10px">
+      <div style="font-family:-apple-system,sans-serif;font-size:10px;font-weight:700;color:#9a7860;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">🌸 Today's Affirmation</div>
+      <div id="daily-affirmation" style="font-family:Georgia,serif;font-size:14px;color:#3a2820;line-height:1.6;font-style:italic"></div>
+    </div>
+    <div style="background:rgba(77,140,68,0.06);border-top:1px solid rgba(77,140,68,0.12);padding:10px 16px">
+      <div style="font-family:-apple-system,sans-serif;font-size:10px;font-weight:700;color:#4d8c44;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px">✝️ Today's Verse</div>
+      <div id="daily-verse" style="font-family:Georgia,serif;font-size:13px;color:#2d5a24;line-height:1.6;font-style:italic"></div>
+    </div>
+  </div>
+
   <!-- Week Strip -->
   <div class="week-strip-bar">
     <div class="week-strip-header">
+      <button onclick="changeWeek(-1)" style="background:none;border:none;font-size:18px;cursor:pointer;padding:4px 8px;color:#4d8c44;min-width:36px;min-height:36px;border-radius:8px;-webkit-tap-highlight-color:transparent" aria-label="Previous week">‹</button>
       <span class="week-strip-month" id="week-strip-month">June 2026</span>
-      <button class="week-strip-cal-btn" onclick="showDatePicker()" aria-label="Open calendar">📅</button>
+      <div style="display:flex;gap:4px;align-items:center">
+        <button onclick="changeWeek(1)" style="background:none;border:none;font-size:18px;cursor:pointer;padding:4px 8px;color:#4d8c44;min-width:36px;min-height:36px;border-radius:8px;-webkit-tap-highlight-color:transparent" aria-label="Next week">›</button>
+        <button class="week-strip-cal-btn" onclick="showDatePicker()" aria-label="Open calendar">📅</button>
+      </div>
     </div>
     <div class="week-strip-days" id="week-strip-days"></div>
     <input type="date" class="date-picker-hidden" id="date-picker-today" oninput="jumpToDate(this.value)" style="position:absolute;left:-9999px;opacity:0;">

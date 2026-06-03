@@ -401,6 +401,48 @@ const MED_NAMES = {
 };
 const STAR_LABELS = ['','Rough day','Okay','Feeling alright','Good day','Feeling great!'];
 
+// ── DAILY AFFIRMATIONS & BIBLE VERSES ──
+const DAILY_CONTENT = [
+  { affirmation: "My body was made for this. I trust the process of bringing new life into the world.", verse: "\"She is clothed with strength and dignity, and she laughs without fear of the future.\" — Proverbs 31:25" },
+  { affirmation: "I am strong, capable, and deeply loved. My baby is growing perfectly inside me.", verse: "\"I can do all things through Christ who strengthens me.\" — Philippians 4:13" },
+  { affirmation: "Every breath I take nourishes my baby. I am a sanctuary of peace and love.", verse: "\"For you created my inmost being; you knit me together in my mother's womb.\" — Psalm 139:13" },
+  { affirmation: "I welcome each wave of change with grace. My body knows exactly what to do.", verse: "\"Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you.\" — Joshua 1:9" },
+  { affirmation: "I am becoming the mother my child needs. I trust God's perfect timing.", verse: "\"Before I formed you in the womb I knew you.\" — Jeremiah 1:5" },
+  { affirmation: "My love for my baby grows deeper every single day. I am ready for this beautiful journey.", verse: "\"Children are a heritage from the Lord, offspring a reward from him.\" — Psalm 127:3" },
+  { affirmation: "I release fear and embrace the miracle happening within me right now.", verse: "\"Do not be anxious about anything, but in every situation, present your requests to God.\" — Philippians 4:6" },
+  { affirmation: "I am patient with myself and my body. This season is sacred and beautiful.", verse: "\"There is a time for everything, and a season for every activity under the heavens.\" — Ecclesiastes 3:1" },
+  { affirmation: "I am surrounded by love and support. I am never alone on this journey.", verse: "\"The Lord himself goes before you and will be with you; he will never leave you nor forsake you.\" — Deuteronomy 31:8" },
+  { affirmation: "My baby feels my joy, my calm, and my love. I choose peace today.", verse: "\"The Lord bless you and keep you; the Lord make his face shine on you.\" — Numbers 6:24-25" },
+  { affirmation: "I honor my body's wisdom. Rest is productive. Nourishment is an act of love.", verse: "\"He gives strength to the weary and increases the power of the weak.\" — Isaiah 40:29" },
+  { affirmation: "I am writing the first chapters of my child's story with every loving choice I make.", verse: "\"Train up a child in the way he should go; even when he is old he will not depart from it.\" — Proverbs 22:6" },
+  { affirmation: "Birth is not something I have to endure — it is something I get to experience.", verse: "\"A woman giving birth to a child has pain, but when her baby is born she forgets the anguish because of her joy.\" — John 16:21" },
+  { affirmation: "I am rooted in faith and grounded in love. My baby arrives into a world of grace.", verse: "\"And now these three remain: faith, hope and love. But the greatest of these is love.\" — 1 Corinthians 13:13" },
+  { affirmation: "My intuition as a mother is strong. I trust the instincts God placed within me.", verse: "\"Trust in the Lord with all your heart and lean not on your own understanding.\" — Proverbs 3:5" },
+  { affirmation: "I breathe in calm and breathe out tension. My baby and I are in perfect harmony.", verse: "\"Peace I leave with you; my peace I give you. Do not let your hearts be troubled.\" — John 14:27" },
+  { affirmation: "I am growing a miracle. Every day is a gift I do not take for granted.", verse: "\"This is the day the Lord has made; let us rejoice and be glad in it.\" — Psalm 118:24" },
+  { affirmation: "I am gentle with myself. Some days are harder than others, and that is okay.", verse: "\"Come to me, all you who are weary and burdened, and I will give you rest.\" — Matthew 11:28" },
+  { affirmation: "My body is doing something extraordinary. I celebrate every milestone, big and small.", verse: "\"I praise you because I am fearfully and wonderfully made.\" — Psalm 139:14" },
+  { affirmation: "I am not just expecting a baby — I am expecting a whole new version of myself.", verse: "\"See, I am doing a new thing! Now it springs up; do you not perceive it?\" — Isaiah 43:19" },
+  { affirmation: "My home is being prepared with love. My heart is ready to overflow.", verse: "\"By wisdom a house is built, and through understanding it is established.\" — Proverbs 24:3" },
+  { affirmation: "I release comparison. My pregnancy, my birth, my motherhood — all are uniquely mine.", verse: "\"For we are God's handiwork, created in Christ Jesus to do good works.\" — Ephesians 2:10" },
+  { affirmation: "I am more than enough for this child. God chose me to be their mother.", verse: "\"You did not choose me, but I chose you.\" — John 15:16" },
+  { affirmation: "Labor is the gateway to the greatest love I will ever know. I walk through it with courage.", verse: "\"Be strong and courageous, for the Lord your God is with you wherever you go.\" — Joshua 1:9" },
+  { affirmation: "My baby is healthy, loved, and protected. I rest in that truth.", verse: "\"For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you.\" — Jeremiah 29:11" },
+  { affirmation: "I speak life, love, and blessing over my child every single day.", verse: "\"The tongue has the power of life and death.\" — Proverbs 18:21" },
+  { affirmation: "I embrace the sacred mystery of new life. I am part of something greater than myself.", verse: "\"For in him we live and move and have our being.\" — Acts 17:28" },
+  { affirmation: "My love is the first gift my baby receives. It is more than enough.", verse: "\"How great is the love the Father has lavished on us, that we should be called children of God.\" — 1 John 3:1" },
+  { affirmation: "Today I choose joy. My child will know a mother who chose joy even in hard seasons.", verse: "\"The joy of the Lord is your strength.\" — Nehemiah 8:10" },
+  { affirmation: "I am held. I am covered. I am exactly where I am meant to be.", verse: "\"The eternal God is your refuge, and underneath are the everlasting arms.\" — Deuteronomy 33:27" }
+];
+
+function getDailyContent() {
+  // Uses day of year so it changes daily but is consistent all day
+  var now = new Date();
+  var start = new Date(now.getFullYear(), 0, 0);
+  var dayOfYear = Math.floor((now - start) / (24 * 3600 * 1000));
+  return DAILY_CONTENT[dayOfYear % DAILY_CONTENT.length];
+}
+
 // Performance optimization: Cache frequently accessed DOM elements
 const DOM_CACHE = {};
 function getElement(id) {
@@ -1011,6 +1053,13 @@ function renderAll() {
   renderWeekStrip();
   renderBPDailyCard();
   renderDailySummary();
+
+  // Daily affirmation & verse
+  var content = getDailyContent();
+  var affEl = document.getElementById('daily-affirmation');
+  var verseEl = document.getElementById('daily-verse');
+  if (affEl) affEl.textContent = '\u201c' + content.affirmation + '\u201d';
+  if (verseEl) verseEl.textContent = content.verse;
 
   // Date labels
   var dl = getDateLabel(offset);
