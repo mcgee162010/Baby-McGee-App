@@ -452,30 +452,8 @@
     </div>
   </div>
 
-  <!-- Week progress summary (collapsed inside, referenced from week strip) -->
-  <!-- ⌚ APPLE WATCH HEALTH DATA -->
-  <div class="acc-section" id="acc-health">
-    <button class="acc-header" onclick="toggleAcc('health')">
-      <span class="acc-icon">⌚</span>
-      <span class="acc-title">Apple Watch Health</span>
-      <span class="acc-badge" id="acc-badge-health"></span>
-      <span class="acc-check" id="acc-check-health"></span>
-      <span class="acc-chevron" id="acc-chevron-health">›</span>
-    </button>
-    <div class="acc-body" id="acc-body-health">
-      <div class="acc-inner">
-        <div class="health-sync-bar">
-          <span class="health-sync-label" id="health-sync-label">Not synced today</span>
-          <div style="display:flex;gap:8px">
-            <button class="health-sync-btn" onclick="openShortcutGuide()">⚙️ Setup</button>
-            <button class="health-sync-btn health-sync-btn--primary" onclick="readHealthURLParams()">⌚ Sync Now</button>
-          </div>
-        </div>
-        <div class="health-tiles-grid" id="health-tiles-grid"></div>
-        <div style="font-size:10px;color:#90a898;font-family:sans-serif;text-align:center;margin-top:8px;line-height:1.5">Sync via iOS Shortcuts · Tap Setup to configure</div>
-      </div>
-    </div>
-  </div>
+
+
 
   <div class="week-card" id="week-summary-card" style="display:none">
     <div class="week-card-title">This week's progress <span style="font-weight:400;font-size:10px;color:#90a898;text-transform:none;letter-spacing:0">(Mon → today)</span></div>
