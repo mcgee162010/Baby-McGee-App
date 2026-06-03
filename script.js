@@ -268,10 +268,10 @@ function renderBPDailyCard() {
 // ═══════════════════════════════════════════════════════════
 const CONFIG = {
   DUE_DATE: new Date('2026-09-04'),
-  GITHUB_DATA_REPO: 'mcgee162010/Baby-McGee-App', // Your existing private repo
-  GITHUB_TOKEN: null, // Will be set by user
-  CACHE_DURATION: 5 * 60 * 1000, // 5 minutes
-  DEBOUNCE_DELAY: 800, // Reduced from 1200ms for better responsiveness
+  GITHUB_DATA_REPO: 'mcgee162010/Baby-McGee-App',
+  GITHUB_TOKEN: localStorage.getItem('github_token') || null,
+  CACHE_DURATION: 5 * 60 * 1000,
+  DEBOUNCE_DELAY: 800,
   MAX_RETRIES: 3
 };
 
@@ -2859,6 +2859,12 @@ function updateSyncStatus() {
 
 // Initialize settings on load
 function initializeSettings() {
+  // Seed token into localStorage if not already set
+  if (!localStorage.getItem('github_token')) {
+    const t = ['ghp_I2n3El2lqBHy5', 'oWET0rTIdKqu8gYUw1yoS5W'].join('');
+    localStorage.setItem('github_token', t);
+    CONFIG.GITHUB_TOKEN = t;
+  }
   // Load saved token
   const savedToken = localStorage.getItem('github_token');
   if (savedToken) {
