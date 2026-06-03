@@ -3383,7 +3383,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if ('caches' in window) {
       caches.keys().then(function(keys) {
         keys.forEach(function(key) {
-          if (key.indexOf('v5.4') === -1) caches.delete(key);
+          if (key.indexOf('v5.5') === -1) caches.delete(key);
         });
       }).catch(function(){});
     }
