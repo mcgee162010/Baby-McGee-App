@@ -2376,6 +2376,12 @@ function addTransaction() {
   
   renderTransactions();
   flashSave();
+  // Auto-push to GitHub after every transaction
+  if (CONFIG.GITHUB_TOKEN) {
+    setTimeout(function() {
+      try { syncAllData(); } catch(e) { console.warn('Auto-sync after transaction failed:', e); }
+    }, 500);
+  }
 }
 
 function addQuestion() {
