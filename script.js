@@ -240,19 +240,21 @@ function renderWeekStrip() {
     d.setDate(sunday.getDate() + i);
     d.setHours(0,0,0,0);
 
+    var yr  = d.getFullYear();
+    var mo  = String(d.getMonth()+1).padStart(2,'0');
+    var dy  = String(d.getDate()).padStart(2,'0');
+    var dateKey = yr + '-' + mo + '-' + dy;
+
+    var selKey = toKey(offset); // the currently selected date as YYYY-MM-DD
+
     var isToday  = d.getTime() === today.getTime();
-    var isSel    = d.getTime() === selected.getTime();
+    var isSel    = dateKey === selKey;
     var isFuture = d.getTime() > today.getTime();
 
     var cls = 'wday';
     if (isToday)  cls += ' wday-today';
     if (isSel)    cls += ' wday-sel';
     if (isFuture) cls += ' wday-future';
-
-    var yr  = d.getFullYear();
-    var mo  = String(d.getMonth()+1).padStart(2,'0');
-    var dy  = String(d.getDate()).padStart(2,'0');
-    var dateKey = yr + '-' + mo + '-' + dy;
 
     var hasDot = window.allData && window.allData[dateKey] &&
                  Object.keys(window.allData[dateKey]).length > 0;
@@ -1028,10 +1030,15 @@ function changeWeek(dir) {
 
 function jumpToDate(s) {
   if (!s) return;
-  var t = new Date(); t.setHours(0,0,0,0);
-  var newOffset = Math.round((new Date(s + 'T12:00:00') - t) / (24*3600*1000));
+  // Parse date at noon local time to avoid DST edge cases, then diff whole days
+  var parts = s.split('-');
+  var target = new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2]));
+  target.setHours(0,0,0,0);
+  var today = new Date(); today.setHours(0,0,0,0);
+  var newOffset = Math.round((target - today) / (24*3600*1000));
+  if (newOffset === offset) return; // already on this day
   var diff = newOffset - offset;
-  changeDay(diff === 0 ? 0 : diff);
+  changeDay(diff);
 }
 
 function showDatePicker() {
