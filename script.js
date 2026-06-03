@@ -1116,6 +1116,8 @@ function toggleMed(id) {
   commitSave();
   renderDailySummary();
 }
+
+function skipMed(evt, id) {
   evt.stopPropagation();
   if (!dayData) return;
   if (!dayData.meds) dayData.meds = {};
