@@ -1,7 +1,7 @@
-// Enhanced Service Worker for Baby McGee App v5.2 - pre-configured GitHub token
-const CACHE_NAME = 'baby-mcgee-v5.2';
-const STATIC_CACHE = 'baby-mcgee-static-v5.2';
-const DYNAMIC_CACHE = 'baby-mcgee-dynamic-v5.2';
+// Enhanced Service Worker for Baby McGee App v5.3 - remove Apple Watch Health
+const CACHE_NAME = 'baby-mcgee-v5.3';
+const STATIC_CACHE = 'baby-mcgee-static-v5.3';
+const DYNAMIC_CACHE = 'baby-mcgee-dynamic-v5.3';
 
 const STATIC_ASSETS = [
     './',
