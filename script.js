@@ -850,6 +850,53 @@ function flashSave() {
     b.classList.add('show');
     setTimeout(function(){b.classList.remove('show');},1800);
   }
+  // Show prominent bottom toast
+  showSaveToast();
+}
+
+function showSaveToast() {
+  var existing = document.getElementById('save-toast');
+  if (existing) existing.remove();
+
+  var toast = document.createElement('div');
+  toast.id = 'save-toast';
+  toast.innerHTML = '✅ Logged & Saved';
+  toast.style.cssText = [
+    'position:fixed',
+    'bottom:calc(var(--nav-h) + max(env(safe-area-inset-bottom,0px),10px) + 12px)',
+    'left:50%',
+    'transform:translateX(-50%) translateY(20px)',
+    'background:#1a3824',
+    'color:#b8f0a8',
+    'font-family:-apple-system,BlinkMacSystemFont,sans-serif',
+    'font-size:15px',
+    'font-weight:700',
+    'padding:12px 28px',
+    'border-radius:99px',
+    'box-shadow:0 4px 20px rgba(0,0,0,0.25)',
+    'z-index:500',
+    'opacity:0',
+    'transition:opacity 0.2s ease, transform 0.2s ease',
+    'white-space:nowrap',
+    'pointer-events:none'
+  ].join(';');
+
+  document.body.appendChild(toast);
+
+  // Animate in
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() {
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateX(-50%) translateY(0)';
+    });
+  });
+
+  // Animate out after 1.8s
+  setTimeout(function() {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(-50%) translateY(10px)';
+    setTimeout(function() { if (toast.parentNode) toast.remove(); }, 300);
+  }, 1800);
 }
 
 // ═══════════════════════════════════════════════════════════
