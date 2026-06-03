@@ -1370,6 +1370,32 @@ function updateHydrationDisplay() {
   if(bar) bar.style.width = pct + '%';
 }
 
+// Wrapper called from HTML oninput and quickAddWater
+function updateWater(val) {
+  if (!dayData) return;
+  var v = parseInt(val) || 0;
+  dayData.water = String(v);
+  var pct = Math.min(100, Math.round((v / 90) * 100));
+  var bar = document.getElementById('water-bar');
+  var lbl = document.getElementById('water-label');
+  var dis = document.getElementById('water-display');
+  var inp = document.getElementById('water-input');
+  if (bar) bar.style.width = pct + '%';
+  if (lbl) lbl.textContent = v + ' oz of 90 oz goal (' + pct + '%)';
+  if (dis) dis.textContent = v + ' oz';
+  if (inp && inp.value != v) inp.value = v;
+  debouncedSave('water');
+  renderDailySummary();
+}
+
+// Wrapper called from HTML oninput
+function updateSteps(val) {
+  if (!dayData) return;
+  dayData.steps = val;
+  updateStepsUI(val);
+  debouncedSave('steps');
+}
+
 // ═══════════════════════════════════════════════════════════
 // PROTEIN CALCULATOR FUNCTIONS
 // ═══════════════════════════════════════════════════════════
