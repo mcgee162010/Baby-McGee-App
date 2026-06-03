@@ -1118,27 +1118,29 @@ function applyMedState(id, state) {
   if (state === true)    row.classList.add('checked');
   else if (state === 'skip') row.classList.add('skipped');
 
-  // Update or create inline status badge
+  // Update or create inline status badge — placed inside the info div
+  var infoDiv = row.querySelector('[style*="flex:1"]') || row.querySelector('div:not(.circle)');
   var badge = row.querySelector('.med-save-badge');
   if (!badge) {
     badge = document.createElement('div');
     badge.className = 'med-save-badge';
-    badge.style.cssText = 'font-family:-apple-system,sans-serif;font-size:10px;font-weight:700;border-radius:99px;padding:2px 8px;flex-shrink:0;align-self:center;margin-left:4px;white-space:nowrap;';
-    row.appendChild(badge);
+    badge.style.cssText = 'display:inline-block;font-family:-apple-system,sans-serif;font-size:10px;font-weight:700;border-radius:99px;padding:2px 9px;margin-top:4px;white-space:nowrap;';
+    if (infoDiv) infoDiv.appendChild(badge);
+    else row.appendChild(badge);
   }
 
   if (state === true) {
     badge.textContent = '✅ Saved';
-    badge.style.background = 'rgba(77,140,68,0.12)';
+    badge.style.background = 'rgba(77,140,68,0.15)';
     badge.style.color = '#2d6a26';
-    badge.style.border = '1px solid rgba(77,140,68,0.3)';
+    badge.style.border = '1px solid rgba(77,140,68,0.35)';
   } else if (state === 'skip') {
     badge.textContent = '⏭ Skipped';
-    badge.style.background = 'rgba(184,72,88,0.1)';
+    badge.style.background = 'rgba(184,72,88,0.12)';
     badge.style.color = '#9c2030';
-    badge.style.border = '1px solid rgba(184,72,88,0.25)';
+    badge.style.border = '1px solid rgba(184,72,88,0.3)';
   } else {
-    badge.textContent = '○ Unsaved';
+    badge.textContent = '○ Not logged';
     badge.style.background = 'rgba(175,152,132,0.1)';
     badge.style.color = '#90a898';
     badge.style.border = '1px solid rgba(175,152,132,0.25)';
