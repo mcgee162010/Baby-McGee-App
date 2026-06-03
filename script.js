@@ -1021,6 +1021,11 @@ function changeDay(dir) {
   renderAll();
 }
 
+// Navigate previous/next week in the week strip
+function changeWeek(dir) {
+  changeDay(dir * 7);
+}
+
 function jumpToDate(s) {
   if (!s) return;
   var t = new Date(); t.setHours(0,0,0,0);
