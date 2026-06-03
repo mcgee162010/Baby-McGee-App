@@ -3093,49 +3093,36 @@ function forceLoad() {
 
 // Enhanced initialization with modern features
 document.addEventListener('DOMContentLoaded', function() {
+
+  // Step 1: viewport + resize
+  try { updateViewportHeight(); window.addEventListener('resize', handleResize); } catch(e) { console.warn('viewport init failed:', e); }
+
+  // Step 2: keyboard nav
+  try { document.addEventListener('keydown', handleKeyboardNavigation); } catch(e) { console.warn('keyboard nav failed:', e); }
+
+  // Step 3: settings (GitHub token etc) — silently skip on error
+  try { initializeSettings(); } catch(e) { console.warn('initializeSettings failed:', e); }
+
+  // Step 4: historical data on first run — silently skip on error
   try {
-    // Handle file:// protocol specific setup
-    if (location.protocol === 'file:') {
-      console.log('Running in file:// mode - some features may be limited');
-      // Suppress manifest errors for file protocol
-      window.addEventListener('error', function(e) {
-        if (e.message && e.message.includes('manifest')) {
-          e.preventDefault();
-          console.log('Manifest error suppressed for file:// protocol');
-        }
-      });
-    }
-    
-    // Initialize viewport height fix
-    updateViewportHeight();
-    window.addEventListener('resize', handleResize);
-    
-    // Add keyboard navigation support
-    document.addEventListener('keydown', handleKeyboardNavigation);
-    
-    // Initialize settings and GitHub connection
-    initializeSettings();
-    
-    // Load historical data on first run
     var hasHistoricalData = localStorage.getItem('bmj_historical_loaded');
     if (!hasHistoricalData) {
       var imported = loadHistoricalDataFromExcel();
       if (imported > 0) {
         localStorage.setItem('bmj_historical_loaded', 'true');
         console.log('Loaded ' + imported + ' days of historical data');
-        showNotification('Historical data loaded successfully!', 'success');
       }
     }
-    
-    // Check for app updates
-    checkForUpdates();
-    
-    // Load all data first, then render stats
+  } catch(e) { console.warn('historical data load failed:', e); }
+
+  // Step 5: update checks — silently skip on error
+  try { checkForUpdates(); } catch(e) { console.warn('checkForUpdates failed:', e); }
+
+  // Step 6: load & render all data — this must succeed
+  try {
     loadAll();
-    
   } catch(e) {
-    console.error('Init error:', e);
-    showNotification('Error initializing app. Please refresh the page.', 'error');
+    console.error('loadAll failed:', e);
     hideLoading();
   }
 });
