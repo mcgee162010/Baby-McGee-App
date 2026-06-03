@@ -243,10 +243,10 @@ function renderWeekStrip() {
     var isSel    = d.getTime() === selected.getTime();
     var isFuture = d.getTime() > today.getTime();
 
-    var cls = 'week-day-cell';
-    if (isToday)  cls += ' is-today';
-    if (isSel)    cls += ' is-selected';
-    if (isFuture) cls += ' is-future';
+    var cls = 'wday';
+    if (isToday)  cls += ' wday-today';
+    if (isSel)    cls += ' wday-sel';
+    if (isFuture) cls += ' wday-future';
 
     var yr  = d.getFullYear();
     var mo  = String(d.getMonth()+1).padStart(2,'0');
@@ -256,14 +256,14 @@ function renderWeekStrip() {
     var hasDot = window.allData && window.allData[dateKey] &&
                  Object.keys(window.allData[dateKey]).length > 0;
     var dot = (!isFuture && hasDot)
-      ? '<div class="week-day-dot"></div>'
-      : '<div style="width:5px;height:5px"></div>';
+      ? '<div class="wday-dot wday-dot-vis"></div>'
+      : '<div class="wday-dot"></div>';
 
-    html += '<div class="' + cls + '" onclick="jumpToDate(\'' + dateKey + '\')">'
-          + '<span class="week-day-letter">' + dayLetters[i] + '</span>'
-          + '<span class="week-day-num">' + d.getDate() + '</span>'
+    html += '<button class="' + cls + '" onclick="jumpToDate(\'' + dateKey + '\')">'
+          + '<span class="wday-letter">' + dayLetters[i] + '</span>'
+          + '<span class="wday-num">' + d.getDate() + '</span>'
           + dot
-          + '</div>';
+          + '</button>';
   }
 
   container.innerHTML = html;
@@ -283,9 +283,10 @@ function renderDailySummary() {
   var rated  = dayData.rating > 0;
 
   function pill(emoji, label, done) {
-    var bg  = done ? 'rgba(77,140,68,0.3)' : 'rgba(255,255,255,0.1)';
-    var col = done ? '#b8f0a8' : 'rgba(255,255,255,0.55)';
-    return '<div style="display:flex;align-items:center;gap:5px;background:'+bg+';border-radius:99px;padding:5px 10px;font-family:-apple-system,sans-serif;font-size:12px;font-weight:600;color:'+col+'">'
+    var bg  = done ? 'rgba(160,230,140,0.25)' : 'rgba(255,255,255,0.15)';
+    var col = done ? '#c8f5b0' : 'rgba(255,255,255,0.75)';
+    var border = done ? '1px solid rgba(160,230,140,0.4)' : '1px solid rgba(255,255,255,0.2)';
+    return '<div style="display:flex;align-items:center;gap:5px;background:'+bg+';border:'+border+';border-radius:99px;padding:5px 11px;font-family:-apple-system,sans-serif;font-size:12px;font-weight:600;color:'+col+'">'
          + emoji + ' ' + label + '</div>';
   }
 
