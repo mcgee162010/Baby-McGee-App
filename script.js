@@ -862,8 +862,19 @@ function renderStats() {
   updateBabyCard(w);
 }
 
-function toKey(o) { var d=new Date(); d.setDate(d.getDate()+o); return d.toISOString().slice(0,10); }
-function toMonthKey(o) { var d=new Date(); d.setDate(d.getDate()+o); return d.toISOString().slice(0,7); }
+function toKey(o) {
+  var d = new Date(); d.setDate(d.getDate() + o);
+  var yr = d.getFullYear();
+  var mo = String(d.getMonth()+1).padStart(2,'0');
+  var dy = String(d.getDate()).padStart(2,'0');
+  return yr + '-' + mo + '-' + dy;
+}
+function toMonthKey(o) {
+  var d = new Date(); d.setDate(d.getDate() + o);
+  var yr = d.getFullYear();
+  var mo = String(d.getMonth()+1).padStart(2,'0');
+  return yr + '-' + mo;
+}
 
 function getDateLabel(o) {
   var d=new Date(); d.setDate(d.getDate()+o);
