@@ -3354,8 +3354,6 @@ function loadAll() {
   renderQuestions();
   renderMonthlyTasks();
   hideLoading();
-  // #3 — Auto-open Medications on load
-  if (!ACC_OPEN['meds']) toggleAcc('meds');
 }
 
 function hideLoading() {
