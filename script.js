@@ -3218,6 +3218,22 @@ function forceLoad() {
 // Enhanced initialization with modern features
 document.addEventListener('DOMContentLoaded', function() {
 
+  // Force-clear any stale service worker caches immediately
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(regs) {
+      regs.forEach(function(reg) {
+        reg.update(); // force check for new SW
+      });
+    }).catch(function(){});
+    if ('caches' in window) {
+      caches.keys().then(function(keys) {
+        keys.forEach(function(key) {
+          if (key.indexOf('v5.4') === -1) caches.delete(key);
+        });
+      }).catch(function(){});
+    }
+  }
+
   // Step 1: viewport + resize
   try { updateViewportHeight(); window.addEventListener('resize', handleResize); } catch(e) { console.warn('viewport init failed:', e); }
 
