@@ -481,7 +481,7 @@ body {
 .med-row {
   display: flex;
   gap: 9px;
-  align-items: flex-start;
+  align-items: center;
   padding: 10px 11px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
