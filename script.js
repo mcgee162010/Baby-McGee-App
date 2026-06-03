@@ -223,21 +223,21 @@ function renderWeekStrip() {
   if (offset !== 0) selected.setDate(today.getDate() + offset);
   selected.setHours(0,0,0,0);
 
-  var dayOfWeek = selected.getDay();
-  var diffToMon = (dayOfWeek === 0) ? -6 : 1 - dayOfWeek;
-  var monday = new Date(selected);
-  monday.setDate(selected.getDate() + diffToMon);
+  var dayOfWeek = selected.getDay(); // 0=Sun, 1=Mon ... 6=Sat
+  var diffToSun = -dayOfWeek;        // always go back to Sunday
+  var sunday = new Date(selected);
+  sunday.setDate(selected.getDate() + diffToSun);
 
   var months = ['January','February','March','April','May','June',
                 'July','August','September','October','November','December'];
   if (monthLabel) monthLabel.textContent = months[selected.getMonth()] + ' ' + selected.getFullYear();
 
-  var dayLetters = ['M','T','W','T','F','S','S'];
+  var dayLetters = ['S','M','T','W','T','F','S'];
   var html = '';
 
   for (var i = 0; i < 7; i++) {
-    var d = new Date(monday);
-    d.setDate(monday.getDate() + i);
+    var d = new Date(sunday);
+    d.setDate(sunday.getDate() + i);
     d.setHours(0,0,0,0);
 
     var isToday  = d.getTime() === today.getTime();
