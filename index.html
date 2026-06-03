@@ -153,6 +153,21 @@
     <input type="date" class="date-picker-hidden" id="date-picker-today" oninput="jumpToDate(this.value)" style="position:absolute;left:-9999px;opacity:0;">
   </div>
 
+  <!-- ★ MOOD RATING — always visible, one tap -->
+  <div class="card" style="margin:0 0 10px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between">
+    <div style="font-family:-apple-system,sans-serif;font-size:13px;font-weight:600;color:var(--text-2)">How's Brittney feeling?</div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px">
+      <div class="star-row" id="star-row" style="gap:2px;margin:0">
+        <button class="star" onclick="setRating(1)" id="star-1">★</button>
+        <button class="star" onclick="setRating(2)" id="star-2">★</button>
+        <button class="star" onclick="setRating(3)" id="star-3">★</button>
+        <button class="star" onclick="setRating(4)" id="star-4">★</button>
+        <button class="star" onclick="setRating(5)" id="star-5">★</button>
+      </div>
+      <div class="star-label" id="star-label" style="font-size:10px">Tap to rate your day</div>
+    </div>
+  </div>
+
   <!-- ══════════════════════════════════════
        ACCORDION SECTIONS
   ══════════════════════════════════════ -->
@@ -168,7 +183,7 @@
     </button>
     <div class="acc-body" id="acc-body-feeling">
       <div class="acc-inner">
-        <!-- BP card -->
+        <!-- BP card only — mood stars moved above accordions -->
         <div class="bp-daily-card" id="bp-daily-card" onclick="switchTab('bp', document.querySelector('[data-tab=bp]'))">
           <div class="bp-daily-left">
             <div class="bp-daily-icon">💗</div>
@@ -181,17 +196,6 @@
             <div class="bp-daily-status" id="bp-daily-status"></div>
             <div class="bp-daily-cta">Log BP →</div>
           </div>
-        </div>
-        <!-- Mood rating -->
-        <div class="card" style="margin-bottom:0">
-          <div class="star-row" id="star-row">
-            <button class="star" onclick="setRating(1)" id="star-1">★</button>
-            <button class="star" onclick="setRating(2)" id="star-2">★</button>
-            <button class="star" onclick="setRating(3)" id="star-3">★</button>
-            <button class="star" onclick="setRating(4)" id="star-4">★</button>
-            <button class="star" onclick="setRating(5)" id="star-5">★</button>
-          </div>
-          <div class="star-label" id="star-label">Tap to rate your day</div>
         </div>
       </div>
     </div>
