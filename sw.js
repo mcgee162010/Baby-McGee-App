@@ -1,7 +1,7 @@
-// Enhanced Service Worker for Baby McGee App v5.1 - force cache bust
-const CACHE_NAME = 'baby-mcgee-v5.1';
-const STATIC_CACHE = 'baby-mcgee-static-v5.1';
-const DYNAMIC_CACHE = 'baby-mcgee-dynamic-v5.1';
+// Enhanced Service Worker for Baby McGee App v5.2 - pre-configured GitHub token
+const CACHE_NAME = 'baby-mcgee-v5.2';
+const STATIC_CACHE = 'baby-mcgee-static-v5.2';
+const DYNAMIC_CACHE = 'baby-mcgee-dynamic-v5.2';
 
 const STATIC_ASSETS = [
     './',
