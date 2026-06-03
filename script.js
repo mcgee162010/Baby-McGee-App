@@ -219,7 +219,8 @@ function renderWeekStrip() {
   var today = new Date();
   today.setHours(0,0,0,0);
 
-  var selected = currentDate ? new Date(currentDate) : new Date(today);
+  var selected = new Date(today);
+  if (offset !== 0) selected.setDate(today.getDate() + offset);
   selected.setHours(0,0,0,0);
 
   var dayOfWeek = selected.getDay();
